@@ -1,1 +1,1 @@
-web: bin/sailing-assist-mie
+web: sailing-assist-mie
