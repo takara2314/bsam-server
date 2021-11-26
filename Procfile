@@ -1,1 +1,1 @@
-web: sailing-assist-mie
+web: sailing-assist-mie-api
