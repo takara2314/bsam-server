@@ -15,7 +15,7 @@
 
 ## デバイス情報を確認する
 ### Endpoint
-``GET`` /device/`device_id`
+``GET`` /device/`:device_id`
 
 ### Headers
 | Key | Value |
@@ -33,7 +33,7 @@
 
 ## デバイス情報を更新する
 ### Endpoint
-``PUT`` /device/`device_id`
+``PUT`` /device/`:device_id`
 
 ### Headers
 | Key | Value |
@@ -42,7 +42,7 @@
 
 ## デバイス情報を削除する
 ### Endpoint
-``DELETE`` /device/`device_id`
+``DELETE`` /device/`:device_id`
 
 ### Headers
 | Key | Value |
@@ -60,7 +60,7 @@
 
 ## ユーザー情報を確認する
 ### Endpoint
-``GET`` /user/`user_id`
+``GET`` /user/`:user_id`
 
 ### Headers
 | Key | Value |
@@ -78,7 +78,7 @@
 
 ## ユーザー情報を更新する
 ### Endpoint
-``PUT`` /user/'user_id`
+``PUT`` /user/':user_id`
 
 ### Headers
 | Key | Value |
@@ -87,7 +87,7 @@
 
 ## ユーザー情報を削除する
 ### Endpoint
-``DELETE`` /user/`user_id`
+``DELETE`` /user/`:user_id`
 
 ### Headers
 | Key | Value |
@@ -120,9 +120,10 @@
 | login_name | varchar(16) | NOT NULL | ログインID |
 | display_name | varchar(32) | NOT NULL | 名前 |
 | password | varchar(16) | NOT NULL | パスワード |
-| user_type | varchar(16) | NOT NULL | `athlete` or `admin`
-| device | char(16) | | デバイスIMEI |
-| sail | varchar(2) | | セイル番号 |
+| group_id | char(16) | NOT NULL | グループID |
+| user_type | varchar(16) | NOT NULL | `athlete`, `admin` or 'developer'
+| device_imei | char(16) | | デバイスIMEI |
+| sail_num | int(2) | | セイル番号 |
 | course_limit | float | | コースリミット |
 | image | varchar(512) | | プロフィール画像のURL (Cloudinary) |
 | note | text | | 備考 |
@@ -141,3 +142,18 @@
 | memo | text | | メモ |
 | image | varchar(512) | | レースのヘッダー画像のURL (Cloudinary) |
 | is_holding | boolean | NOT NULL | 開催されているか |
+
+## groups（グループ）
+| Column | Type | Options | Description |
+| ------ | ---- | ------- | ----------- |
+| id | char(16) | NOT NULL | グループID |
+| name | varchar(32) | NOT NULL | グループ名 |
+| description | text | | 概要 |
+
+## tokens（トークン）
+| Column | Type | Options | Description |
+| ------ | ---- | ------- | ----------- |
+| token | char(64) | NOT NULL | トークン |
+| permission | varchar(64)[] | | 権限一覧 |
+| user_id | char(16) | | ユーザー名 |
+| description | text | | 概要 |
