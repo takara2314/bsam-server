@@ -3,28 +3,26 @@ package inspector
 import (
 	"os"
 
+	"sailing-assist-mie-api/message"
+
 	"github.com/lib/pq"
 	"github.com/xo/dburl"
 )
 
 // HasToken checks that its request header contains token and it is correct.
 func (ins *Inspector) HasToken() string {
-	const noAuthorization = "The token is required."
-	const wrongAuthorization = "The authorization type is not supported."
-	const wrongToken = "This token is wrong."
-
 	auth := ins.Request.Header.Get("Authorization")
 
 	if auth == "" {
-		return noAuthorization
+		return message.TokenNotFound
 	}
 
 	if len(auth) < 8 {
-		return wrongAuthorization
+		return message.AuthorizationTypeInvalid
 	}
 
 	if auth[:6] != "Bearer" {
-		return wrongAuthorization
+		return message.AuthorizationTypeInvalid
 	}
 
 	token := auth[7:]
@@ -40,7 +38,7 @@ func (ins *Inspector) HasToken() string {
 	err = row.Scan(&ins.Token.Token, pq.Array(&ins.Token.Permissions), &ins.Token.UserId, &ins.Token.Description)
 	if err != nil {
 		ins.IsTokenEnabled = false
-		return wrongToken
+		return message.WrongToken
 	}
 
 	ins.IsTokenEnabled = true

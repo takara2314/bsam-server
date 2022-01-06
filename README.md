@@ -107,7 +107,7 @@
 ## devices (デバイス情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| imei | char(15) | NOT NULL | IMEI |
+| imei | char(15) | UNIQUE | IMEI |
 | name | varchar(32) | NOT NULL | 端末名 |
 | model | varchar(32) | NOT NULL | モデル番号 |
 | lat | float | | 緯度 |
@@ -116,12 +116,12 @@
 ## users (ユーザー情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | NOT NULL | ユーザーID |
+| id | char(16) | UNIQUE | ユーザーID |
 | login_name | varchar(16) | NOT NULL | ログインID |
 | display_name | varchar(32) | NOT NULL | 名前 |
 | password | varchar(16) | NOT NULL | パスワード |
 | group_id | char(16) | NOT NULL | グループID |
-| user_type | varchar(16) | NOT NULL | `athlete`, `admin` or 'developer'
+| role | varchar(16) | NOT NULL | `athlete`, `admin` or 'developer'
 | device_imei | char(16) | | デバイスIMEI |
 | sail_num | int(2) | | セイル番号 |
 | course_limit | float | | コースリミット |
@@ -131,7 +131,7 @@
 ## races (レース情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | NOT NULL | レースID |
+| id | char(16) | UNIQUE | レースID |
 | name | varchar(32) | NOT NULL | レース名 |
 | start | datetime | NOT NULL | 開始時刻 |
 | end | datetime | NOT NULL | 終了時刻 |
@@ -146,7 +146,7 @@
 ## groups（グループ）
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | NOT NULL | グループID |
+| id | char(16) | UNIQUE | グループID |
 | name | varchar(32) | NOT NULL | グループ名 |
 | description | text | | 概要 |
 
