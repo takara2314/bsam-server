@@ -1,7 +1,17 @@
 package inspector
 
-import "github.com/gin-gonic/gin"
+import (
+	"database/sql"
+	"net/http"
+)
 
 type Inspector struct {
-	Context *gin.Context
+	Request        *http.Request
+	IsTokenEnabled bool
+	Token          struct {
+		Token       string
+		Permissions []string
+		UserId      sql.NullString
+		Description sql.NullString
+	}
 }

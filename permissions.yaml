@@ -2,3 +2,8 @@ admin:
   user:
     users:
       create: "Create new user."
+
+developer:
+  user:
+    users:
+      create: "Create new user."

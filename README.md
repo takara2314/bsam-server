@@ -153,7 +153,9 @@
 ## tokens（トークン）
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| token | char(64) | NOT NULL | トークン |
-| permission | varchar(64)[] | | 権限一覧 |
-| user_id | char(16) | | ユーザー名 |
+| token | char(64) | UNIQUE | トークン |
+| permissions | varchar(64)[] | | 権限一覧 |
+| user_id | char(16) | | ユーザーID |
 | description | text | | 概要 |
+
+CREATE TABLE tokens (token char(64) UNIQUE, permissions varchar(64)[], user_id char(16), description text);
