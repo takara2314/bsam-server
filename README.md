@@ -107,7 +107,7 @@
 ## devices (デバイス情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| imei | char(15) | UNIQUE | IMEI |
+| imei | char(15) | PRIMARY KEY | IMEI |
 | name | varchar(32) | NOT NULL | 端末名 |
 | model | varchar(32) | NOT NULL | モデル番号 |
 | lat | float | | 緯度 |
@@ -116,7 +116,7 @@
 ## users (ユーザー情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | UNIQUE | ユーザーID |
+| id | char(16) | PRIMARY KEY | ユーザーID |
 | login_name | varchar(16) | NOT NULL | ログインID |
 | display_name | varchar(32) | NOT NULL | 名前 |
 | password | varchar(16) | NOT NULL | パスワード |
@@ -131,7 +131,7 @@
 ## races (レース情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | UNIQUE | レースID |
+| id | char(16) | PRIMARY KEY | レースID |
 | name | varchar(32) | NOT NULL | レース名 |
 | start | datetime | NOT NULL | 開始時刻 |
 | end | datetime | NOT NULL | 終了時刻 |
@@ -146,16 +146,16 @@
 ## groups（グループ）
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | UNIQUE | グループID |
+| id | char(16) | PRIMARY KEY | グループID |
 | name | varchar(32) | NOT NULL | グループ名 |
 | description | text | | 概要 |
 
 ## tokens（トークン）
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| token | char(64) | UNIQUE | トークン |
+| token | char(64) | PRIMARY KEY | トークン |
 | permissions | varchar(64)[] | | 権限一覧 |
 | user_id | char(16) | | ユーザーID |
 | description | text | | 概要 |
 
-CREATE TABLE tokens (token char(64) UNIQUE, permissions varchar(64)[], user_id char(16), description text);
+CREATE TABLE tokens (token char(64) PRIMARY KEY, permissions varchar(64)[], user_id char(16), description text);
