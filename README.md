@@ -153,9 +153,10 @@
 ## tokens（トークン）
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| token | char(64) | PRIMARY KEY | トークン |
+| token | varchar(128) | PRIMARY KEY | トークン |
+| type | varchar(16) | NOT NULL | トークンタイプ |
 | permissions | varchar(64)[] | | 権限一覧 |
 | user_id | char(16) | | ユーザーID |
 | description | text | | 概要 |
 
-CREATE TABLE tokens (token char(64) PRIMARY KEY, permissions varchar(64)[], user_id char(16), description text);
+CREATE TABLE tokens (token varchar(128) PRIMARY KEY, type varchar(16) NOT NULL, permissions varchar(64)[], user_id char(16), description text);
