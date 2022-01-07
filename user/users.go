@@ -40,6 +40,12 @@ func UsersPOST(c *gin.Context) {
 		return
 	}
 
+	// Only JSON
+	if !ins.IsJSON() {
+		abort.BadRequest(c, message.OnlyJSON)
+		return
+	}
+
 	var json UsersPOSTJSON
 
 	err := c.ShouldBindJSON(&json)
