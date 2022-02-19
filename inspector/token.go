@@ -35,7 +35,7 @@ func (ins *Inspector) HasToken() string {
 	defer db.Close()
 
 	row := db.QueryRow("SELECT * FROM tokens WHERE token = $1", token)
-	err = row.Scan(&ins.Token.Token, pq.Array(&ins.Token.Permissions), &ins.Token.UserId, &ins.Token.Description)
+	err = row.Scan(&ins.Token.Token, &ins.Token.Type, pq.Array(&ins.Token.Permissions), &ins.Token.UserId, &ins.Token.Description)
 	if err != nil {
 		ins.IsTokenEnabled = false
 		return message.WrongToken

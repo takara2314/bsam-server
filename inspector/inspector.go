@@ -10,6 +10,7 @@ type Inspector struct {
 	IsTokenEnabled bool
 	Token          struct {
 		Token       string
+		Type        string
 		Permissions []string
 		UserId      sql.NullString
 		Description sql.NullString
