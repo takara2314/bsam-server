@@ -107,55 +107,63 @@
 ## devices (デバイス情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| imei | char(15) | UNIQUE | IMEI |
+| imei | char(15) | NOT NULL PRIMARY KEY | IMEI |
 | name | varchar(32) | NOT NULL | 端末名 |
-| model | varchar(32) | NOT NULL | モデル番号 |
-| lat | float | | 緯度 |
-| lng | float | | 経度 |
+| model | smallint | NOT NULL | モデル番号 |
+| latitude | double precision | | 緯度 |
+| longitude | double precision | | 経度 |
+
+CREATE TABLE devices (imei char(15) NOT NULL PRIMARY KEY, name varchar(32) NOT NULL, model smallint NOT NULL, latitude double precision, longitude double precision);
 
 ## users (ユーザー情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | UNIQUE | ユーザーID |
-| login_name | varchar(16) | NOT NULL | ログインID |
+| id | uuid | PRIMARY KEY DEFAULT uuid_generate_v4() | ユーザーID |
+| login_id | varchar(16) | NOT NULL | ログインID |
 | display_name | varchar(32) | NOT NULL | 名前 |
-| password | varchar(16) | NOT NULL | パスワード |
-| group_id | char(16) | NOT NULL | グループID |
+| password | bytea | NOT NULL | パスワード |
+| group_id | uuid | NOT NULL | グループID |
 | role | varchar(16) | NOT NULL | `athlete`, `admin` or 'developer'
-| device_imei | char(16) | | デバイスIMEI |
-| sail_num | int(2) | | セイル番号 |
+| device_imei | char(15) | | デバイスIMEI |
+| sail_num | smallint | | セイル番号 |
 | course_limit | float | | コースリミット |
-| image | varchar(512) | | プロフィール画像のURL (Cloudinary) |
+| image_url | varchar(512) | | プロフィール画像のURL (Cloudinary) |
 | note | text | | 備考 |
+
+CREATE TABLE users (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), login_id varchar(16) NOT NULL, display_name varchar(32) NOT NULL, password bytea NOT NULL, group_id uuid NOT NULL, role varchar(16) NOT NULL, device_imei char(15), sail_num smallint, course_limit float, image_url varchar(512), note text);
 
 ## races (レース情報)
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | UNIQUE | レースID |
+| id | uuid | PRIMARY KEY DEFAULT uuid_generate_v4() | レースID |
 | name | varchar(32) | NOT NULL | レース名 |
-| start | datetime | NOT NULL | 開始時刻 |
-| end | datetime | NOT NULL | 終了時刻 |
-| point_a | char(16) | | A地点のデバイスIMEI |
-| point_b | char(16) | | B地点のデバイスIMEI |
-| point_c | char(16) | | C地点のデバイスIMEI |
-| athlete | char(16)[] | | 競技者(ユーザー)ID一覧 |
+| start_at | timestamp | NOT NULL | 開始時刻 |
+| end_at | timestamp | NOT NULL | 終了時刻 |
+| point_a | char(15) | | A地点のデバイスIMEI |
+| point_b | char(15) | | B地点のデバイスIMEI |
+| point_c | char(15) | | C地点のデバイスIMEI |
+| athlete | uuid[] | | 競技者(ユーザー)ID一覧 |
 | memo | text | | メモ |
-| image | varchar(512) | | レースのヘッダー画像のURL (Cloudinary) |
+| image_url | varchar(512) | | レースのヘッダー画像のURL (Cloudinary) |
 | is_holding | boolean | NOT NULL | 開催されているか |
+
+CREATE TABLE races (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), name varchar(32) NOT NULL, start_at timestamp NOT NULL, end_at timestamp NOT NULL, point_a char(15), point_b char(15), point_c char(15), athlete uuid[], memo text, image_url varchar(512), is_holding boolean);
 
 ## groups（グループ）
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| id | char(16) | UNIQUE | グループID |
+| id | uuid | PRIMARY KEY DEFAULT uuid_generate_v4() | グループID |
 | name | varchar(32) | NOT NULL | グループ名 |
 | description | text | | 概要 |
+
+CREATE TABLE groups (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), name varchar(32) NOT NULL, description text);
 
 ## tokens（トークン）
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| token | char(64) | UNIQUE | トークン |
+| token | char(64) | NOT NULL PRIMARY KEY | トークン |
 | permissions | varchar(64)[] | | 権限一覧 |
-| user_id | char(16) | | ユーザーID |
+| user_id | uuid | | ユーザーID |
 | description | text | | 概要 |
 
-CREATE TABLE tokens (token char(64) UNIQUE, permissions varchar(64)[], user_id char(16), description text);
+CREATE TABLE tokens (token char(64) NOT NULL PRIMARY KEY, permissions varchar(64)[], user_id uuid, description text);

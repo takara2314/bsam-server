@@ -2,7 +2,7 @@ package main
 
 import (
 	"os"
-
+	"sailing-assist-mie-api/device"
 	"sailing-assist-mie-api/user"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +10,8 @@ import (
 
 func main() {
 	route := gin.Default()
+
+	route.POST("/devices", device.DevicesPOST)
 
 	user.Register(route.Group("/user"))
 	route.POST("/users", user.UsersPOST)
