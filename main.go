@@ -12,6 +12,7 @@ func main() {
 	route := gin.Default()
 
 	route.POST("/devices", device.DevicesPOST)
+	route.PUT("/devices", device.DevicesPUT)
 
 	user.Register(route.Group("/user"))
 	route.POST("/users", user.UsersPOST)
