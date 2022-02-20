@@ -1,7 +1,6 @@
 package device
 
 import (
-	"fmt"
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/inspector"
@@ -25,10 +24,10 @@ type InfoPUTJSON struct {
 	Longitude float64 `json:"longitude"`
 }
 
-// infoPOST is /device/:imei POST request handler.
+// infoPOST is /device/:id POST request handler.
 func infoPOST(c *gin.Context) {
 	ins := inspector.Inspector{Request: c.Request}
-	imei := c.Param("imei")
+	androidId := c.Param("id")
 
 	// Only JSON.
 	if !ins.IsJSON() {
@@ -52,15 +51,15 @@ func infoPOST(c *gin.Context) {
 	}
 	defer db.DB.Close()
 
-	// Check already stored this imei.
-	exist, err := db.IsExist("devices", "imei", imei)
+	// Check already stored this id.
+	exist, err := db.IsExist("devices", "id", androidId)
 	if err != nil {
 		panic(err)
 	}
 
 	// Create if not stored.
 	if !exist {
-		err = create(&db, &json, imei)
+		err = create(&db, &json, androidId)
 		if err != nil {
 			panic(err)
 		}
@@ -70,14 +69,13 @@ func infoPOST(c *gin.Context) {
 	}
 }
 
-// infoPUT is /device/:imei PUT request handler.
+// infoPUT is /device/:id PUT request handler.
 func infoPUT(c *gin.Context) {
 	ins := inspector.Inspector{Request: c.Request}
-	imei := c.Param("imei")
+	androidId := c.Param("id")
 
 	// Only JSON.
 	if !ins.IsJSON() {
-		fmt.Println("1 out")
 		abort.BadRequest(c, message.OnlyJSON)
 		return
 	}
@@ -87,7 +85,6 @@ func infoPUT(c *gin.Context) {
 	// Check all of the require field is not blanked.
 	err := c.ShouldBindBodyWith(&json, binding.JSON)
 	if err != nil {
-		fmt.Println("2 out")
 		abort.BadRequest(c, message.NotMeetAllRequest)
 		return
 	}
@@ -98,15 +95,15 @@ func infoPUT(c *gin.Context) {
 	}
 	defer db.DB.Close()
 
-	// Check already stored this imei.
-	exist, err := db.IsExist("devices", "imei", imei)
+	// Check already stored this id.
+	exist, err := db.IsExist("devices", "id", androidId)
 	if err != nil {
 		panic(err)
 	}
 
 	// Update if already stored.
 	if exist {
-		err = update(&db, &json, imei)
+		err = update(&db, &json, androidId)
 		if err != nil {
 			switch err {
 			case bsamdb.ErrRecordNotFound:
@@ -122,12 +119,11 @@ func infoPUT(c *gin.Context) {
 		// Check all of the require field is not blanked.
 		err := c.ShouldBindBodyWith(&newJson, binding.JSON)
 		if err != nil {
-			fmt.Println("3 out")
 			abort.BadRequest(c, message.NotMeetAllRequest)
 			return
 		}
 
-		err = create(&db, &newJson, imei)
+		err = create(&db, &newJson, androidId)
 		if err != nil {
 			panic(err)
 		}
@@ -135,10 +131,10 @@ func infoPUT(c *gin.Context) {
 }
 
 // Create stores new device data.
-func create(db *bsamdb.DbInfo, json *InfoPOSTJSON, imei string) error {
+func create(db *bsamdb.DbInfo, json *InfoPOSTJSON, androidId string) error {
 	// Records
 	data := []bsamdb.Field{
-		{Column: "imei", Value: imei},
+		{Column: "id", Value: androidId},
 		{Column: "name", Value: json.Name},
 		{Column: "model", Value: json.Model},
 	}
@@ -169,7 +165,7 @@ func create(db *bsamdb.DbInfo, json *InfoPOSTJSON, imei string) error {
 }
 
 // Update updates to new data.
-func update(db *bsamdb.DbInfo, json *InfoPUTJSON, imei string) error {
+func update(db *bsamdb.DbInfo, json *InfoPUTJSON, androidId string) error {
 	// Records
 	data := []bsamdb.Field{}
 
@@ -204,8 +200,8 @@ func update(db *bsamdb.DbInfo, json *InfoPUTJSON, imei string) error {
 	if len(data) > 0 {
 		_, err := db.Update(
 			"devices",
-			"imei",
-			imei,
+			"id",
+			androidId,
 			data,
 		)
 

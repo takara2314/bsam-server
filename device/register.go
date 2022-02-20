@@ -6,6 +6,6 @@ import (
 
 // Register registers handler to assigned router.
 func Register(router *gin.RouterGroup) {
-	router.POST("/:imei", infoPOST)
-	router.PUT("/:imei", infoPUT)
+	router.POST("/:id", infoPOST)
+	router.PUT("/:id", infoPUT)
 }
