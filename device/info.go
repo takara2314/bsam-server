@@ -77,6 +77,7 @@ func infoPUT(c *gin.Context) {
 
 	// Only JSON.
 	if !ins.IsJSON() {
+		fmt.Println("1 out")
 		abort.BadRequest(c, message.OnlyJSON)
 		return
 	}
@@ -86,6 +87,7 @@ func infoPUT(c *gin.Context) {
 	// Check all of the require field is not blanked.
 	err := c.ShouldBindBodyWith(&json, binding.JSON)
 	if err != nil {
+		fmt.Println("2 out")
 		abort.BadRequest(c, message.NotMeetAllRequest)
 		return
 	}
@@ -120,7 +122,7 @@ func infoPUT(c *gin.Context) {
 		// Check all of the require field is not blanked.
 		err := c.ShouldBindBodyWith(&newJson, binding.JSON)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("3 out")
 			abort.BadRequest(c, message.NotMeetAllRequest)
 			return
 		}
