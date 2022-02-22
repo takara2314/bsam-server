@@ -7,8 +7,9 @@ const (
 	CannotAddOutSideUser = "You cannot add outside user."
 
 	TokenNotFound            = "The token is required."
-	AuthorizationTypeInvalid = "The authorization type is not supported."
+	AuthorizationTypeInvalid = "This authorization type is not supported."
 	WrongToken               = "This token is wrong."
-	DeviceNotFound           = "The device is not found."
+	DeviceNotFound           = "This device is not found."
 	AlreadyExisted           = "This id's record is already existed."
+	RaceNotFound             = "This race is not found."
 )
