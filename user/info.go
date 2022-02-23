@@ -54,10 +54,21 @@ func infoPUT(c *gin.Context) {
 		panic(err)
 	}
 
-	// Check already stored this login.
-
 	// Update if already stored.
 	if exist {
+		if json.LoginId != "" {
+			// Check already stored this login_id.
+			exist, err := db.IsExistNotIt("users", "id", userId, "login_id", json.LoginId)
+			if err != nil {
+				panic(err)
+			}
+
+			if exist {
+				abort.Conflict(c, message.AlreadyExisted)
+				return
+			}
+		}
+
 		err = update(&db, &json, userId)
 		if err != nil {
 			switch err {

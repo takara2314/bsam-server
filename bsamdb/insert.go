@@ -27,8 +27,5 @@ func (db *DbInfo) Insert(table string, fields []Field) (*sql.Row, error) {
 		utils.StringSliceToString(sqlSelectors),
 	)
 
-	fmt.Println(sql)
-	fmt.Println(values...)
-
 	return db.DB.QueryRow(sql, values...), nil
 }

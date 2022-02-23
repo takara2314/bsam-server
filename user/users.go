@@ -48,9 +48,20 @@ func UsersPOST(c *gin.Context) {
 	}
 	defer db.DB.Close()
 
-	err = create(&db, &json)
+	// Check already stored this login_id.
+	exist, err := db.IsExist("users", "login_id", json.LoginId)
 	if err != nil {
 		panic(err)
+	}
+
+	if !exist {
+		err = create(&db, &json)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		abort.Conflict(c, message.AlreadyExisted)
+		return
 	}
 }
 
