@@ -9,7 +9,10 @@ const (
 	TokenNotFound            = "The token is required."
 	AuthorizationTypeInvalid = "This authorization type is not supported."
 	WrongToken               = "This token is wrong."
-	DeviceNotFound           = "This device is not found."
 	AlreadyExisted           = "This id's record is already existed."
-	RaceNotFound             = "This race is not found."
+
+	DeviceNotFound = "This device is not found."
+	UserNotFound   = "This user is not found."
+	RaceNotFound   = "This race is not found."
+	GroupNotFound  = "This group is not found."
 )

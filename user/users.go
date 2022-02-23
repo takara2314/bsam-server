@@ -1,24 +1,24 @@
 package user
 
 import (
-	"net/http"
 	"sailing-assist-mie-api/abort"
+	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/inspector"
 	"sailing-assist-mie-api/message"
 
 	"github.com/gin-gonic/gin"
 )
 
-type UsersPOSTJSON struct {
-	LoginName   string  `json:"login_name" binding:"required"`
+type UserPOSTJSON struct {
+	LoginId     string  `json:"login_id" binding:"required"`
 	DisplayName string  `json:"display_name" binding:"required"`
 	Password    string  `json:"password" binding:"required"`
-	GroupId     string  `json:"group_id"`
-	Role        string  `json:"role"`
-	DeviceIMEI  string  `json:"device"`
+	GroupId     string  `json:"group_id" binding:"required"`
+	Role        string  `json:"role" binding:"required"`
+	DeviceId    string  `json:"device_id"`
 	SailNum     int     `json:"sail_num"`
 	CourseLimit float32 `json:"course_limit"`
-	Image       string  `json:"image"`
+	ImageUrl    string  `json:"image_url"`
 	Note        string  `json:"note"`
 }
 
@@ -26,41 +26,87 @@ type UsersPOSTJSON struct {
 func UsersPOST(c *gin.Context) {
 	ins := inspector.Inspector{Request: c.Request}
 
-	if mes := ins.HasToken(); mes != "" {
-		abort.Unauthorized(c, mes)
-		return
-	}
-
-	// Require "admin.user.users.create" or "developer.user.users.create".
-	if !ins.HasPermission([]string{
-		"admin.user.users.create",
-		"developer.user.users.create",
-	}) {
-		abort.Forbidden(c, message.CannotUseAPI)
-		return
-	}
-
-	// Only JSON
+	// Only JSON.
 	if !ins.IsJSON() {
 		abort.BadRequest(c, message.OnlyJSON)
 		return
 	}
 
-	var json UsersPOSTJSON
+	var json UserPOSTJSON
 
+	// Check all of the require field is not blanked.
 	err := c.ShouldBindJSON(&json)
 	if err != nil {
 		abort.BadRequest(c, message.NotMeetAllRequest)
 		return
 	}
 
-	// Not developer cannot add outside user. Only inside user.
-	if json.GroupId != "" {
-		if !ins.IsSameGroup(json.GroupId) && !ins.HasPermission([]string{"developer.user.users.create"}) {
-			abort.Forbidden(c, message.CannotAddOutSideUser)
-			return
-		}
+	// Connect to the database and insert such data.
+	db, err := bsamdb.Open()
+	if err != nil {
+		panic(err)
+	}
+	defer db.DB.Close()
+
+	err = create(&db, &json)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// Create stores new device data.
+func create(db *bsamdb.DbInfo, json *UserPOSTJSON) error {
+	// Records
+	data := []bsamdb.Field{
+		{Column: "login_id", Value: json.LoginId},
+		{Column: "display_name", Value: json.DisplayName},
+		{Column: "password", Value: json.Password, ToHash: true},
+		{Column: "group_id", Value: json.GroupId},
+		{Column: "role", Value: json.Role},
 	}
 
-	c.String(http.StatusOK, "Hello "+json.DisplayName)
+	if json.DeviceId != "" {
+		data = append(data, bsamdb.Field{
+			Column: "device_id",
+			Value:  json.DeviceId,
+		})
+	}
+
+	if json.SailNum != 0 {
+		data = append(data, bsamdb.Field{
+			Column: "sail_num",
+			Value:  json.SailNum,
+		})
+	}
+
+	if json.CourseLimit != 0.0 {
+		data = append(data, bsamdb.Field{
+			Column: "course_limit",
+			Value:  json.CourseLimit,
+		})
+	}
+
+	if json.ImageUrl != "" {
+		data = append(data, bsamdb.Field{
+			Column: "image_url",
+			Value:  json.ImageUrl,
+		})
+	}
+
+	if json.Note != "" {
+		data = append(data, bsamdb.Field{
+			Column: "note",
+			Value:  json.Note,
+		})
+	}
+
+	_, err := db.Insert(
+		"users",
+		data,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

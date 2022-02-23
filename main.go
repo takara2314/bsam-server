@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"sailing-assist-mie-api/device"
+	"sailing-assist-mie-api/group"
 	"sailing-assist-mie-api/race"
 	"sailing-assist-mie-api/user"
 
@@ -19,6 +20,9 @@ func main() {
 
 	race.Register(route.Group("/race"))
 	route.POST("/races", race.RacesPOST)
+
+	group.Register(route.Group("/group"))
+	route.POST("/groups", group.GroupsPOST)
 
 	route.Run(":" + os.Getenv("PORT"))
 }
