@@ -14,17 +14,17 @@ import (
 )
 
 type RaceInfo struct {
-	Id       string    `json:"id"`
-	Name     string    `json:"name"`
-	StartAt  time.Time `json:"start_at"`
-	EndAt    time.Time `json:"end_at"`
-	PointA   string    `json:"point_a"`
-	PointB   string    `json:"point_b"`
-	PointC   string    `json:"point_c"`
-	Athletes []string  `json:"athletes"`
-	Memo     string    `json:"memo"`
-	ImageUrl string    `json:"image_url"`
-	Holding  *bool     `json:"is_holding"`
+	Id       *string    `json:"id"`
+	Name     *string    `json:"name"`
+	StartAt  *time.Time `json:"start_at"`
+	EndAt    *time.Time `json:"end_at"`
+	PointA   *string    `json:"point_a"`
+	PointB   *string    `json:"point_b"`
+	PointC   *string    `json:"point_c"`
+	Athletes []string   `json:"athletes"`
+	Memo     *string    `json:"memo"`
+	ImageUrl *string    `json:"image_url"`
+	Holding  *bool      `json:"is_holding"`
 }
 
 type RaceGETJSON struct {
