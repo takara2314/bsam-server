@@ -3,26 +3,24 @@ package inspector
 import (
 	"os"
 
-	"sailing-assist-mie-api/message"
-
 	"github.com/lib/pq"
 	"github.com/xo/dburl"
 )
 
 // HasToken checks that its request header contains token and it is correct.
-func (ins *Inspector) HasToken() string {
+func (ins *Inspector) HasToken() (bool, error) {
 	auth := ins.Request.Header.Get("Authorization")
 
 	if auth == "" {
-		return message.TokenNotFound
+		return false, ErrTokenNotFound
 	}
 
 	if len(auth) < 8 {
-		return message.AuthorizationTypeInvalid
+		return false, ErrAuthorizationTypeInvalid
 	}
 
 	if auth[:6] != "Bearer" {
-		return message.AuthorizationTypeInvalid
+		return false, ErrAuthorizationTypeInvalid
 	}
 
 	token := auth[7:]
@@ -30,7 +28,7 @@ func (ins *Inspector) HasToken() string {
 
 	db, err := dburl.Open(os.Getenv("DATABASE_URL"))
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 	defer db.Close()
 
@@ -38,9 +36,31 @@ func (ins *Inspector) HasToken() string {
 	err = row.Scan(&ins.Token.Token, &ins.Token.Type, pq.Array(&ins.Token.Permissions), &ins.Token.UserId, &ins.Token.Description)
 	if err != nil {
 		ins.IsTokenEnabled = false
-		return message.WrongToken
+		return false, ErrWrongToken
 	}
 
 	ins.IsTokenEnabled = true
-	return ""
+	return true, nil
+}
+
+// FetchGroupId fetches groupId identified its request header.
+func (ins *Inspector) FetchGroupId() error {
+	_, err := ins.HasToken()
+	if err != nil {
+		return err
+	}
+
+	db, err := dburl.Open(os.Getenv("DATABASE_URL"))
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	row := db.QueryRow("SELECT group_id FROM users WHERE id = $1", ins.Token.UserId)
+	err = row.Scan(&ins.GroupId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

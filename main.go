@@ -19,6 +19,7 @@ func main() {
 	route.POST("/users", user.UsersPOST)
 
 	race.Register(route.Group("/race"))
+	route.GET("/races", race.RacesGET)
 	route.POST("/races", race.RacesPOST)
 
 	group.Register(route.Group("/group"))

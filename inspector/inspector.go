@@ -15,4 +15,5 @@ type Inspector struct {
 		UserId      sql.NullString
 		Description sql.NullString
 	}
+	GroupId string
 }

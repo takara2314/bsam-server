@@ -1,6 +1,7 @@
 package inspector
 
 import (
+	"errors"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v3"
@@ -8,6 +9,10 @@ import (
 
 var (
 	permissions map[string]interface{}
+
+	ErrTokenNotFound            = errors.New("the token is not found")
+	ErrAuthorizationTypeInvalid = errors.New("this authorization type is invalid")
+	ErrWrongToken               = errors.New("this token is wrong")
 )
 
 func init() {

@@ -1,6 +1,7 @@
 package race
 
 import (
+	"net/http"
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/inspector"
@@ -9,7 +10,27 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
+
+type RaceInfo struct {
+	Id       string    `json:"id"`
+	Name     string    `json:"name"`
+	StartAt  time.Time `json:"start_at"`
+	EndAt    time.Time `json:"end_at"`
+	PointA   string    `json:"point_a"`
+	PointB   string    `json:"point_b"`
+	PointC   string    `json:"point_c"`
+	Athletes []string  `json:"athletes"`
+	Memo     string    `json:"memo"`
+	ImageUrl string    `json:"image_url"`
+	Holding  *bool     `json:"is_holding"`
+}
+
+type RaceGETJSON struct {
+	Status string     `json:"status"`
+	Races  []RaceInfo `json:"races"`
+}
 
 type RacePOSTJSON struct {
 	Name       string `json:"name" binding:"required"`
@@ -24,6 +45,28 @@ type RacePOSTJSON struct {
 	Memo       string   `json:"memo"`
 	ImageUrl   string   `json:"image_url"`
 	Holding    *bool    `json:"is_holding" binding:"required"`
+}
+
+// RacesGET is /races GET request handler.
+func RacesGET(c *gin.Context) {
+	// ins := inspector.Inspector{Request: c.Request}
+
+	// Connect to the database and insert such data.
+	db, err := bsamdb.Open()
+	if err != nil {
+		panic(err)
+	}
+	defer db.DB.Close()
+
+	races, err := fetch(&db, "")
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusOK, RaceGETJSON{
+		Status: "OK",
+		Races:  races,
+	})
 }
 
 // RacesPOST is /races POST request handler.
@@ -69,6 +112,52 @@ func RacesPOST(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// fetch fetches rows in this group.
+func fetch(db *bsamdb.DbInfo, groupId string) ([]RaceInfo, error) {
+	races := make([]RaceInfo, 0)
+	data := make([]bsamdb.Field, 0)
+
+	if groupId != "" {
+		data = append(
+			data,
+			bsamdb.Field{Column: "group_id", Value: groupId},
+		)
+	}
+
+	rows, err := db.Select(
+		"races",
+		data,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		info := RaceInfo{}
+		err = rows.Scan(
+			&info.Id,
+			&info.Name,
+			&info.StartAt,
+			&info.EndAt,
+			&info.PointA,
+			&info.PointB,
+			&info.PointC,
+			pq.Array(&info.Athletes),
+			&info.Memo,
+			&info.ImageUrl,
+			&info.Holding,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		races = append(races, info)
+	}
+
+	return races, nil
 }
 
 // Create stores new device data.
