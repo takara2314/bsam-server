@@ -58,7 +58,7 @@ func RacesGET(c *gin.Context) {
 	}
 	defer db.DB.Close()
 
-	races, err := fetch(&db, "")
+	races, err := fetchAll(&db, "")
 	if err != nil {
 		panic(err)
 	}
@@ -114,8 +114,8 @@ func RacesPOST(c *gin.Context) {
 	}
 }
 
-// fetch fetches rows in this group.
-func fetch(db *bsamdb.DbInfo, groupId string) ([]RaceInfo, error) {
+// fetchAll fetches all of rows in this group.
+func fetchAll(db *bsamdb.DbInfo, groupId string) ([]RaceInfo, error) {
 	races := make([]RaceInfo, 0)
 	data := make([]bsamdb.Field, 0)
 

@@ -1,6 +1,7 @@
 package race
 
 import (
+	"net/http"
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/inspector"
@@ -8,7 +9,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 )
+
+type InfoGETJSON struct {
+	Status string   `json:"status"`
+	Race   RaceInfo `json:"race"`
+}
 
 type InfoPUTJSON struct {
 	Name       string `json:"name"`
@@ -23,6 +30,41 @@ type InfoPUTJSON struct {
 	Memo       string   `json:"memo"`
 	ImageUrl   string   `json:"image_url"`
 	Holding    *bool    `json:"is_holding"`
+}
+
+// infoGET is /race/:id GET request handler.
+func infoGET(c *gin.Context) {
+	// ins := inspector.Inspector{Request: c.Request}
+	raceId := c.Param("id")
+
+	// Connect to the database and insert such data.
+	db, err := bsamdb.Open()
+	if err != nil {
+		panic(err)
+	}
+	defer db.DB.Close()
+
+	// Check already stored this id.
+	exist, err := db.IsExist("races", "id", raceId)
+	if err != nil {
+		panic(err)
+	}
+
+	// Update if already stored.
+	if exist {
+		race, err := fetch(&db, raceId)
+		if err != nil {
+			panic(err)
+		}
+
+		c.JSON(http.StatusOK, InfoGETJSON{
+			Status: "OK",
+			Race:   race,
+		})
+	} else {
+		abort.NotFound(c, message.RaceNotFound)
+		return
+	}
 }
 
 // infoPUT is /race/:id PUT request handler.
@@ -90,6 +132,40 @@ func infoPUT(c *gin.Context) {
 		abort.NotFound(c, message.RaceNotFound)
 		return
 	}
+}
+
+// fetch fetches rows in this group.
+func fetch(db *bsamdb.DbInfo, raceId string) (RaceInfo, error) {
+	rows, err := db.Select(
+		"races",
+		[]bsamdb.Field{
+			{Column: "id", Value: raceId},
+		},
+	)
+	if err != nil {
+		return RaceInfo{}, err
+	}
+	defer rows.Close()
+
+	info := RaceInfo{}
+	err = rows.Scan(
+		&info.Id,
+		&info.Name,
+		&info.StartAt,
+		&info.EndAt,
+		&info.PointA,
+		&info.PointB,
+		&info.PointC,
+		pq.Array(&info.Athletes),
+		&info.Memo,
+		&info.ImageUrl,
+		&info.Holding,
+	)
+	if err != nil {
+		return RaceInfo{}, err
+	}
+
+	return info, nil
 }
 
 // Update updates to new data.
