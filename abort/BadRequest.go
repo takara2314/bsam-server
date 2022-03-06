@@ -9,7 +9,7 @@ import (
 // BadRequest sends JSON with its message as BadRequest.
 func BadRequest(c *gin.Context, message string) {
 	c.JSON(http.StatusBadRequest, JSON{
-		Status:  "BadRequest",
+		Status:  "Bad Request",
 		Message: message,
 	})
 }

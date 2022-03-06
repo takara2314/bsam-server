@@ -9,7 +9,7 @@ import (
 // NotFound sends JSON with its message as NotFound.
 func NotFound(c *gin.Context, message string) {
 	c.JSON(http.StatusNotFound, JSON{
-		Status:  "NotFound",
+		Status:  "Not Found",
 		Message: message,
 	})
 }

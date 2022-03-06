@@ -21,6 +21,8 @@ func main() {
 	race.Register(route.Group("/race"))
 	route.GET("/races", race.RacesGET)
 	route.POST("/races", race.RacesPOST)
+	route.GET("/racing/:id", race.RacingWS)
+	go race.AutoRooming()
 
 	group.Register(route.Group("/group"))
 	route.POST("/groups", group.GroupsPOST)

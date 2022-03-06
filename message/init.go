@@ -15,4 +15,6 @@ const (
 	UserNotFound   = "This user is not found."
 	RaceNotFound   = "This race is not found."
 	GroupNotFound  = "This group is not found."
+
+	NotSupportWebSocket = "This client is not support WebSocket."
 )

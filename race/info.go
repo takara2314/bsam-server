@@ -148,6 +148,7 @@ func fetch(db *bsamdb.DbInfo, raceId string) (RaceInfo, error) {
 	defer rows.Close()
 
 	info := RaceInfo{}
+	rows.Next()
 	err = rows.Scan(
 		&info.Id,
 		&info.Name,
