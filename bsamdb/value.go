@@ -1,7 +1,6 @@
 package bsamdb
 
 import (
-	"errors"
 	"fmt"
 	"sailing-assist-mie-api/utils"
 	"strconv"
@@ -55,7 +54,7 @@ func valueToQueryable(fields []Field) ([]string, []interface{}, error) {
 			continue
 		}
 
-		return nil, nil, errors.New("must contain a value or a value slice")
+		values[i] = "{}"
 	}
 
 	return columns, values, nil

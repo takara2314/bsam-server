@@ -5,11 +5,11 @@ import (
 )
 
 // IsExist checks the primary_key recorded its id is existed.
-func (db *DbInfo) IsExist(table string, primary_key string, id interface{}) (bool, error) {
+func (db *DbInfo) IsExist(table string, primaryKey string, id interface{}) (bool, error) {
 	sql := fmt.Sprintf(
 		"SELECT COUNT(*) FROM %s WHERE %s = $1",
 		table,
-		primary_key,
+		primaryKey,
 	)
 
 	row := db.DB.QueryRow(sql, id)
@@ -26,11 +26,11 @@ func (db *DbInfo) IsExist(table string, primary_key string, id interface{}) (boo
 }
 
 // IsExistNotIt checks the primary_key recorded its id excepting $not_key value is existed.
-func (db *DbInfo) IsExistNotIt(table string, primary_key string, id interface{}, not_key string, value interface{}) (bool, error) {
+func (db *DbInfo) IsExistNotIt(table string, primaryKey string, id interface{}, not_key string, value interface{}) (bool, error) {
 	sql := fmt.Sprintf(
 		"SELECT COUNT(*) FROM %s WHERE %s = $1 AND %s != $2",
 		table,
-		primary_key,
+		primaryKey,
 		not_key,
 	)
 

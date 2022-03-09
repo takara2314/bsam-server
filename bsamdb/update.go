@@ -6,9 +6,9 @@ import (
 	"sailing-assist-mie-api/utils"
 )
 
-// Update updates values by selecting the primary_key.
-func (db *DbInfo) Update(table string, primary_key string, id interface{}, fields []Field) (*sql.Row, error) {
-	exist, err := db.IsExist(table, primary_key, id)
+// Update updates values by selecting the primaryKey.
+func (db *DbInfo) Update(table string, primaryKey string, id interface{}, fields []Field) (*sql.Row, error) {
+	exist, err := db.IsExist(table, primaryKey, id)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (db *DbInfo) Update(table string, primary_key string, id interface{}, field
 		sql,
 		table,
 		alter,
-		primary_key,
+		primaryKey,
 		lastSqlSelector,
 	)
 

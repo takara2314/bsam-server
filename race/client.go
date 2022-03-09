@@ -10,16 +10,18 @@ import (
 
 const (
 	writeWait      = 10 * time.Second
-	pongWait       = 60 * time.Second
+	pongWait       = 5 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
 	maxMessageSize = 1024
 )
 
 type Client struct {
-	Hub  *Hub
-	Conn *websocket.Conn
-	Id   string
-	Send chan *Point
+	Hub      *Hub
+	Conn     *websocket.Conn
+	UserId   string
+	Role     string
+	Position Position
+	Send     chan *PointNav
 }
 
 type Position struct {
@@ -27,16 +29,22 @@ type Position struct {
 	Longitude float64 `json:"longitude"`
 }
 
-type Point struct {
-	Begin  bool     `json:"is_begin"`
-	Now    PointNow `json:"now"`
-	Latest int      `json:"latest"`
+type PointNav struct {
+	Begin  bool  `json:"is_begin"`
+	Now    Point `json:"now"`
+	Latest int   `json:"latest"`
 }
 
-type PointNow struct {
+type Point struct {
 	Point     int     `json:"point"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
+}
+
+type PointDevice struct {
+	UserId    string
+	Latitude  float64
+	Longitude float64
 }
 
 // readPump waits message
@@ -69,9 +77,14 @@ func (c *Client) readPump() {
 
 		fmt.Println(string(message))
 
-		c.Send <- &Point{
+		err = json.Unmarshal(message, &c.Position)
+		if err != nil {
+			panic(err)
+		}
+
+		c.Send <- &PointNav{
 			Begin: false,
-			Now: PointNow{
+			Now: Point{
 				Point:     2,
 				Latitude:  34.29387,
 				Longitude: 136.7622367,
@@ -131,9 +144,9 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
-			encoded, _ := json.Marshal(Point{
+			encoded, _ := json.Marshal(PointNav{
 				Begin: true,
-				Now: PointNow{
+				Now: Point{
 					Point:     1,
 					Latitude:  20.2,
 					Longitude: 20.1,

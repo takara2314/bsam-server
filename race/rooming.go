@@ -37,7 +37,7 @@ func scale(db *bsamdb.DbInfo) {
 	// If not exist race instance, create a race instance and run.
 	for _, race := range races {
 		if _, exist := rooms[*race.Id]; !exist {
-			rooms[*race.Id] = NewHub()
+			rooms[*race.Id] = NewHub(*race.Id)
 			go rooms[*race.Id].Run()
 		}
 	}
