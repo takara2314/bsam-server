@@ -16,12 +16,15 @@ const (
 )
 
 type Client struct {
-	Hub      *Hub
-	Conn     *websocket.Conn
-	UserId   string
-	Role     string
-	Position Position
-	Send     chan *PointNav
+	Hub         *Hub
+	Conn        *websocket.Conn
+	UserId      string
+	Role        string
+	NextPoint   int
+	LatestPoint int
+	Position    Position
+	CourseLimit float32
+	Send        chan *PointNav
 }
 
 type Position struct {
@@ -31,7 +34,7 @@ type Position struct {
 
 type PointNav struct {
 	Begin  bool  `json:"is_begin"`
-	Now    Point `json:"now"`
+	Next   Point `json:"next"`
 	Latest int   `json:"latest"`
 }
 
@@ -75,22 +78,14 @@ func (c *Client) readPump() {
 			break
 		}
 
-		fmt.Println(string(message))
-
+		// Obtain a position info into a client instance.
 		err = json.Unmarshal(message, &c.Position)
 		if err != nil {
 			panic(err)
 		}
 
-		c.Send <- &PointNav{
-			Begin: false,
-			Now: Point{
-				Point:     2,
-				Latitude:  34.29387,
-				Longitude: 136.7622367,
-			},
-			Latest: 1,
-		}
+		// Check that the user passed the mark.
+		c.passCheck()
 
 		// message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
 		// c.Hub.Boardcast <- message
@@ -109,51 +104,74 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case message, isOpen := <-c.Send:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if !isOpen {
-				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-
-			w, err := c.Conn.NextWriter(websocket.TextMessage)
-			if err != nil {
-				return
-			}
-			encoded, _ := json.Marshal(message)
-			w.Write(encoded)
-
-			for i := 0; i < len(c.Send); i++ {
-				w.Write([]byte{'\n'})
-				encoded, _ = json.Marshal(<-c.Send)
-				w.Write(encoded)
-			}
-
-			err = w.Close()
-			if err != nil {
-				return
-			}
+			c.sendEvent(message, isOpen)
 
 		case <-ticker.C:
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			err := c.Conn.WriteMessage(websocket.PingMessage, nil)
-			if err != nil {
-				return
-			}
-
-			w, err := c.Conn.NextWriter(websocket.TextMessage)
-			if err != nil {
-				return
-			}
-			encoded, _ := json.Marshal(PointNav{
-				Begin: true,
-				Now: Point{
-					Point:     1,
-					Latitude:  20.2,
-					Longitude: 20.1,
-				},
-				Latest: -1,
-			})
-			w.Write(encoded)
+			c.pingEvent()
 		}
 	}
+}
+
+func (c *Client) sendEvent(message *PointNav, isOpen bool) {
+	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	if !isOpen {
+		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+		return
+	}
+
+	w, err := c.Conn.NextWriter(websocket.TextMessage)
+	if err != nil {
+		return
+	}
+	encoded, _ := json.Marshal(message)
+	w.Write(encoded)
+
+	for i := 0; i < len(c.Send); i++ {
+		w.Write([]byte{'\n'})
+		encoded, _ = json.Marshal(<-c.Send)
+		w.Write(encoded)
+	}
+
+	err = w.Close()
+	if err != nil {
+		return
+	}
+}
+
+func (c *Client) pingEvent() {
+	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.Conn.WriteMessage(websocket.PingMessage, nil)
+	if err != nil {
+		return
+	}
+
+	w, err := c.Conn.NextWriter(websocket.TextMessage)
+	if err != nil {
+		return
+	}
+
+	// Announce next point info.
+	var nextLat, nextLng float64
+	switch c.NextPoint {
+	case 1:
+		nextLat = c.Hub.PointA.Latitude
+		nextLng = c.Hub.PointA.Longitude
+	case 2:
+		nextLat = c.Hub.PointB.Latitude
+		nextLng = c.Hub.PointB.Longitude
+	case 3:
+		nextLat = c.Hub.PointC.Latitude
+		nextLng = c.Hub.PointC.Longitude
+	}
+
+	encoded, _ := json.Marshal(PointNav{
+		Begin: c.Hub.Begin,
+		Next: Point{
+			Point:     c.NextPoint,
+			Latitude:  nextLat,
+			Longitude: nextLng,
+		},
+		Latest: c.LatestPoint,
+	})
+	w.Write(encoded)
 }

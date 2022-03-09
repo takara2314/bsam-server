@@ -1,7 +1,6 @@
 package race
 
 import (
-	"fmt"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
 	"time"
@@ -18,6 +17,7 @@ type Hub struct {
 	PointA     PointDevice
 	PointB     PointDevice
 	PointC     PointDevice
+	Begin      bool
 }
 
 // NewHub creates a new hub instrance.
@@ -65,7 +65,6 @@ func (hub *Hub) registerEvent(client *Client) {
 func (hub *Hub) unregisterEvent(client *Client) {
 	if _, exist := hub.Clients[client.UserId]; exist {
 		close(client.Send)
-		fmt.Println(client.UserId, "を解除します")
 		err := hub.removeAthlete(client.UserId)
 		if err != nil {
 			panic(err)

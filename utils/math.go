@@ -1,5 +1,7 @@
 package utils
 
+import "math"
+
 // MaxInt returns the larger of x or y for type int.
 func MaxInt(x int, y int) int {
 	if x > y {
@@ -30,4 +32,9 @@ func MinFloat32(x float32, y float32) float32 {
 		return y
 	}
 	return x
+}
+
+// DegToRad converts degrees to radians.
+func DegToRad(deg float64) float64 {
+	return deg * math.Pi / 180
 }

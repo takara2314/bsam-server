@@ -5,6 +5,8 @@ import (
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/message"
+	"sailing-assist-mie-api/utils"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -70,16 +72,21 @@ func RacingWS(c *gin.Context) {
 	var role string
 	rows.Scan(&role)
 
-	// If mark device.
+	// If mark device, register as it.
 	if role == "mark" {
-		pointId := c.Param("point")
+		pointNoStr := c.Param("point")
+		pointNo, err := strconv.Atoi(pointNoStr)
+		if err != nil {
+			abort.BadRequest(c, message.InvalidPointId)
+			return
+		}
 
-		switch pointId {
-		case "a":
+		switch pointNo {
+		case 1:
 			rooms[raceId].PointA.UserId = userId
-		case "b":
+		case 2:
 			rooms[raceId].PointB.UserId = userId
-		case "c":
+		case 3:
 			rooms[raceId].PointC.UserId = userId
 		default:
 			abort.BadRequest(c, message.InvalidPointId)
@@ -95,15 +102,62 @@ func RacingWS(c *gin.Context) {
 	}
 
 	client := &Client{
-		Hub:    rooms[raceId],
-		Conn:   conn,
-		UserId: userId,
-		Role:   role,
-		Send:   make(chan *PointNav),
+		Hub:         rooms[raceId],
+		Conn:        conn,
+		UserId:      userId,
+		Role:        role,
+		NextPoint:   1,
+		LatestPoint: 0,
+		CourseLimit: 20.0,
+		Send:        make(chan *PointNav),
 	}
 
 	client.Hub.Register <- client
 
 	go client.readPump()
 	go client.writePump()
+}
+
+// passCheck checks that the user passed the mark point.
+func (c *Client) passCheck() {
+	switch c.NextPoint {
+	case 1:
+		distance := utils.CalcDistanceAtoBEarth(
+			c.Position.Latitude,
+			c.Position.Longitude,
+			c.Hub.PointA.Latitude,
+			c.Hub.PointA.Longitude,
+		)
+
+		if distance < float64(c.CourseLimit) {
+			c.NextPoint = 2
+			c.LatestPoint = 1
+		}
+
+	case 2:
+		distance := utils.CalcDistanceAtoBEarth(
+			c.Position.Latitude,
+			c.Position.Longitude,
+			c.Hub.PointB.Latitude,
+			c.Hub.PointB.Longitude,
+		)
+
+		if distance < float64(c.CourseLimit) {
+			c.NextPoint = 3
+			c.LatestPoint = 2
+		}
+
+	case 3:
+		distance := utils.CalcDistanceAtoBEarth(
+			c.Position.Latitude,
+			c.Position.Longitude,
+			c.Hub.PointC.Latitude,
+			c.Hub.PointC.Longitude,
+		)
+
+		if distance < float64(c.CourseLimit) {
+			c.NextPoint = 1
+			c.LatestPoint = 2
+		}
+	}
 }
