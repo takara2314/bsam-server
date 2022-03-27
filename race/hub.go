@@ -45,6 +45,7 @@ func (hub *Hub) Run() {
 		case client := <-hub.Unregister:
 			hub.unregisterEvent(client)
 		case message := <-hub.Managecast:
+			fmt.Println("okurikaeshi")
 			hub.managecastEvent(message)
 
 		case <-ticker.C:
@@ -77,6 +78,7 @@ func (hub *Hub) unregisterEvent(client *Client) {
 
 // managecastEvent boardcasts to manage and admin client.
 func (hub *Hub) managecastEvent(message *ManageInfo) {
+	fmt.Println(len(hub.Clients))
 	for _, client := range hub.Clients {
 		if !(client.Role == "manage" || client.Role == "admin") {
 			fmt.Println("it through because its role is not manage or admin", client.UserId, client.Role)
