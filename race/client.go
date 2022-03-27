@@ -186,11 +186,13 @@ func (c *Client) pingEvent() {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	err := c.Conn.WriteMessage(websocket.PingMessage, nil)
 	if err != nil {
+		fmt.Println("nilじゃなかった1", err)
 		return
 	}
 
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
 	if err != nil {
+		fmt.Println("nilじゃなかった2", err)
 		return
 	}
 
