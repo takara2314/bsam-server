@@ -11,7 +11,7 @@ import (
 type Hub struct {
 	RaceId     string
 	Clients    map[string]*Client
-	Boardcast  chan []byte
+	Managecast chan *ManageInfo
 	Register   chan *Client
 	Unregister chan *Client
 	PointA     PointDevice
@@ -25,7 +25,7 @@ func NewHub(raceId string) *Hub {
 	return &Hub{
 		RaceId:     raceId,
 		Clients:    make(map[string]*Client),
-		Boardcast:  make(chan []byte),
+		Managecast: make(chan *ManageInfo),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 	}
@@ -43,8 +43,8 @@ func (hub *Hub) Run() {
 			hub.registerEvent(client)
 		case client := <-hub.Unregister:
 			hub.unregisterEvent(client)
-			// case message := <-hub.Boardcast:
-			// 	hub.boardcastEvent(message)
+		case message := <-hub.Managecast:
+			hub.managecastEvent(message)
 
 		case <-ticker.C:
 			hub.updateMarkPositions()
@@ -73,17 +73,21 @@ func (hub *Hub) unregisterEvent(client *Client) {
 	}
 }
 
-// // boardcastEvent boardcasts to all client.
-// func (hub *Hub) boardcastEvent(message []byte) {
-// 	for _, client := range hub.Clients {
-// 		select {
-// 		case client.Send <- message:
-// 		default:
-// 			close(client.Send)
-// 			delete(hub.Clients, client.Id)
-// 		}
-// 	}
-// }
+// managecastEvent boardcasts to manage and admin client.
+func (hub *Hub) managecastEvent(message *ManageInfo) {
+	for _, client := range hub.Clients {
+		if !(client.Role == "manage" || client.Role == "admin") {
+			continue
+		}
+
+		select {
+		case client.SendManage <- message:
+		default:
+			close(client.Send)
+			delete(hub.Clients, client.UserId)
+		}
+	}
+}
 
 func (hub *Hub) updateMarkPositions() {
 	if hub.PointA.UserId != "" {

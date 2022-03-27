@@ -25,6 +25,7 @@ type Client struct {
 	Position    Position
 	CourseLimit float32
 	Send        chan *PointNav
+	SendManage  chan *ManageInfo
 }
 
 type Position struct {
@@ -48,6 +49,13 @@ type PointDevice struct {
 	UserId    string
 	Latitude  float64
 	Longitude float64
+}
+
+type ManageInfo struct {
+	UserId    string   `json:"user_id"`
+	Latitude  float64  `json:"latitude"`
+	Longitude float64  `json:"longitude"`
+	Next      PointNav `json:"next"`
 }
 
 // readPump waits message
@@ -106,12 +114,16 @@ func (c *Client) writePump() {
 		case message, isOpen := <-c.Send:
 			c.sendEvent(message, isOpen)
 
+		case message, isOpen := <-c.SendManage:
+			c.sendManageEvent(message, isOpen)
+
 		case <-ticker.C:
 			c.pingEvent()
 		}
 	}
 }
 
+// sendEvent sends client a navigation infomation.
 func (c *Client) sendEvent(message *PointNav, isOpen bool) {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
@@ -129,6 +141,33 @@ func (c *Client) sendEvent(message *PointNav, isOpen bool) {
 	for i := 0; i < len(c.Send); i++ {
 		w.Write([]byte{'\n'})
 		encoded, _ = json.Marshal(<-c.Send)
+		w.Write(encoded)
+	}
+
+	err = w.Close()
+	if err != nil {
+		return
+	}
+}
+
+// sendManageEvent sends manage clients a manage infomation.
+func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
+	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	if !isOpen {
+		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+		return
+	}
+
+	w, err := c.Conn.NextWriter(websocket.TextMessage)
+	if err != nil {
+		return
+	}
+	encoded, _ := json.Marshal(message)
+	w.Write(encoded)
+
+	for i := 0; i < len(c.Send); i++ {
+		w.Write([]byte{'\n'})
+		encoded, _ = json.Marshal(<-c.SendManage)
 		w.Write(encoded)
 	}
 
