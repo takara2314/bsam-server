@@ -182,6 +182,7 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 }
 
 func (c *Client) pingEvent() {
+	fmt.Println("ping to", c.UserId)
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	err := c.Conn.WriteMessage(websocket.PingMessage, nil)
 	if err != nil {
@@ -207,7 +208,7 @@ func (c *Client) pingEvent() {
 		nextLng = c.Hub.PointC.Longitude
 	}
 
-	encoded, _ := json.Marshal(PointNav{
+	nav := PointNav{
 		Begin: c.Hub.Begin,
 		Next: Point{
 			Point:     c.NextPoint,
@@ -215,6 +216,16 @@ func (c *Client) pingEvent() {
 			Longitude: nextLng,
 		},
 		Latest: c.LatestPoint,
-	})
+	}
+
+	encoded, _ := json.Marshal(nav)
 	w.Write(encoded)
+
+	// Broadcast for manage users and admin users.
+	c.Hub.Managecast <- &ManageInfo{
+		UserId:    c.UserId,
+		Latitude:  c.Position.Latitude,
+		Longitude: c.Position.Longitude,
+		Next:      nav,
+	}
 }

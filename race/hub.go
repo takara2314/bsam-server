@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
 	"time"
@@ -54,6 +55,7 @@ func (hub *Hub) Run() {
 
 // registerEvent adds new device.
 func (hub *Hub) registerEvent(client *Client) {
+	fmt.Println(client.UserId, "joined.")
 	hub.Clients[client.UserId] = client
 	err := hub.addAthlete(client.UserId)
 	if err != nil {
