@@ -118,12 +118,16 @@ func (c *Client) writePump() {
 			c.sendManageEvent(message, isOpen)
 
 		case <-ticker.C:
-			c.pingEvent()
+			// Do not ping to a manage user and a point user.
+			if !(c.Role == "manage" || c.Role == "admin") {
+				c.pingEvent()
+			}
 		}
 	}
 }
 
 // sendEvent sends client a navigation infomation.
+// SEARCH: always looping without a send signal?
 func (c *Client) sendEvent(message *PointNav, isOpen bool) {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
@@ -165,7 +169,7 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 	encoded, _ := json.Marshal(message)
 	w.Write(encoded)
 
-	for i := 0; i < len(c.Send); i++ {
+	for i := 0; i < len(c.SendManage); i++ {
 		w.Write([]byte{'\n'})
 		encoded, _ = json.Marshal(<-c.SendManage)
 		w.Write(encoded)
