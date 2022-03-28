@@ -76,6 +76,7 @@ func (c *Client) readPump() {
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
+			fmt.Println("障害発生", err)
 			if websocket.IsUnexpectedCloseError(
 				err,
 				websocket.CloseGoingAway,
