@@ -185,6 +185,7 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 
 func (c *Client) pingEvent() {
 	fmt.Println("ping to", c.UserId)
+	fmt.Println(c.Hub.Clients)
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	err := c.Conn.WriteMessage(websocket.PingMessage, nil)
 	if err != nil {
