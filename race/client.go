@@ -87,7 +87,7 @@ func (c *Client) readPump() {
 		}
 
 		// Obtain a position info into a client instance.
-		fmt.Println("messageだよ！", message)
+		fmt.Println("messageだよ！", string(message))
 		err = json.Unmarshal(message, &c.Position)
 		if err != nil {
 			panic(err)
