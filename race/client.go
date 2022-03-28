@@ -122,7 +122,10 @@ func (c *Client) writePump() {
 		case <-ticker.C:
 			// Do not ping to a manage user and a point user.
 			if !(c.Role == "manage" || c.Role == "admin") {
-				c.pingEvent()
+				err := c.pingEvent()
+				if err != nil {
+					return
+				}
 			}
 		}
 	}
@@ -183,20 +186,19 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 	}
 }
 
-func (c *Client) pingEvent() {
+func (c *Client) pingEvent() error {
 	fmt.Println("ping to", c.UserId)
 	fmt.Println(c.Hub.Clients)
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	err := c.Conn.WriteMessage(websocket.PingMessage, nil)
 	if err != nil {
 		fmt.Println("nilじゃなかった1", err)
-		return
+		return err
 	}
 
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
 	if err != nil {
-		fmt.Println("nilじゃなかった2", err)
-		return
+		return err
 	}
 
 	// Announce next point info.
@@ -233,4 +235,6 @@ func (c *Client) pingEvent() {
 		Longitude: c.Position.Longitude,
 		Next:      nav,
 	}
+
+	return nil
 }
