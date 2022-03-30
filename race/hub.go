@@ -81,7 +81,7 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 	fmt.Println(hub.Clients)
 	for _, client := range hub.Clients {
 		if !(client.Role == "manage" || client.Role == "admin") {
-			fmt.Println("it through because its role is not manage or admin", client.UserId, client.Role)
+			// fmt.Println("it through because its role is not manage or admin", client.UserId, client.Role)
 			continue
 		}
 
@@ -89,7 +89,9 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 
 		select {
 		case client.SendManage <- message:
+			fmt.Println("ボードキャストを受信しました！")
 		default:
+			fmt.Println("失敗したアルよ")
 			close(client.Send)
 			delete(hub.Clients, client.UserId)
 		}

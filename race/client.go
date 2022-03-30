@@ -162,6 +162,7 @@ func (c *Client) sendEvent(message *PointNav, isOpen bool) {
 func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
+		fmt.Println("閉じられているやんけ！")
 		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 		return
 	}
