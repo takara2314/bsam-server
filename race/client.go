@@ -117,6 +117,7 @@ func (c *Client) writePump() {
 			c.sendEvent(message, isOpen)
 
 		case message, isOpen := <-c.SendManage:
+			fmt.Println("1 ok")
 			c.sendManageEvent(message, isOpen)
 
 		case <-ticker.C:
@@ -160,6 +161,7 @@ func (c *Client) sendEvent(message *PointNav, isOpen bool) {
 
 // sendManageEvent sends manage clients a manage infomation.
 func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
+	fmt.Println("2 ok")
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
 		fmt.Println("閉じられているやんけ！")
@@ -187,6 +189,7 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 }
 
 func (c *Client) pingEvent() {
+	fmt.Println("ping to", c.UserId)
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 		return
