@@ -124,10 +124,7 @@ func (c *Client) writePump() {
 
 			// Do not send next nav info to a manage user and a point user.
 			if !(c.Role == "manage" || c.Role == "admin") {
-				err := c.sendNextNav()
-				if err != nil {
-					return
-				}
+				c.sendNextNav()
 			}
 		}
 	}
@@ -195,19 +192,11 @@ func (c *Client) pingEvent() {
 	}
 }
 
-func (c *Client) sendNextNav() error {
-	fmt.Println("ping to", c.UserId)
-	fmt.Println(c.Hub.Clients)
+func (c *Client) sendNextNav() {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-	err := c.Conn.WriteMessage(websocket.PingMessage, nil)
-	if err != nil {
-		fmt.Println("nilじゃなかった1", err)
-		return err
-	}
-
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
 	if err != nil {
-		return err
+		return
 	}
 
 	// Announce next point info.
@@ -244,6 +233,4 @@ func (c *Client) sendNextNav() error {
 		Longitude: c.Position.Longitude,
 		Next:      nav,
 	}
-
-	return nil
 }
