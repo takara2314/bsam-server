@@ -87,14 +87,16 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 
 		fmt.Println("send it to", client.UserId, message)
 
-		select {
-		case client.SendManage <- message:
-			fmt.Println("ボードキャストを受信しました！")
-		default:
-			fmt.Println("失敗したアルよ")
-			close(client.Send)
-			delete(hub.Clients, client.UserId)
-		}
+		client.SendManage <- message
+
+		// select {
+		// case client.SendManage <- message:
+		// 	fmt.Println("ボードキャストを受信しました！")
+		// default:
+		// 	fmt.Println("失敗したアルよ")
+		// 	close(client.Send)
+		// 	delete(hub.Clients, client.UserId)
+		// }
 	}
 }
 
