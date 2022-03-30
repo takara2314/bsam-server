@@ -122,13 +122,13 @@ func (c *Client) writePump() {
 		case <-ticker.C:
 			c.pingEvent()
 
-			// Do not send next nav info to a manage user and a point user.
-			if !(c.Role == "manage" || c.Role == "admin") {
-				err := c.sendNextNav()
-				if err != nil {
-					return
-				}
-			}
+			// // Do not send next nav info to a manage user and a point user.
+			// if !(c.Role == "manage" || c.Role == "admin") {
+			// 	err := c.sendNextNav()
+			// 	if err != nil {
+			// 		return
+			// 	}
+			// }
 		}
 	}
 }
