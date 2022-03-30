@@ -10,7 +10,7 @@ import (
 
 const (
 	writeWait      = 10 * time.Second
-	pongWait       = 5 * time.Second
+	pongWait       = 3 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
 	maxMessageSize = 1024
 )
@@ -102,7 +102,7 @@ func (c *Client) readPump() {
 	}
 }
 
-// writePump pings once every 49.5s
+// writePump pings once every 2.7s
 // and when Send channel sends data, send it to the client.
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
@@ -120,9 +120,11 @@ func (c *Client) writePump() {
 			c.sendManageEvent(message, isOpen)
 
 		case <-ticker.C:
-			// Do not ping to a manage user and a point user.
+			c.pingEvent()
+
+			// Do not send next nav info to a manage user and a point user.
 			if !(c.Role == "manage" || c.Role == "admin") {
-				err := c.pingEvent()
+				err := c.sendNextNav()
 				if err != nil {
 					return
 				}
@@ -186,7 +188,14 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 	}
 }
 
-func (c *Client) pingEvent() error {
+func (c *Client) pingEvent() {
+	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+		return
+	}
+}
+
+func (c *Client) sendNextNav() error {
 	fmt.Println("ping to", c.UserId)
 	fmt.Println(c.Hub.Clients)
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
