@@ -76,7 +76,7 @@ func (c *Client) readPump() {
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
-			fmt.Println("障害発生", err)
+			fmt.Println(c.UserId, "障害発生 >>", err)
 			if websocket.IsUnexpectedCloseError(
 				err,
 				websocket.CloseGoingAway,
@@ -88,7 +88,7 @@ func (c *Client) readPump() {
 		}
 
 		// Obtain a position info into a client instance.
-		fmt.Println("messageだよ！", string(message))
+		fmt.Println(c.UserId, "message >>", string(message))
 		err = json.Unmarshal(message, &c.Position)
 		if err != nil {
 			panic(err)
@@ -122,13 +122,13 @@ func (c *Client) writePump() {
 		case <-ticker.C:
 			c.pingEvent()
 
-			// // Do not send next nav info to a manage user and a point user.
-			// if !(c.Role == "manage" || c.Role == "admin") {
-			// 	err := c.sendNextNav()
-			// 	if err != nil {
-			// 		return
-			// 	}
-			// }
+			// Do not send next nav info to a manage user and a point user.
+			if !(c.Role == "manage" || c.Role == "admin") {
+				err := c.sendNextNav()
+				if err != nil {
+					return
+				}
+			}
 		}
 	}
 }
