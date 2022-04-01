@@ -121,11 +121,17 @@ func (c *Client) writePump() {
 			c.sendManageEvent(message, isOpen)
 
 		case <-ticker.C:
-			c.pingEvent()
+			err := c.pingEvent()
+			if err != nil {
+				break
+			}
 
 			// Do not send next nav info to a manage user and a point user.
 			if !(c.Role == "manage" || c.Role == "admin") {
-				c.sendNextNav()
+				err = c.sendNextNav()
+				if err != nil {
+					break
+				}
 			}
 		}
 	}
@@ -188,19 +194,21 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 	}
 }
 
-func (c *Client) pingEvent() {
+func (c *Client) pingEvent() error {
 	fmt.Println("ping to", c.UserId)
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-		return
+		fmt.Println(err)
+		return err
 	}
+	return nil
 }
 
-func (c *Client) sendNextNav() {
+func (c *Client) sendNextNav() error {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
 	if err != nil {
-		return
+		return err
 	}
 
 	// Announce next point info.
@@ -237,4 +245,6 @@ func (c *Client) sendNextNav() {
 		Longitude: c.Position.Longitude,
 		Next:      nav,
 	}
+
+	return nil
 }

@@ -34,7 +34,6 @@ func RacingWS(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	defer db.DB.Close()
 
 	// User ID must be contain.
 	if userId == "" {
@@ -93,6 +92,9 @@ func RacingWS(c *gin.Context) {
 			return
 		}
 	}
+
+	// Close
+	db.DB.Close()
 
 	// Upgrade to WebSocket.
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
