@@ -121,6 +121,16 @@ func RacingWS(c *gin.Context) {
 
 	fmt.Println("C")
 
+	var isOpened bool
+	select {
+	case _, isOpened = <-client.Hub.Register:
+	default:
+		isOpened = true
+	}
+	if !isOpened {
+		fmt.Println("しまってます…！")
+	}
+
 	client.Hub.Register <- client
 
 	go client.readPump()
