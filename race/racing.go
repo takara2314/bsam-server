@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"net/http"
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
@@ -28,6 +29,8 @@ func RacingWS(c *gin.Context) {
 		abort.NotFound(c, message.RaceNotFound)
 		return
 	}
+
+	fmt.Println("A")
 
 	// Connect to the database and insert such data.
 	db, err := bsamdb.Open()
@@ -96,6 +99,8 @@ func RacingWS(c *gin.Context) {
 	// Close
 	db.DB.Close()
 
+	fmt.Println("B")
+
 	// Upgrade to WebSocket.
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -113,6 +118,8 @@ func RacingWS(c *gin.Context) {
 		CourseLimit: 20.0,
 		Send:        make(chan *PointNav),
 	}
+
+	fmt.Println("C")
 
 	client.Hub.Register <- client
 
