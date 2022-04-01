@@ -41,6 +41,7 @@ func (hub *Hub) Run() {
 	for {
 		select {
 		case client := <-hub.Register:
+			fmt.Println("信号を受け取りましたわ！")
 			hub.registerEvent(client)
 		case client := <-hub.Unregister:
 			hub.unregisterEvent(client)
