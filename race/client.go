@@ -272,6 +272,27 @@ func (c *Client) sendNextNav() error {
 	encoded, _ := json.Marshal(nav)
 	fmt.Println("ナビを送信します", string(encoded))
 
+	func(message []byte) {
+		c.Mux.Lock()
+		defer c.Mux.Unlock()
+
+		c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+
+		w, err := c.Conn.NextWriter(websocket.TextMessage)
+		if err != nil {
+			fmt.Println("temp", err)
+			return
+		}
+
+		w.Write(encoded)
+
+		err = w.Close()
+		if err != nil {
+			fmt.Println("temp", err)
+			return
+		}
+	}(encoded)
+
 	if _, ok := <-c.Send; !ok {
 		fmt.Println("チャネルは閉鎖されています")
 		return errors.New("closed channel")
