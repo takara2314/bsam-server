@@ -87,7 +87,7 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 
 		fmt.Println("send it to", client.UserId, message)
 
-		client.SendManage <- message
+		// client.SendManage <- message
 
 		// select {
 		// case client.SendManage <- message:
