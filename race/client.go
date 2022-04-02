@@ -2,7 +2,6 @@ package race
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
@@ -115,25 +114,18 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case message, isOpen := <-c.Send:
-			c.sendEvent(message, isOpen)
+			go c.sendEvent(message, isOpen)
 
 		case message, isOpen := <-c.SendManage:
 			fmt.Println("1 ok")
-			c.sendManageEvent(message, isOpen)
+			go c.sendManageEvent(message, isOpen)
 
 		case <-ticker.C:
-			err := c.pingEvent()
-			if err != nil {
-				return
-			}
+			go c.pingEvent()
 
 			// Do not send next nav info to a manage user and a point user.
 			if !(c.Role == "manage" || c.Role == "admin") {
-				err = c.sendNextNav()
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
+				go c.sendNextNav()
 			}
 		}
 	}
@@ -196,15 +188,14 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 	}
 }
 
-func (c *Client) pingEvent() error {
+func (c *Client) pingEvent() {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-		return err
+		return
 	}
-	return nil
 }
 
-func (c *Client) sendNextNav() error {
+func (c *Client) sendNextNav() {
 	// c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	// w, err := c.Conn.NextWriter(websocket.TextMessage)
 	// if err != nil {
@@ -244,7 +235,8 @@ func (c *Client) sendNextNav() error {
 	fmt.Println("真start")
 	if _, ok := <-c.Send; !ok {
 		fmt.Println("finish")
-		return errors.New("closed channel")
+		fmt.Println("closed channel")
+		return
 	}
 
 	fmt.Println("チャンネルは開いています")
@@ -258,6 +250,4 @@ func (c *Client) sendNextNav() error {
 		Longitude: c.Position.Longitude,
 		Next:      nav,
 	}
-
-	return nil
 }
