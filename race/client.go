@@ -239,17 +239,11 @@ func (c *Client) sendNextNav() error {
 	fmt.Println("送信します", string(encoded))
 	// w.Write(encoded)
 
-	var isOpened bool
-	select {
-	case _, isOpened = <-c.Send:
-	default:
-		isOpened = true
-	}
-	if !isOpened {
+	if _, ok := <-c.Send; !ok {
 		return errors.New("closed channel")
 	}
 
-	fmt.Println(isOpened, "<- チャンネルの開き具合")
+	fmt.Println("チャンネルは開いています")
 
 	c.Send <- &nav
 
