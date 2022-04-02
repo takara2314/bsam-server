@@ -240,6 +240,8 @@ func (c *Client) sendNextNav() error {
 	// w.Write(encoded)
 
 	fmt.Println("start")
+	time.Sleep(5 * time.Second)
+	fmt.Println("真start")
 	if _, ok := <-c.Send; !ok {
 		fmt.Println("finish")
 		return errors.New("closed channel")
