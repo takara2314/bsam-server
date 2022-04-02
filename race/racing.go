@@ -30,8 +30,6 @@ func RacingWS(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("A")
-
 	// Connect to the database and insert such data.
 	db, err := bsamdb.Open()
 	if err != nil {
@@ -99,8 +97,6 @@ func RacingWS(c *gin.Context) {
 	// Close
 	db.DB.Close()
 
-	fmt.Println("B")
-
 	// Upgrade to WebSocket.
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -119,19 +115,7 @@ func RacingWS(c *gin.Context) {
 		Send:        make(chan *PointNav),
 	}
 
-	fmt.Println("C")
-
-	var isOpened bool
-	select {
-	case _, isOpened = <-client.Hub.Register:
-	default:
-		isOpened = true
-	}
-	if !isOpened {
-		fmt.Println("しまってます…！")
-	} else {
-		fmt.Println("あいていたよ")
-	}
+	fmt.Println("prepared")
 
 	client.Hub.Register <- client
 

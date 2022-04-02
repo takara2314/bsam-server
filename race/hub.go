@@ -87,7 +87,19 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 
 		fmt.Println("send it to", client.UserId, message)
 
-		// client.SendManage <- message
+		var isOpened bool
+		select {
+		case _, isOpened = <-client.SendManage:
+		default:
+			isOpened = true
+		}
+		if !isOpened {
+			fmt.Println("しまってます…！")
+		} else {
+			fmt.Println("あいていたよ")
+		}
+
+		client.SendManage <- message
 
 		// select {
 		// case client.SendManage <- message:
