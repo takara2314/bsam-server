@@ -99,7 +99,7 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 			fmt.Println("あいていたよ")
 		}
 
-		client.SendManage <- message
+		// client.SendManage <- message
 
 		// select {
 		// case client.SendManage <- message:
