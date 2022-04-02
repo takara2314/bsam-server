@@ -129,6 +129,8 @@ func RacingWS(c *gin.Context) {
 	}
 	if !isOpened {
 		fmt.Println("しまってます…！")
+	} else {
+		fmt.Println("あいていたよ")
 	}
 
 	client.Hub.Register <- client

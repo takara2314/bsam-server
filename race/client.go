@@ -84,7 +84,7 @@ func (c *Client) readPump() {
 			) {
 				fmt.Println(err)
 			}
-			return
+			break
 		}
 
 		// Obtain a position info into a client instance.
@@ -195,7 +195,6 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 }
 
 func (c *Client) pingEvent() error {
-	fmt.Println("ping to", c.UserId)
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 		return err

@@ -39,6 +39,7 @@ func (hub *Hub) Run() {
 	defer ticker.Stop()
 
 	for {
+		fmt.Println("running")
 		select {
 		case client := <-hub.Register:
 			fmt.Println("信号を受け取りましたわ！")
@@ -46,7 +47,6 @@ func (hub *Hub) Run() {
 		case client := <-hub.Unregister:
 			hub.unregisterEvent(client)
 		case message := <-hub.Managecast:
-			fmt.Println("okurikaeshi")
 			hub.managecastEvent(message)
 
 		case <-ticker.C:
