@@ -249,6 +249,8 @@ func (c *Client) sendNextNav() error {
 		return errors.New("closed channel")
 	}
 
+	fmt.Println(isOpened, "<- チャンネルの開き具合")
+
 	c.Send <- &nav
 
 	// Broadcast for manage users and admin users.
