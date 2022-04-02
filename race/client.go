@@ -117,6 +117,7 @@ func (c *Client) writePump() {
 
 	go c.sendNextNavEvent()
 
+	fmt.Println("準備完了")
 	for {
 		select {
 		case message, isOpen := <-c.Send:
@@ -146,6 +147,10 @@ func (c *Client) writePump() {
 
 // sendNextNavEvent sends next nav info every 5.4s
 func (c *Client) sendNextNavEvent() {
+	time.Sleep(3 * time.Second)
+
+	fmt.Println("ナビインターバル開始")
+
 	ticker := time.NewTicker(navPeriod)
 	defer ticker.Stop()
 
