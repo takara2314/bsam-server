@@ -39,10 +39,8 @@ func (hub *Hub) Run() {
 	defer ticker.Stop()
 
 	for {
-		fmt.Println("running")
 		select {
 		case client := <-hub.Register:
-			fmt.Println("信号を受け取りましたわ！")
 			hub.registerEvent(client)
 		case client := <-hub.Unregister:
 			hub.unregisterEvent(client)
@@ -88,19 +86,19 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 
 		fmt.Println("send it to", client.UserId, message)
 
-		var isOpened bool
-		select {
-		case _, isOpened = <-client.SendManage:
-		default:
-			isOpened = true
-		}
-		if !isOpened {
-			fmt.Println("しまってます…！")
-		} else {
-			fmt.Println("あいていたよ")
-		}
+		// var isOpened bool
+		// select {
+		// case _, isOpened = <-client.SendManage:
+		// default:
+		// 	isOpened = true
+		// }
+		// if !isOpened {
+		// 	fmt.Println("しまってます…！")
+		// } else {
+		// 	fmt.Println("あいていたよ")
+		// }
 
-		// client.SendManage <- message
+		client.SendManage <- message
 
 		// select {
 		// case client.SendManage <- message:

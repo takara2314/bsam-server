@@ -14,6 +14,7 @@ const (
 	writeWait      = 10 * time.Second
 	pongWait       = 3 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
+	navPeriod      = pingPeriod * 2
 	maxMessageSize = 1024
 )
 
@@ -114,39 +115,46 @@ func (c *Client) writePump() {
 		c.Conn.Close()
 	}()
 
-	go func() {
-		ticker := time.NewTicker(pingPeriod)
-		defer ticker.Stop()
-
-		for {
-			<-ticker.C
-			// Do not send next nav info to a manage user and a point user.
-			if !(c.Role == "manage" || c.Role == "admin") {
-				err := c.sendNextNav()
-				if err != nil {
-					return
-				}
-			}
-		}
-	}()
+	go c.sendNextNavEvent()
 
 	for {
 		select {
 		case message, isOpen := <-c.Send:
 			err := c.sendEvent(message, isOpen)
 			if err != nil {
+				fmt.Println("エラー速報A:", err)
 				return
 			}
 
 		case message, isOpen := <-c.SendManage:
-			fmt.Println("1 ok")
 			err := c.sendManageEvent(message, isOpen)
 			if err != nil {
+				fmt.Println("エラー速報B:", err)
 				return
 			}
 
 		case <-ticker.C:
+			fmt.Println("pinging...")
 			err := c.pingEvent()
+			if err != nil {
+				fmt.Println("エラー速報C:", err)
+				return
+			}
+		}
+	}
+}
+
+// sendNextNavEvent sends next nav info every 5.4s
+func (c *Client) sendNextNavEvent() {
+	ticker := time.NewTicker(navPeriod)
+	defer ticker.Stop()
+
+	for {
+		<-ticker.C
+		fmt.Println("naving...")
+		// Do not send next nav info to a manage user and a point user.
+		if !(c.Role == "manage" || c.Role == "admin") {
+			err := c.sendNextNav()
 			if err != nil {
 				return
 			}
@@ -192,10 +200,8 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) error {
 	c.Mux.Lock()
 	defer c.Mux.Unlock()
 
-	fmt.Println("2 ok")
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
-		fmt.Println("閉じられているやんけ！")
 		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 		return errors.New("closed channel")
 	}
@@ -234,12 +240,6 @@ func (c *Client) pingEvent() error {
 }
 
 func (c *Client) sendNextNav() error {
-	// c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-	// w, err := c.Conn.NextWriter(websocket.TextMessage)
-	// if err != nil {
-	// 	return err
-	// }
-
 	// Announce next point info.
 	var nextLat, nextLng float64
 	switch c.NextPoint {
@@ -265,18 +265,14 @@ func (c *Client) sendNextNav() error {
 	}
 
 	encoded, _ := json.Marshal(nav)
-	fmt.Println("送信します", string(encoded))
-	// w.Write(encoded)
+	fmt.Println("ナビを送信します", string(encoded))
 
-	// fmt.Println("start")
-	// time.Sleep(5 * time.Second)
-	// fmt.Println("真start")
 	if _, ok := <-c.Send; !ok {
-		fmt.Println("finish")
+		fmt.Println("チャネルは閉鎖されています")
 		return errors.New("closed channel")
 	}
 
-	fmt.Println("チャンネルは開いています")
+	fmt.Println("チャネルは開いています")
 
 	c.Send <- &nav
 
