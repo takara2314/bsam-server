@@ -2,6 +2,7 @@ package race
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -28,7 +29,6 @@ type Client struct {
 	Send        chan *PointNav
 	SendManage  chan *ManageInfo
 	Mux         sync.RWMutex
-	Close       chan bool
 }
 
 type Position struct {
@@ -114,45 +114,61 @@ func (c *Client) writePump() {
 		c.Conn.Close()
 	}()
 
+	go func() {
+		ticker := time.NewTicker(pingPeriod)
+		defer ticker.Stop()
+
+		for {
+			<-ticker.C
+			// Do not send next nav info to a manage user and a point user.
+			if !(c.Role == "manage" || c.Role == "admin") {
+				err := c.sendNextNav()
+				if err != nil {
+					return
+				}
+			}
+		}
+	}()
+
 	for {
 		select {
 		case message, isOpen := <-c.Send:
-			go c.sendEvent(message, isOpen)
+			err := c.sendEvent(message, isOpen)
+			if err != nil {
+				return
+			}
 
 		case message, isOpen := <-c.SendManage:
 			fmt.Println("1 ok")
-			go c.sendManageEvent(message, isOpen)
-
-		case <-ticker.C:
-			go c.pingEvent()
-
-			// Do not send next nav info to a manage user and a point user.
-			if !(c.Role == "manage" || c.Role == "admin") {
-				go c.sendNextNav()
+			err := c.sendManageEvent(message, isOpen)
+			if err != nil {
+				return
 			}
 
-		case <-c.Close:
-			fmt.Println("閉鎖命令")
-			return
+		case <-ticker.C:
+			err := c.pingEvent()
+			if err != nil {
+				return
+			}
 		}
 	}
 }
 
 // sendEvent sends client a navigation infomation.
 // SEARCH: always looping without a send signal?
-func (c *Client) sendEvent(message *PointNav, isOpen bool) {
+func (c *Client) sendEvent(message *PointNav, isOpen bool) error {
 	c.Mux.Lock()
 	defer c.Mux.Unlock()
 
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
 		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-		return
+		return errors.New("closed channel")
 	}
 
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
 	if err != nil {
-		return
+		return err
 	}
 	encoded, _ := json.Marshal(message)
 	w.Write(encoded)
@@ -165,12 +181,14 @@ func (c *Client) sendEvent(message *PointNav, isOpen bool) {
 
 	err = w.Close()
 	if err != nil {
-		return
+		return err
 	}
+
+	return nil
 }
 
 // sendManageEvent sends manage clients a manage infomation.
-func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
+func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) error {
 	c.Mux.Lock()
 	defer c.Mux.Unlock()
 
@@ -179,13 +197,12 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 	if !isOpen {
 		fmt.Println("閉じられているやんけ！")
 		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-		c.Close <- true
-		return
+		return errors.New("closed channel")
 	}
 
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
 	if err != nil {
-		return
+		return err
 	}
 	encoded, _ := json.Marshal(message)
 	w.Write(encoded)
@@ -198,22 +215,25 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 
 	err = w.Close()
 	if err != nil {
-		c.Close <- true
-		return
+		return err
 	}
+
+	return nil
 }
 
-func (c *Client) pingEvent() {
+func (c *Client) pingEvent() error {
 	c.Mux.Lock()
 	defer c.Mux.Unlock()
 
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-		c.Close <- true
+		return err
 	}
+
+	return nil
 }
 
-func (c *Client) sendNextNav() {
+func (c *Client) sendNextNav() error {
 	// c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	// w, err := c.Conn.NextWriter(websocket.TextMessage)
 	// if err != nil {
@@ -248,14 +268,12 @@ func (c *Client) sendNextNav() {
 	fmt.Println("送信します", string(encoded))
 	// w.Write(encoded)
 
-	fmt.Println("start")
-	time.Sleep(5 * time.Second)
-	fmt.Println("真start")
+	// fmt.Println("start")
+	// time.Sleep(5 * time.Second)
+	// fmt.Println("真start")
 	if _, ok := <-c.Send; !ok {
 		fmt.Println("finish")
-		fmt.Println("closed channel")
-		c.Close <- true
-		return
+		return errors.New("closed channel")
 	}
 
 	fmt.Println("チャンネルは開いています")
@@ -269,4 +287,6 @@ func (c *Client) sendNextNav() {
 		Longitude: c.Position.Longitude,
 		Next:      nav,
 	}
+
+	return nil
 }
