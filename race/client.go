@@ -239,7 +239,9 @@ func (c *Client) sendNextNav() error {
 	fmt.Println("送信します", string(encoded))
 	// w.Write(encoded)
 
+	fmt.Println("start")
 	if _, ok := <-c.Send; !ok {
+		fmt.Println("finish")
 		return errors.New("closed channel")
 	}
 

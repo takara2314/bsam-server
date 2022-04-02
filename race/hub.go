@@ -68,6 +68,7 @@ func (hub *Hub) registerEvent(client *Client) {
 // unregisterEvent removes this client.
 func (hub *Hub) unregisterEvent(client *Client) {
 	if _, exist := hub.Clients[client.UserId]; exist {
+		fmt.Println(client.UserId, "のsend閉じますね…")
 		close(client.Send)
 		err := hub.removeAthlete(client.UserId)
 		if err != nil {
