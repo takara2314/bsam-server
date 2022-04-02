@@ -3,6 +3,7 @@ package race
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -26,6 +27,7 @@ type Client struct {
 	CourseLimit float32
 	Send        chan *PointNav
 	SendManage  chan *ManageInfo
+	Mux         sync.RWMutex
 }
 
 type Position struct {
@@ -134,6 +136,9 @@ func (c *Client) writePump() {
 // sendEvent sends client a navigation infomation.
 // SEARCH: always looping without a send signal?
 func (c *Client) sendEvent(message *PointNav, isOpen bool) {
+	c.Mux.Lock()
+	defer c.Mux.Unlock()
+
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
 		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
@@ -161,6 +166,9 @@ func (c *Client) sendEvent(message *PointNav, isOpen bool) {
 
 // sendManageEvent sends manage clients a manage infomation.
 func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
+	c.Mux.Lock()
+	defer c.Mux.Unlock()
+
 	fmt.Println("2 ok")
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
@@ -189,6 +197,9 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 }
 
 func (c *Client) pingEvent() {
+	c.Mux.Lock()
+	defer c.Mux.Unlock()
+
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 		return
