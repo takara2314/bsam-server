@@ -28,6 +28,7 @@ type Client struct {
 	Send        chan *PointNav
 	SendManage  chan *ManageInfo
 	Mux         sync.RWMutex
+	Close       chan bool
 }
 
 type Position struct {
@@ -129,6 +130,10 @@ func (c *Client) writePump() {
 			if !(c.Role == "manage" || c.Role == "admin") {
 				go c.sendNextNav()
 			}
+
+		case <-c.Close:
+			fmt.Println("閉鎖命令")
+			return
 		}
 	}
 }
@@ -174,6 +179,7 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 	if !isOpen {
 		fmt.Println("閉じられているやんけ！")
 		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+		c.Close <- true
 		return
 	}
 
@@ -192,6 +198,7 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) {
 
 	err = w.Close()
 	if err != nil {
+		c.Close <- true
 		return
 	}
 }
@@ -202,7 +209,7 @@ func (c *Client) pingEvent() {
 
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-		return
+		c.Close <- true
 	}
 }
 
@@ -247,6 +254,7 @@ func (c *Client) sendNextNav() {
 	if _, ok := <-c.Send; !ok {
 		fmt.Println("finish")
 		fmt.Println("closed channel")
+		c.Close <- true
 		return
 	}
 
