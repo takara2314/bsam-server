@@ -203,11 +203,11 @@ func (c *Client) pingEvent() error {
 }
 
 func (c *Client) sendNextNav() error {
-	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-	w, err := c.Conn.NextWriter(websocket.TextMessage)
-	if err != nil {
-		return err
-	}
+	// c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	// w, err := c.Conn.NextWriter(websocket.TextMessage)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// Announce next point info.
 	var nextLat, nextLng float64
@@ -235,7 +235,9 @@ func (c *Client) sendNextNav() error {
 
 	encoded, _ := json.Marshal(nav)
 	fmt.Println("送信します", string(encoded))
-	w.Write(encoded)
+	// w.Write(encoded)
+
+	c.Send <- &nav
 
 	// Broadcast for manage users and admin users.
 	c.Hub.Managecast <- &ManageInfo{
