@@ -2,6 +2,7 @@ package race
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -130,6 +131,7 @@ func (c *Client) writePump() {
 			if !(c.Role == "manage" || c.Role == "admin") {
 				err = c.sendNextNav()
 				if err != nil {
+					fmt.Println(err)
 					return
 				}
 			}
@@ -236,6 +238,16 @@ func (c *Client) sendNextNav() error {
 	encoded, _ := json.Marshal(nav)
 	fmt.Println("送信します", string(encoded))
 	// w.Write(encoded)
+
+	var isOpened bool
+	select {
+	case _, isOpened = <-c.Send:
+	default:
+		isOpened = true
+	}
+	if !isOpened {
+		return errors.New("closed channel")
+	}
 
 	c.Send <- &nav
 
