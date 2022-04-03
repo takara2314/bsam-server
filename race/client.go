@@ -269,7 +269,19 @@ func (c *Client) sendNextNav() error {
 	encoded, _ := json.Marshal(nav)
 	fmt.Println("ナビを送信します", string(encoded))
 
-	c.Send <- &nav
+	var ok bool
+	select {
+	case _, ok = <-c.Send:
+	default:
+		ok = true
+	}
+
+	if ok {
+		fmt.Println("OKなので送信します")
+		c.Send <- &nav
+	} else {
+		fmt.Println("NGです")
+	}
 
 	// Broadcast for manage users and admin users.
 	c.Hub.Managecast <- &ManageInfo{
