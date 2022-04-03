@@ -269,18 +269,12 @@ func (c *Client) sendNextNav() error {
 	encoded, _ := json.Marshal(nav)
 	fmt.Println("ナビを送信します", string(encoded))
 
-	var ok bool
-	select {
-	case _, ok = <-c.Send:
-	default:
-		ok = true
-	}
-
-	if ok {
+	if IsClosedSendChan(c.Send) {
 		fmt.Println("OKなので送信します")
 		c.Send <- &nav
 	} else {
-		fmt.Println("NGです")
+		fmt.Println("閉まってました！")
+		return errors.New("closed channel")
 	}
 
 	// Broadcast for manage users and admin users.
@@ -292,4 +286,30 @@ func (c *Client) sendNextNav() error {
 	}
 
 	return nil
+}
+
+// IsClosedSendChan returns true when that send channel is opened.
+func IsClosedSendChan(c chan *PointNav) bool {
+	var ok bool
+
+	select {
+	case _, ok = <-c:
+	default:
+		ok = true
+	}
+
+	return ok
+}
+
+// IsClosedSendManageChan returns true when that send manage channel is opened.
+func IsClosedSendManageChan(c chan *ManageInfo) bool {
+	var ok bool
+
+	select {
+	case _, ok = <-c:
+	default:
+		ok = true
+	}
+
+	return ok
 }
