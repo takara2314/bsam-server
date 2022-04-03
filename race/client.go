@@ -120,6 +120,7 @@ func (c *Client) writePump() {
 
 	go func() {
 		for {
+			fmt.Println("待機中だっぺ！")
 			flag, ok := <-c.Test
 			fmt.Println(flag, "が送信されました！", ok)
 		}
