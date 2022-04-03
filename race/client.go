@@ -29,7 +29,6 @@ type Client struct {
 	CourseLimit float32
 	Send        chan *PointNav
 	SendManage  chan *ManageInfo
-	Test        chan bool
 	Mux         sync.RWMutex
 }
 
@@ -118,7 +117,6 @@ func (c *Client) writePump() {
 
 	go c.sendNextNavEvent()
 
-	fmt.Println("準備完了")
 	for {
 		select {
 		case message, ok := <-c.Send:
@@ -134,9 +132,6 @@ func (c *Client) writePump() {
 				fmt.Println("エラー速報B:", err)
 				return
 			}
-
-		case flag, ok := <-c.Test:
-			fmt.Println(flag, "が送信されました！", ok)
 
 		case <-ticker.C:
 			fmt.Println("pinging...")
@@ -274,45 +269,15 @@ func (c *Client) sendNextNav() error {
 	encoded, _ := json.Marshal(nav)
 	fmt.Println("ナビを送信します", string(encoded))
 
-	// func(message []byte) {
-	// 	c.Mux.Lock()
-	// 	defer c.Mux.Unlock()
-
-	// 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-
-	// 	w, err := c.Conn.NextWriter(websocket.TextMessage)
-	// 	if err != nil {
-	// 		fmt.Println("temp", err)
-	// 		return
-	// 	}
-
-	// 	w.Write(encoded)
-
-	// 	err = w.Close()
-	// 	if err != nil {
-	// 		fmt.Println("temp", err)
-	// 		return
-	// 	}
-	// }(encoded)
-
-	c.Test <- true
-
-	// if _, ok := <-c.Send; !ok {
-	// 	fmt.Println("チャネルは閉鎖されています")
-	// 	return errors.New("closed channel")
-	// }
-
-	// fmt.Println("チャネルは開いています")
-
 	c.Send <- &nav
 
-	// // Broadcast for manage users and admin users.
-	// c.Hub.Managecast <- &ManageInfo{
-	// 	UserId:    c.UserId,
-	// 	Latitude:  c.Position.Latitude,
-	// 	Longitude: c.Position.Longitude,
-	// 	Next:      nav,
-	// }
+	// Broadcast for manage users and admin users.
+	c.Hub.Managecast <- &ManageInfo{
+		UserId:    c.UserId,
+		Latitude:  c.Position.Latitude,
+		Longitude: c.Position.Longitude,
+		Next:      nav,
+	}
 
 	return nil
 }
