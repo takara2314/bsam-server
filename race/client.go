@@ -29,6 +29,7 @@ type Client struct {
 	CourseLimit float32
 	Send        chan *PointNav
 	SendManage  chan *ManageInfo
+	Test        chan bool
 	Mux         sync.RWMutex
 }
 
@@ -120,19 +121,22 @@ func (c *Client) writePump() {
 	fmt.Println("準備完了")
 	for {
 		select {
-		case message, isOpen := <-c.Send:
-			err := c.sendEvent(message, isOpen)
+		case message, ok := <-c.Send:
+			err := c.sendEvent(message, ok)
 			if err != nil {
 				fmt.Println("エラー速報A:", err)
 				return
 			}
 
-		case message, isOpen := <-c.SendManage:
-			err := c.sendManageEvent(message, isOpen)
+		case message, ok := <-c.SendManage:
+			err := c.sendManageEvent(message, ok)
 			if err != nil {
 				fmt.Println("エラー速報B:", err)
 				return
 			}
+
+		case flag, ok := <-c.Test:
+			fmt.Println(flag, "が送信されました！", ok)
 
 		case <-ticker.C:
 			fmt.Println("pinging...")
@@ -270,8 +274,6 @@ func (c *Client) sendNextNav() error {
 	encoded, _ := json.Marshal(nav)
 	fmt.Println("ナビを送信します", string(encoded))
 
-	time.Sleep(30 * time.Second)
-
 	func(message []byte) {
 		c.Mux.Lock()
 		defer c.Mux.Unlock()
@@ -293,22 +295,24 @@ func (c *Client) sendNextNav() error {
 		}
 	}(encoded)
 
-	if _, ok := <-c.Send; !ok {
-		fmt.Println("チャネルは閉鎖されています")
-		return errors.New("closed channel")
-	}
+	c.Test <- true
 
-	fmt.Println("チャネルは開いています")
+	// if _, ok := <-c.Send; !ok {
+	// 	fmt.Println("チャネルは閉鎖されています")
+	// 	return errors.New("closed channel")
+	// }
 
-	c.Send <- &nav
+	// fmt.Println("チャネルは開いています")
 
-	// Broadcast for manage users and admin users.
-	c.Hub.Managecast <- &ManageInfo{
-		UserId:    c.UserId,
-		Latitude:  c.Position.Latitude,
-		Longitude: c.Position.Longitude,
-		Next:      nav,
-	}
+	// c.Send <- &nav
+
+	// // Broadcast for manage users and admin users.
+	// c.Hub.Managecast <- &ManageInfo{
+	// 	UserId:    c.UserId,
+	// 	Latitude:  c.Position.Latitude,
+	// 	Longitude: c.Position.Longitude,
+	// 	Next:      nav,
+	// }
 
 	return nil
 }
