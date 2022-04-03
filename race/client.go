@@ -14,7 +14,7 @@ const (
 	writeWait      = 10 * time.Second
 	pongWait       = 10 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
-	navPeriod      = pingPeriod * 2
+	navPeriod      = 5
 	maxMessageSize = 1024
 )
 
@@ -147,8 +147,6 @@ func (c *Client) writePump() {
 
 // sendNextNavEvent sends next nav info every 5.4s
 func (c *Client) sendNextNavEvent() {
-	time.Sleep(3 * time.Second)
-
 	fmt.Println("ナビインターバル開始")
 
 	ticker := time.NewTicker(navPeriod)
@@ -271,6 +269,8 @@ func (c *Client) sendNextNav() error {
 
 	encoded, _ := json.Marshal(nav)
 	fmt.Println("ナビを送信します", string(encoded))
+
+	time.Sleep(30 * time.Second)
 
 	func(message []byte) {
 		c.Mux.Lock()
