@@ -113,6 +113,7 @@ func RacingWS(c *gin.Context) {
 		LatestPoint: 0,
 		CourseLimit: 20.0,
 		Send:        make(chan *PointNav),
+		SendManage:  make(chan *ManageInfo),
 		Test:        make(chan bool),
 	}
 

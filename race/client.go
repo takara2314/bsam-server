@@ -118,14 +118,6 @@ func (c *Client) writePump() {
 
 	go c.sendNextNavEvent()
 
-	go func() {
-		for {
-			fmt.Println("待機中だっぺ！", c.UserId)
-			flag, ok := <-c.Test
-			fmt.Println(flag, "が送信されました！", ok)
-		}
-	}()
-
 	fmt.Println("準備完了")
 	for {
 		select {
@@ -142,6 +134,9 @@ func (c *Client) writePump() {
 				fmt.Println("エラー速報B:", err)
 				return
 			}
+
+		case flag, ok := <-c.Test:
+			fmt.Println(flag, "が送信されました！", ok)
 
 		case <-ticker.C:
 			fmt.Println("pinging...")
