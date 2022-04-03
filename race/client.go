@@ -14,7 +14,7 @@ const (
 	writeWait      = 10 * time.Second
 	pongWait       = 10 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
-	navPeriod      = 5
+	navPeriod      = 5 * time.Second
 	maxMessageSize = 1024
 )
 
@@ -304,7 +304,7 @@ func (c *Client) sendNextNav() error {
 
 	// fmt.Println("チャネルは開いています")
 
-	// c.Send <- &nav
+	c.Send <- &nav
 
 	// // Broadcast for manage users and admin users.
 	// c.Hub.Managecast <- &ManageInfo{
