@@ -1,7 +1,6 @@
 package race
 
 import (
-	"fmt"
 	"net/http"
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
@@ -115,8 +114,6 @@ func RacingWS(c *gin.Context) {
 		Send:        make(chan *PointNav),
 		SendManage:  make(chan *ManageInfo),
 	}
-
-	fmt.Println("prepared")
 
 	client.Hub.Register <- client
 

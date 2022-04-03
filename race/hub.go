@@ -1,7 +1,7 @@
 package race
 
 import (
-	"fmt"
+	"log"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
 	"time"
@@ -55,7 +55,8 @@ func (hub *Hub) Run() {
 
 // registerEvent adds new device.
 func (hub *Hub) registerEvent(client *Client) {
-	fmt.Println(client.UserId, "joined.")
+	log.Println(client.UserId, "joined.")
+
 	hub.Clients[client.UserId] = client
 	err := hub.addAthlete(client.UserId)
 	if err != nil {
@@ -66,7 +67,6 @@ func (hub *Hub) registerEvent(client *Client) {
 // unregisterEvent removes this client.
 func (hub *Hub) unregisterEvent(client *Client) {
 	if _, exist := hub.Clients[client.UserId]; exist {
-		fmt.Println(client.UserId, "のsend閉じますね…")
 		close(client.Send)
 		close(client.SendManage)
 		err := hub.removeAthlete(client.UserId)
@@ -79,30 +79,16 @@ func (hub *Hub) unregisterEvent(client *Client) {
 
 // managecastEvent boardcasts to manage and admin client.
 func (hub *Hub) managecastEvent(message *ManageInfo) {
-	fmt.Println(hub.Clients)
 	for _, client := range hub.Clients {
 		if !(client.Role == "manage" || client.Role == "admin") {
 			continue
 		}
 
-		fmt.Println("send it to", client.UserId, message)
-
 		if IsClosedSendManageChan(client.SendManage) {
-			fmt.Println("OKなので送信します")
 			client.SendManage <- message
 		} else {
-			fmt.Println("閉まってました！")
 			continue
 		}
-
-		// select {
-		// case client.SendManage <- message:
-		// 	fmt.Println("ボードキャストを受信しました！")
-		// default:
-		// 	fmt.Println("失敗したアルよ")
-		// 	close(client.Send)
-		// 	delete(hub.Clients, client.UserId)
-		// }
 	}
 }
 

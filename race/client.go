@@ -3,11 +3,15 @@ package race
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
+)
+
+var (
+	ErrClosedChannel = errors.New("closed channel")
 )
 
 const (
@@ -80,19 +84,18 @@ func (c *Client) readPump() {
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
-			fmt.Println(c.UserId, "障害発生 >>", err)
+			log.Println(c.UserId, "障害発生 >>", err)
 			if websocket.IsUnexpectedCloseError(
 				err,
 				websocket.CloseGoingAway,
 				websocket.CloseAbnormalClosure,
 			) {
-				fmt.Println(err)
+				log.Println(err)
 			}
 			break
 		}
 
 		// Obtain a position info into a client instance.
-		fmt.Println(c.UserId, "message >>", string(message))
 		err = json.Unmarshal(message, &c.Position)
 		if err != nil {
 			panic(err)
@@ -100,9 +103,6 @@ func (c *Client) readPump() {
 
 		// Check that the user passed the mark.
 		c.passCheck()
-
-		// message = bytes.TrimSpace(bytes.Replace(message, []byte{'\n'}, []byte{' '}, -1))
-		// c.Hub.Boardcast <- message
 	}
 }
 
@@ -122,22 +122,18 @@ func (c *Client) writePump() {
 		case message, ok := <-c.Send:
 			err := c.sendEvent(message, ok)
 			if err != nil {
-				fmt.Println("エラー速報A:", err)
 				return
 			}
 
 		case message, ok := <-c.SendManage:
 			err := c.sendManageEvent(message, ok)
 			if err != nil {
-				fmt.Println("エラー速報B:", err)
 				return
 			}
 
 		case <-ticker.C:
-			fmt.Println("pinging...")
 			err := c.pingEvent()
 			if err != nil {
-				fmt.Println("エラー速報C:", err)
 				return
 			}
 		}
@@ -146,14 +142,11 @@ func (c *Client) writePump() {
 
 // sendNextNavEvent sends next nav info every 5.4s
 func (c *Client) sendNextNavEvent() {
-	fmt.Println("ナビインターバル開始")
-
 	ticker := time.NewTicker(navPeriod)
 	defer ticker.Stop()
 
 	for {
 		<-ticker.C
-		fmt.Println("naving...")
 		// Do not send next nav info to a manage user and a point user.
 		if !(c.Role == "manage" || c.Role == "admin") {
 			err := c.sendNextNav()
@@ -173,7 +166,7 @@ func (c *Client) sendEvent(message *PointNav, isOpen bool) error {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
 		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-		return errors.New("closed channel")
+		return ErrClosedChannel
 	}
 
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
@@ -205,7 +198,7 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) error {
 	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 	if !isOpen {
 		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-		return errors.New("closed channel")
+		return ErrClosedChannel
 	}
 
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
@@ -266,15 +259,10 @@ func (c *Client) sendNextNav() error {
 		Latest: c.LatestPoint,
 	}
 
-	encoded, _ := json.Marshal(nav)
-	fmt.Println("ナビを送信します", string(encoded))
-
 	if IsClosedSendChan(c.Send) {
-		fmt.Println("OKなので送信します")
 		c.Send <- &nav
 	} else {
-		fmt.Println("閉まってました！")
-		return errors.New("closed channel")
+		return ErrClosedChannel
 	}
 
 	// Broadcast for manage users and admin users.
