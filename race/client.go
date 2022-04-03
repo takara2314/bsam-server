@@ -121,12 +121,6 @@ func (c *Client) writePump() {
 	go func() {
 		for {
 			fmt.Println("待機中だっぺ！", c.UserId)
-			test := make(chan bool)
-			go func() {
-				test <- true
-			}()
-			f, k := <-test
-			fmt.Println(f, k)
 			flag, ok := <-c.Test
 			fmt.Println(flag, "が送信されました！", ok)
 		}
