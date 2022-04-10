@@ -27,12 +27,14 @@ type Client struct {
 	Conn        *websocket.Conn
 	UserId      string
 	Role        string
+	PointNo     int
 	NextPoint   int
 	LatestPoint int
 	Position    Position
 	CourseLimit float32
 	Send        chan *PointNav
 	SendManage  chan *ManageInfo
+	SendLive    chan *LiveInfo
 	Mux         sync.RWMutex
 }
 
@@ -64,6 +66,13 @@ type ManageInfo struct {
 	Latitude  float64  `json:"latitude"`
 	Longitude float64  `json:"longitude"`
 	Next      PointNav `json:"next"`
+}
+
+type LiveInfo struct {
+	Begin  bool        `json:"is_begin"`
+	PointA PointDevice `json:"point_a"`
+	PointB PointDevice `json:"point_b"`
+	PointC PointDevice `json:"point_c"`
 }
 
 // readPump waits message
@@ -127,6 +136,12 @@ func (c *Client) writePump() {
 
 		case message, ok := <-c.SendManage:
 			err := c.sendManageEvent(message, ok)
+			if err != nil {
+				return
+			}
+
+		case message, ok := <-c.SendLive:
+			err := c.sendLiveEvent(message, ok)
 			if err != nil {
 				return
 			}
@@ -222,6 +237,38 @@ func (c *Client) sendManageEvent(message *ManageInfo, isOpen bool) error {
 	return nil
 }
 
+// sendLiveEvent sends live message.
+func (c *Client) sendLiveEvent(message *LiveInfo, isOpen bool) error {
+	c.Mux.Lock()
+	defer c.Mux.Unlock()
+
+	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	if !isOpen {
+		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+		return ErrClosedChannel
+	}
+
+	w, err := c.Conn.NextWriter(websocket.TextMessage)
+	if err != nil {
+		return err
+	}
+	encoded, _ := json.Marshal(message)
+	w.Write(encoded)
+
+	for i := 0; i < len(c.SendLive); i++ {
+		w.Write([]byte{'\n'})
+		encoded, _ = json.Marshal(<-c.SendLive)
+		w.Write(encoded)
+	}
+
+	err = w.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *Client) pingEvent() error {
 	c.Mux.Lock()
 	defer c.Mux.Unlock()
@@ -291,6 +338,19 @@ func IsClosedSendChan(c chan *PointNav) bool {
 
 // IsClosedSendManageChan returns true when that send manage channel is opened.
 func IsClosedSendManageChan(c chan *ManageInfo) bool {
+	var ok bool
+
+	select {
+	case _, ok = <-c:
+	default:
+		ok = true
+	}
+
+	return ok
+}
+
+// IsClosedSendLiveChan returns true when that send live channel is opened.
+func IsClosedSendLiveChan(c chan *LiveInfo) bool {
 	var ok bool
 
 	select {

@@ -13,6 +13,7 @@ type Hub struct {
 	RaceId     string
 	Clients    map[string]*Client
 	Managecast chan *ManageInfo
+	Livecast   chan *LiveInfo
 	Register   chan *Client
 	Unregister chan *Client
 	PointA     PointDevice
@@ -27,6 +28,7 @@ func NewHub(raceId string) *Hub {
 		RaceId:     raceId,
 		Clients:    make(map[string]*Client),
 		Managecast: make(chan *ManageInfo),
+		Livecast:   make(chan *LiveInfo),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 	}
@@ -46,6 +48,8 @@ func (hub *Hub) Run() {
 			hub.unregisterEvent(client)
 		case message := <-hub.Managecast:
 			hub.managecastEvent(message)
+		case message := <-hub.Livecast:
+			hub.livecastEvent(message)
 
 		case <-ticker.C:
 			hub.updateMarkPositions()
@@ -69,6 +73,8 @@ func (hub *Hub) unregisterEvent(client *Client) {
 	if _, exist := hub.Clients[client.UserId]; exist {
 		close(client.Send)
 		close(client.SendManage)
+		close(client.SendLive)
+
 		err := hub.removeAthlete(client.UserId)
 		if err != nil {
 			panic(err)
@@ -92,6 +98,17 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 	}
 }
 
+// livecastEvent boardcasts live infomation.
+func (hub *Hub) livecastEvent(message *LiveInfo) {
+	for _, client := range hub.Clients {
+		if IsClosedSendLiveChan(client.SendLive) {
+			client.SendLive <- message
+		} else {
+			continue
+		}
+	}
+}
+
 func (hub *Hub) updateMarkPositions() {
 	if hub.PointA.UserId != "" {
 		hub.PointA.Latitude = hub.Clients[hub.PointA.UserId].Position.Latitude
@@ -104,6 +121,14 @@ func (hub *Hub) updateMarkPositions() {
 	if hub.PointC.UserId != "" {
 		hub.PointC.Latitude = hub.Clients[hub.PointC.UserId].Position.Latitude
 		hub.PointC.Longitude = hub.Clients[hub.PointC.UserId].Position.Longitude
+	}
+
+	// Livecast for all device
+	hub.Livecast <- &LiveInfo{
+		Begin:  hub.Begin,
+		PointA: hub.PointA,
+		PointB: hub.PointB,
+		PointC: hub.PointC,
 	}
 }
 

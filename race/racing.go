@@ -72,9 +72,10 @@ func RacingWS(c *gin.Context) {
 	rows.Scan(&role)
 
 	// If mark device, register as it.
+	pointNo := -1
 	if role == "mark" {
 		pointNoStr := c.Param("point")
-		pointNo, err := strconv.Atoi(pointNoStr)
+		pointNo, err = strconv.Atoi(pointNoStr)
 		if err != nil {
 			abort.BadRequest(c, message.InvalidPointId)
 			return
@@ -108,11 +109,13 @@ func RacingWS(c *gin.Context) {
 		Conn:        conn,
 		UserId:      userId,
 		Role:        role,
+		PointNo:     pointNo,
 		NextPoint:   1,
 		LatestPoint: 0,
 		CourseLimit: 20.0,
 		Send:        make(chan *PointNav),
 		SendManage:  make(chan *ManageInfo),
+		SendLive:    make(chan *LiveInfo),
 	}
 
 	client.Hub.Register <- client
