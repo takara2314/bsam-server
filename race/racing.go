@@ -104,12 +104,14 @@ func RacingWS(c *gin.Context) {
 	// Close
 	db.DB.Close()
 
+	fmt.Println("今からアップグレードします")
 	// Upgrade to WebSocket.
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		abort.BadRequest(c, message.NotSupportWebSocket)
 		return
 	}
+	fmt.Println("アップグレードしました！")
 
 	client := &Client{
 		Hub:         rooms[raceId],
