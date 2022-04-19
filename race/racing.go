@@ -78,7 +78,7 @@ func RacingWS(c *gin.Context) {
 	// If mark device, register as it.
 	pointNo := -1
 	if role == "mark" {
-		pointNoStr := c.Param("point")
+		pointNoStr := c.Query("point")
 
 		fmt.Println("pointNoStr:", pointNoStr)
 
@@ -115,6 +115,8 @@ func RacingWS(c *gin.Context) {
 		return
 	}
 	fmt.Println("アップグレードしました！")
+
+	fmt.Println("room pointer:", rooms[raceId])
 
 	client := &Client{
 		Hub:         rooms[raceId],
