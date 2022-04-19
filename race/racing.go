@@ -22,6 +22,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func RacingWS(c *gin.Context) {
+	fmt.Println("クリエストを受けました！")
 	raceId := c.Param("id")
 	userId := c.Query("user")
 
@@ -71,6 +72,8 @@ func RacingWS(c *gin.Context) {
 	rows.Next()
 	var role string
 	rows.Scan(&role)
+
+	fmt.Println(role, "ですね！")
 
 	// If mark device, register as it.
 	pointNo := -1
