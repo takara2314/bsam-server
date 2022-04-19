@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"log"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
@@ -111,14 +112,23 @@ func (hub *Hub) livecastEvent(message *LiveInfo) {
 
 func (hub *Hub) updateMarkPositions() {
 	if hub.PointA.UserId != "" {
+		fmt.Println("A", hub.PointA.UserId)
+		fmt.Println(hub.Clients[hub.PointA.UserId].Position.Latitude)
+		fmt.Println(hub.Clients[hub.PointA.UserId].Position.Longitude)
 		hub.PointA.Latitude = hub.Clients[hub.PointA.UserId].Position.Latitude
 		hub.PointA.Longitude = hub.Clients[hub.PointA.UserId].Position.Longitude
 	}
 	if hub.PointB.UserId != "" {
+		fmt.Println("B", hub.PointB.UserId)
+		fmt.Println(hub.Clients[hub.PointB.UserId].Position.Latitude)
+		fmt.Println(hub.Clients[hub.PointB.UserId].Position.Longitude)
 		hub.PointB.Latitude = hub.Clients[hub.PointB.UserId].Position.Latitude
 		hub.PointB.Longitude = hub.Clients[hub.PointB.UserId].Position.Longitude
 	}
 	if hub.PointC.UserId != "" {
+		fmt.Println("C", hub.PointC.UserId)
+		fmt.Println(hub.Clients[hub.PointC.UserId].Position.Latitude)
+		fmt.Println(hub.Clients[hub.PointC.UserId].Position.Longitude)
 		hub.PointC.Latitude = hub.Clients[hub.PointC.UserId].Position.Latitude
 		hub.PointC.Longitude = hub.Clients[hub.PointC.UserId].Position.Longitude
 	}
