@@ -54,6 +54,7 @@ func (hub *Hub) Run() {
 			hub.livecastEvent(message)
 
 		case <-ticker.C:
+			fmt.Println("マーカーを更新します")
 			hub.updateMarkPositions()
 		}
 	}
@@ -104,10 +105,11 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 func (hub *Hub) livecastEvent(message *LiveInfo) {
 	for _, client := range hub.Clients {
 		if IsClosedSendLiveChan(client.SendLive) {
-			fmt.Println("送信します")
+			fmt.Println(client.UserId, "送信します")
 			client.SendLive <- message
+			fmt.Println(client.UserId, "送信成功しました！！")
 		} else {
-			fmt.Println("送信できません…")
+			fmt.Println(client.UserId, "送信できません…")
 			continue
 		}
 	}
@@ -138,6 +140,7 @@ func (hub *Hub) updateMarkPositions() {
 
 	// Livecast for all device
 	go func() {
+		fmt.Println("送信するでー")
 		hub.Livecast <- &LiveInfo{
 			Begin:  hub.Begin,
 			PointA: hub.PointA,
