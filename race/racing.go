@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"net/http"
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
@@ -76,7 +77,10 @@ func RacingWS(c *gin.Context) {
 	if role == "mark" {
 		pointNoStr := c.Param("point")
 
+		fmt.Println("pointNoStr:", pointNoStr)
+
 		if pointNoStr != "" {
+			fmt.Println("ここにきちゃった")
 			pointNo, err = strconv.Atoi(pointNoStr)
 			if err != nil {
 				abort.BadRequest(c, message.InvalidPointId)
