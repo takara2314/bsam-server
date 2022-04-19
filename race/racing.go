@@ -75,22 +75,25 @@ func RacingWS(c *gin.Context) {
 	pointNo := -1
 	if role == "mark" {
 		pointNoStr := c.Param("point")
-		pointNo, err = strconv.Atoi(pointNoStr)
-		if err != nil {
-			abort.BadRequest(c, message.InvalidPointId)
-			return
-		}
 
-		switch pointNo {
-		case 1:
-			rooms[raceId].PointA.UserId = userId
-		case 2:
-			rooms[raceId].PointB.UserId = userId
-		case 3:
-			rooms[raceId].PointC.UserId = userId
-		default:
-			abort.BadRequest(c, message.InvalidPointId)
-			return
+		if pointNoStr != "" {
+			pointNo, err = strconv.Atoi(pointNoStr)
+			if err != nil {
+				abort.BadRequest(c, message.InvalidPointId)
+				return
+			}
+
+			switch pointNo {
+			case 1:
+				rooms[raceId].PointA.UserId = userId
+			case 2:
+				rooms[raceId].PointB.UserId = userId
+			case 3:
+				rooms[raceId].PointC.UserId = userId
+			default:
+				abort.BadRequest(c, message.InvalidPointId)
+				return
+			}
 		}
 	}
 
