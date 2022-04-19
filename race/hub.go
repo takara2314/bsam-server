@@ -50,6 +50,7 @@ func (hub *Hub) Run() {
 		case message := <-hub.Managecast:
 			hub.managecastEvent(message)
 		case message := <-hub.Livecast:
+			fmt.Println("livecasting:", message)
 			hub.livecastEvent(message)
 
 		case <-ticker.C:
@@ -103,8 +104,10 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 func (hub *Hub) livecastEvent(message *LiveInfo) {
 	for _, client := range hub.Clients {
 		if IsClosedSendLiveChan(client.SendLive) {
+			fmt.Println("送信します")
 			client.SendLive <- message
 		} else {
+			fmt.Println("送信できません…")
 			continue
 		}
 	}
