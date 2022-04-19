@@ -132,6 +132,8 @@ func RacingWS(c *gin.Context) {
 		SendLive:    make(chan *LiveInfo),
 	}
 
+	fmt.Println("register pointer:", client.Hub.Register)
+
 	client.Hub.Register <- client
 
 	go client.readPump()

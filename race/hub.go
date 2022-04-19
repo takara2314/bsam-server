@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"log"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
@@ -43,6 +44,7 @@ func (hub *Hub) Run() {
 	for {
 		select {
 		case client := <-hub.Register:
+			fmt.Println("伝達した！")
 			hub.registerEvent(client)
 		case client := <-hub.Unregister:
 			hub.unregisterEvent(client)
@@ -52,6 +54,7 @@ func (hub *Hub) Run() {
 			hub.livecastEvent(message)
 
 		case <-ticker.C:
+			fmt.Println("マークアップデートします")
 			hub.updateMarkPositions()
 		}
 	}
