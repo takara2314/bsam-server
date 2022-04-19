@@ -115,6 +115,7 @@ func (hub *Hub) livecastEvent(message *LiveInfo) {
 }
 
 func (hub *Hub) updateMarkPositions() {
+	fmt.Println("この処理を開始させるまる！！")
 	if hub.PointA.UserId != "" {
 		hub.PointA.Latitude = hub.Clients[hub.PointA.UserId].Position.Latitude
 		hub.PointA.Longitude = hub.Clients[hub.PointA.UserId].Position.Longitude
@@ -128,13 +129,15 @@ func (hub *Hub) updateMarkPositions() {
 		hub.PointC.Longitude = hub.Clients[hub.PointC.UserId].Position.Longitude
 	}
 
-	// Livecast for all device
-	hub.Livecast <- &LiveInfo{
-		Begin:  hub.Begin,
-		PointA: hub.PointA,
-		PointB: hub.PointB,
-		PointC: hub.PointC,
-	}
+	// // Livecast for all device
+	// hub.Livecast <- &LiveInfo{
+	// 	Begin:  hub.Begin,
+	// 	PointA: hub.PointA,
+	// 	PointB: hub.PointB,
+	// 	PointC: hub.PointC,
+	// }
+
+	fmt.Println("完了だー！")
 }
 
 // addAthlete adds a athlete in this race.
