@@ -42,6 +42,7 @@ func (hub *Hub) Run() {
 	defer ticker.Stop()
 
 	for {
+		fmt.Println("待機中である")
 		select {
 		case client := <-hub.Register:
 			fmt.Println("伝達した！")
@@ -57,6 +58,7 @@ func (hub *Hub) Run() {
 			fmt.Println("マークアップデートします")
 			hub.updateMarkPositions()
 		}
+		fmt.Println("完了まる")
 	}
 }
 
