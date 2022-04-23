@@ -36,9 +36,9 @@ func NewHub(raceId string) *Hub {
 }
 
 // Run working the tasks, such as new device register event and boardcasting.
-// In addition, it updates mark positions every 30 seconds.
+// In addition, it updates mark positions every 2 seconds.
 func (hub *Hub) Run() {
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 
 	for {
