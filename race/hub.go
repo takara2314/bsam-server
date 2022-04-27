@@ -121,17 +121,17 @@ func (hub *Hub) isExistUser(userId string) bool {
 }
 
 func (hub *Hub) updateMarkPositions() {
-	if hub.PointA.UserId != "" && hub.isExistUser(hub.PointA.UserId) {
-		hub.PointA.Latitude = hub.Clients[hub.PointA.UserId].Position.Latitude
-		hub.PointA.Longitude = hub.Clients[hub.PointA.UserId].Position.Longitude
+	if hub.PointA.DeviceId != "" && hub.isExistUser(hub.PointA.DeviceId) {
+		hub.PointA.Latitude = hub.Clients[hub.PointA.DeviceId].Position.Latitude
+		hub.PointA.Longitude = hub.Clients[hub.PointA.DeviceId].Position.Longitude
 	}
-	if hub.PointB.UserId != "" && hub.isExistUser(hub.PointB.UserId) {
-		hub.PointB.Latitude = hub.Clients[hub.PointB.UserId].Position.Latitude
-		hub.PointB.Longitude = hub.Clients[hub.PointB.UserId].Position.Longitude
+	if hub.PointB.DeviceId != "" && hub.isExistUser(hub.PointB.DeviceId) {
+		hub.PointB.Latitude = hub.Clients[hub.PointB.DeviceId].Position.Latitude
+		hub.PointB.Longitude = hub.Clients[hub.PointB.DeviceId].Position.Longitude
 	}
-	if hub.PointC.UserId != "" && hub.isExistUser(hub.PointC.UserId) {
-		hub.PointC.Latitude = hub.Clients[hub.PointC.UserId].Position.Latitude
-		hub.PointC.Longitude = hub.Clients[hub.PointC.UserId].Position.Longitude
+	if hub.PointC.DeviceId != "" && hub.isExistUser(hub.PointC.DeviceId) {
+		hub.PointC.Latitude = hub.Clients[hub.PointC.DeviceId].Position.Latitude
+		hub.PointC.Longitude = hub.Clients[hub.PointC.DeviceId].Position.Longitude
 	}
 
 	// Livecast for all device

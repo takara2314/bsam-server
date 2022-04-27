@@ -56,7 +56,7 @@ type Point struct {
 }
 
 type PointDevice struct {
-	UserId    string  `json:"device_id"`
+	DeviceId  string  `json:"device_id"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 }

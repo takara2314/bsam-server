@@ -92,11 +92,11 @@ func RacingWS(c *gin.Context) {
 
 			switch pointNo {
 			case 1:
-				rooms[raceId].PointA.UserId = userId
+				rooms[raceId].PointA.DeviceId = userId
 			case 2:
-				rooms[raceId].PointB.UserId = userId
+				rooms[raceId].PointB.DeviceId = userId
 			case 3:
-				rooms[raceId].PointC.UserId = userId
+				rooms[raceId].PointC.DeviceId = userId
 			default:
 				abort.BadRequest(c, message.InvalidPointId)
 				return
