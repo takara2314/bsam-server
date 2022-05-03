@@ -23,7 +23,6 @@ var upgrader = websocket.Upgrader{
 }
 
 func RacingWS(c *gin.Context) {
-	fmt.Println("クリエストを受けました！")
 	raceId := c.Param("id")
 	userId := c.Query("user")
 
@@ -111,16 +110,12 @@ func RacingWS(c *gin.Context) {
 	// Close
 	db.DB.Close()
 
-	fmt.Println("今からアップグレードします")
 	// Upgrade to WebSocket.
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		abort.BadRequest(c, message.NotSupportWebSocket)
 		return
 	}
-	fmt.Println("アップグレードしました！")
-
-	fmt.Println("room pointer:", rooms[raceId])
 
 	client := &Client{
 		Hub:         rooms[raceId],
@@ -135,8 +130,6 @@ func RacingWS(c *gin.Context) {
 		SendManage:  make(chan *ManageInfo),
 		SendLive:    make(chan *LiveInfo),
 	}
-
-	fmt.Println("register pointer:", client.Hub.Register)
 
 	client.Hub.Register <- client
 

@@ -1,7 +1,6 @@
 package race
 
 import (
-	"fmt"
 	"log"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
@@ -51,11 +50,10 @@ func (hub *Hub) Run() {
 		case message := <-hub.Managecast:
 			hub.managecastEvent(message)
 		case message := <-hub.Livecast:
-			fmt.Println("livecasting:", message)
+			// fmt.Println("livecasting:", message)
 			hub.livecastEvent(message)
 
 		case <-ticker.C:
-			fmt.Println("マーカーを更新します")
 			hub.updateMarkPositions()
 		}
 	}
@@ -110,11 +108,8 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 func (hub *Hub) livecastEvent(message *LiveInfo) {
 	for _, client := range hub.Clients {
 		if IsClosedSendLiveChan(client.SendLive) {
-			fmt.Println(client.UserId, "送信します")
 			client.SendLive <- message
-			fmt.Println(client.UserId, "送信成功しました！！")
 		} else {
-			fmt.Println(client.UserId, "送信できません…")
 			continue
 		}
 	}
@@ -141,7 +136,6 @@ func (hub *Hub) updateMarkPositions() {
 
 	// Livecast for all device
 	go func() {
-		fmt.Println("送信するでー")
 		hub.Livecast <- &LiveInfo{
 			Begin:  hub.Begin,
 			PointA: hub.PointA,
