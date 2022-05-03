@@ -3,6 +3,7 @@ package race
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -109,6 +110,8 @@ func (c *Client) readPump() {
 		if err != nil {
 			panic(err)
 		}
+
+		fmt.Println(c.UserId, c.Position)
 
 		// Check that the user passed the mark.
 		c.passCheck()
