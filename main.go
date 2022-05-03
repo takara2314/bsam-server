@@ -16,7 +16,7 @@ func main() {
 
 	// CORS settings
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:3000", "https://sailing-assist-mie-manage.herokuapp.com"}
+	corsConfig.AllowOrigins = []string{"http://localhost:3000", "http://sailing-assist-mie-manage.herokuapp.com", "https://sailing-assist-mie-manage.herokuapp.com"}
 	router.Use(cors.New(corsConfig))
 
 	// Device API
