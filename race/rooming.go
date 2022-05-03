@@ -1,7 +1,6 @@
 package race
 
 import (
-	"fmt"
 	"sailing-assist-mie-api/bsamdb"
 	"time"
 )
@@ -37,7 +36,6 @@ func scale(db *bsamdb.DbInfo) {
 	// If not exist race instance, create a race instance and run.
 	for _, race := range races {
 		if _, exist := rooms[*race.Id]; !exist {
-			fmt.Println(*race.Id, "ルームを作成します")
 			rooms[*race.Id] = NewHub(*race.Id)
 			go rooms[*race.Id].Run()
 		}
