@@ -5,6 +5,7 @@ import (
 	"log"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
+	"strings"
 	"time"
 
 	"github.com/lib/pq"
@@ -73,6 +74,10 @@ func (hub *Hub) registerEvent(client *Client) {
 
 // unregisterEvent removes this client.
 func (hub *Hub) unregisterEvent(client *Client) {
+	if strings.HasPrefix(client.UserId, "NPC") {
+		return
+	}
+
 	if hub.isExistUser(client.UserId) {
 		close(client.Send)
 		close(client.SendManage)

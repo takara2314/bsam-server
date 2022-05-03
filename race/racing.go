@@ -8,6 +8,7 @@ import (
 	"sailing-assist-mie-api/message"
 	"sailing-assist-mie-api/utils"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -37,43 +38,46 @@ func RacingWS(c *gin.Context) {
 		panic(err)
 	}
 
-	// User ID must be contain.
-	if userId == "" {
-		abort.BadRequest(c, message.NoUserIdContain)
-		return
-	}
-
-	// The ID correct check.
-	exist, err := db.IsExist(
-		"users",
-		"id",
-		userId,
-	)
-	if err != nil {
-		panic(err)
-	}
-	if !exist {
-		abort.BadRequest(c, message.UserNotFound)
-		return
-	}
-
-	// Obtain a role.
-	rows, err := db.SelectSpecified(
-		"users",
-		[]bsamdb.Field{
-			{Column: "id", Value: userId},
-		},
-		[]string{"role"},
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	rows.Next()
 	var role string
-	rows.Scan(&role)
 
-	fmt.Println(role, "ですね！")
+	if !strings.HasPrefix(userId, "NPC") {
+		// User ID must be contain.
+		if userId == "" {
+			abort.BadRequest(c, message.NoUserIdContain)
+			return
+		}
+
+		// The ID correct check.
+		exist, err := db.IsExist(
+			"users",
+			"id",
+			userId,
+		)
+		if err != nil {
+			panic(err)
+		}
+		if !exist {
+			abort.BadRequest(c, message.UserNotFound)
+			return
+		}
+
+		// Obtain a role.
+		rows, err := db.SelectSpecified(
+			"users",
+			[]bsamdb.Field{
+				{Column: "id", Value: userId},
+			},
+			[]string{"role"},
+		)
+		if err != nil {
+			panic(err)
+		}
+
+		rows.Next()
+		rows.Scan(&role)
+	} else {
+		role = "mark"
+	}
 
 	// If mark device, register as it.
 	pointNo := -1
