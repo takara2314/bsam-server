@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"log"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
@@ -72,19 +73,20 @@ func (hub *Hub) registerEvent(client *Client) {
 
 // unregisterEvent removes this client.
 func (hub *Hub) unregisterEvent(client *Client) {
-	if strings.HasPrefix(client.UserId, "NPC") {
-		return
-	}
+	log.Println(client.UserId, "left.")
 
 	if hub.isExistUser(client.UserId) {
 		close(client.Send)
 		close(client.SendManage)
 		close(client.SendLive)
 
-		err := hub.removeAthlete(client.UserId)
-		if err != nil {
-			panic(err)
+		if !strings.HasPrefix(client.UserId, "NPC") {
+			err := hub.removeAthlete(client.UserId)
+			if err != nil {
+				panic(err)
+			}
 		}
+
 		delete(hub.Clients, client.UserId)
 	}
 }
@@ -108,6 +110,7 @@ func (hub *Hub) managecastEvent(message *ManageInfo) {
 func (hub *Hub) livecastEvent(message *LiveInfo) {
 	for _, client := range hub.Clients {
 		if IsClosedSendLiveChan(client.SendLive) {
+			fmt.Println(client.UserId, "send!!!")
 			client.SendLive <- message
 		} else {
 			continue
