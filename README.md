@@ -123,7 +123,7 @@ CREATE TABLE devices (id char(16) NOT NULL PRIMARY KEY, name varchar(32) NOT NUL
 | display_name | varchar(32) | NOT NULL | 名前 |
 | password | bytea | NOT NULL | パスワード |
 | group_id | uuid | NOT NULL | グループID |
-| role | varchar(16) | NOT NULL | `athlete`, `mark`, `admin` or `developer` |
+| role | varchar(16) | NOT NULL | `athlete`, `mark`, `manage` or `developer` |
 | device_id | char(16) | | デバイスID |
 | sail_num | smallint | | セイル番号 |
 | course_limit | float | | コースリミット |
