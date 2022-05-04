@@ -1,8 +1,10 @@
 package auth
 
 import (
+	"log"
 	"os"
 	"sailing-assist-mie-api/abort"
+	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/inspector"
 	"sailing-assist-mie-api/message"
 
@@ -42,17 +44,38 @@ func tokenPOST(c *gin.Context) {
 		return
 	}
 
-	if token.Valid {
-		abort.OK(c, message.ValidJWT)
-		return
-	} else if ve, ok := err.(*jwt.ValidationError); ok {
-		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-			abort.BadRequest(c, message.InformedJWT)
-			return
-		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
-			abort.Forbidden(c, message.ExpiredOrNotValidYetJWT)
-			return
+	if !token.Valid {
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+				abort.BadRequest(c, message.InformedJWT)
+				return
+			} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
+				abort.Forbidden(c, message.ExpiredOrNotValidYetJWT)
+				return
+			}
 		}
+		abort.Forbidden(c, message.InvalidJWT)
 	}
-	abort.Forbidden(c, message.InvalidJWT)
+
+	// Connect to the database
+	db, err := bsamdb.Open()
+	if err != nil {
+		log.Println(err)
+		panic(err)
+	}
+	defer db.DB.Close()
+
+	ok, err := db.IsExist("tokens", "token", json.Token)
+	if err != nil {
+		log.Println(err)
+		panic(err)
+	}
+
+	if !ok {
+		abort.Forbidden(c, message.RemovedJWT)
+		return
+	}
+
+	abort.OK(c, message.ValidJWT)
+	return
 }

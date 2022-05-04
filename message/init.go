@@ -15,6 +15,7 @@ const (
 	InformedJWT              = "This JWT token is informed."
 	ExpiredOrNotValidYetJWT  = "This JWT token is expired or not valid yet."
 	InvalidJWT               = "This JWT token is invalid."
+	RemovedJWT               = "This JWT token is removed."
 
 	DeviceNotFound = "This device is not found."
 	UserNotFound   = "This user is not found."
