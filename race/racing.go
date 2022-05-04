@@ -22,10 +22,10 @@ var upgrader = websocket.Upgrader{
 }
 
 func RacingWS(c *gin.Context) {
-	raceId := c.Param("id")
-	userId := c.Query("user")
+	raceID := c.Param("id")
+	userID := c.Query("user")
 
-	if _, exist := rooms[raceId]; !exist {
+	if _, exist := rooms[raceID]; !exist {
 		abort.NotFound(c, message.RaceNotFound)
 		return
 	}
@@ -38,10 +38,10 @@ func RacingWS(c *gin.Context) {
 
 	var role string
 
-	if !strings.HasPrefix(userId, "NPC") {
+	if !strings.HasPrefix(userID, "NPC") {
 		// User ID must be contain.
-		if userId == "" {
-			abort.BadRequest(c, message.NoUserIdContain)
+		if userID == "" {
+			abort.BadRequest(c, message.NoUserIDContain)
 			return
 		}
 
@@ -49,7 +49,7 @@ func RacingWS(c *gin.Context) {
 		exist, err := db.IsExist(
 			"users",
 			"id",
-			userId,
+			userID,
 		)
 		if err != nil {
 			panic(err)
@@ -63,7 +63,7 @@ func RacingWS(c *gin.Context) {
 		rows, err := db.SelectSpecified(
 			"users",
 			[]bsamdb.Field{
-				{Column: "id", Value: userId},
+				{Column: "id", Value: userID},
 			},
 			[]string{"role"},
 		)
@@ -85,19 +85,19 @@ func RacingWS(c *gin.Context) {
 		if pointNoStr != "" {
 			pointNo, err = strconv.Atoi(pointNoStr)
 			if err != nil {
-				abort.BadRequest(c, message.InvalidPointId)
+				abort.BadRequest(c, message.InvalidPointID)
 				return
 			}
 
 			switch pointNo {
 			case 1:
-				rooms[raceId].PointA.DeviceId = userId
+				rooms[raceID].PointA.DeviceID = userID
 			case 2:
-				rooms[raceId].PointB.DeviceId = userId
+				rooms[raceID].PointB.DeviceID = userID
 			case 3:
-				rooms[raceId].PointC.DeviceId = userId
+				rooms[raceID].PointC.DeviceID = userID
 			default:
-				abort.BadRequest(c, message.InvalidPointId)
+				abort.BadRequest(c, message.InvalidPointID)
 				return
 			}
 		}
@@ -114,9 +114,9 @@ func RacingWS(c *gin.Context) {
 	}
 
 	client := &Client{
-		Hub:         rooms[raceId],
+		Hub:         rooms[raceID],
 		Conn:        conn,
-		UserId:      userId,
+		UserID:      userID,
 		Role:        role,
 		PointNo:     pointNo,
 		NextPoint:   1,

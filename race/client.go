@@ -26,7 +26,7 @@ const (
 type Client struct {
 	Hub         *Hub
 	Conn        *websocket.Conn
-	UserId      string
+	UserID      string
 	Role        string
 	PointNo     int
 	NextPoint   int
@@ -57,13 +57,13 @@ type Point struct {
 }
 
 type PointDevice struct {
-	DeviceId  string  `json:"device_id"`
+	DeviceID  string  `json:"device_id"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 }
 
 type ManageInfo struct {
-	UserId    string   `json:"user_id"`
+	UserID    string   `json:"user_id"`
 	Latitude  float64  `json:"latitude"`
 	Longitude float64  `json:"longitude"`
 	Next      PointNav `json:"next"`
@@ -94,7 +94,7 @@ func (c *Client) readPump() {
 	for {
 		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
-			log.Println(c.UserId, "障害発生 >>", err)
+			log.Println(c.UserID, "Disconnected >>", err)
 			if websocket.IsUnexpectedCloseError(
 				err,
 				websocket.CloseGoingAway,
@@ -317,7 +317,7 @@ func (c *Client) sendNextNav() error {
 
 	// Broadcast for manage users and admin users.
 	c.Hub.Managecast <- &ManageInfo{
-		UserId:    c.UserId,
+		UserID:    c.UserID,
 		Latitude:  c.Position.Latitude,
 		Longitude: c.Position.Longitude,
 		Next:      nav,

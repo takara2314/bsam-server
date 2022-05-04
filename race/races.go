@@ -14,7 +14,7 @@ import (
 )
 
 type RaceInfo struct {
-	Id       *string    `json:"id"`
+	ID       *string    `json:"id"`
 	Name     *string    `json:"name"`
 	StartAt  *time.Time `json:"start_at"`
 	EndAt    *time.Time `json:"end_at"`
@@ -115,14 +115,14 @@ func RacesPOST(c *gin.Context) {
 }
 
 // fetchAll fetches all of rows in this group.
-func fetchAll(db *bsamdb.DbInfo, groupId string) ([]RaceInfo, error) {
+func fetchAll(db *bsamdb.DbInfo, groupID string) ([]RaceInfo, error) {
 	races := make([]RaceInfo, 0)
 	data := make([]bsamdb.Field, 0)
 
-	if groupId != "" {
+	if groupID != "" {
 		data = append(
 			data,
-			bsamdb.Field{Column: "group_id", Value: groupId},
+			bsamdb.Field{Column: "group_id", Value: groupID},
 		)
 	}
 
@@ -138,7 +138,7 @@ func fetchAll(db *bsamdb.DbInfo, groupId string) ([]RaceInfo, error) {
 	for rows.Next() {
 		info := RaceInfo{}
 		err = rows.Scan(
-			&info.Id,
+			&info.ID,
 			&info.Name,
 			&info.StartAt,
 			&info.EndAt,

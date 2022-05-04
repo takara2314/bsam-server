@@ -1,18 +1,18 @@
 module sailing-assist-mie-api
 
-// +heroku goVersion go1.17
-go 1.17
+// +heroku goVersion go1.18
+go 1.18
 
 require (
+	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gorilla/websocket v1.5.0
-	github.com/lib/pq v1.10.4
-	github.com/xo/dburl v0.9.0
+	github.com/lib/pq v1.10.5
+	github.com/xo/dburl v0.9.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
 require (
-	github.com/gin-contrib/cors v1.3.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect

@@ -10,12 +10,12 @@ import (
 )
 
 type InfoPUTJSON struct {
-	LoginId     string  `json:"login_id"`
+	LoginID     string  `json:"login_id"`
 	DisplayName string  `json:"display_name"`
 	Password    string  `json:"password"`
-	GroupId     string  `json:"group_id"`
+	GroupID     string  `json:"group_id"`
 	Role        string  `json:"role"`
-	DeviceId    string  `json:"device_id"`
+	DeviceID    string  `json:"device_id"`
 	SailNum     int     `json:"sail_num"`
 	CourseLimit float32 `json:"course_limit"`
 	ImageUrl    string  `json:"image_url"`
@@ -25,7 +25,7 @@ type InfoPUTJSON struct {
 // infoPUT is /user/:id PUT request handler.
 func infoPUT(c *gin.Context) {
 	ins := inspector.Inspector{Request: c.Request}
-	userId := c.Param("id")
+	userID := c.Param("id")
 
 	// Only JSON.
 	if !ins.IsJSON() {
@@ -49,16 +49,16 @@ func infoPUT(c *gin.Context) {
 	defer db.DB.Close()
 
 	// Check already stored this id.
-	exist, err := db.IsExist("users", "id", userId)
+	exist, err := db.IsExist("users", "id", userID)
 	if err != nil {
 		panic(err)
 	}
 
 	// Update if already stored.
 	if exist {
-		if json.LoginId != "" {
+		if json.LoginID != "" {
 			// Check already stored this login_id.
-			exist, err := db.IsExistNotIt("users", "id", userId, "login_id", json.LoginId)
+			exist, err := db.IsExistNotIt("users", "id", userID, "login_id", json.LoginID)
 			if err != nil {
 				panic(err)
 			}
@@ -69,7 +69,7 @@ func infoPUT(c *gin.Context) {
 			}
 		}
 
-		err = update(&db, &json, userId)
+		err = update(&db, &json, userID)
 		if err != nil {
 			switch err {
 			case bsamdb.ErrRecordNotFound:
@@ -86,14 +86,14 @@ func infoPUT(c *gin.Context) {
 }
 
 // Update updates to new data.
-func update(db *bsamdb.DbInfo, json *InfoPUTJSON, userId string) error {
+func update(db *bsamdb.DbInfo, json *InfoPUTJSON, userID string) error {
 	// Records
 	data := []bsamdb.Field{}
 
-	if json.LoginId != "" {
+	if json.LoginID != "" {
 		data = append(data, bsamdb.Field{
 			Column: "login_id",
-			Value:  json.LoginId,
+			Value:  json.LoginID,
 		})
 	}
 
@@ -112,10 +112,10 @@ func update(db *bsamdb.DbInfo, json *InfoPUTJSON, userId string) error {
 		})
 	}
 
-	if json.GroupId != "" {
+	if json.GroupID != "" {
 		data = append(data, bsamdb.Field{
 			Column: "group_id",
-			Value:  json.GroupId,
+			Value:  json.GroupID,
 		})
 	}
 
@@ -126,10 +126,10 @@ func update(db *bsamdb.DbInfo, json *InfoPUTJSON, userId string) error {
 		})
 	}
 
-	if json.DeviceId != "" {
+	if json.DeviceID != "" {
 		data = append(data, bsamdb.Field{
 			Column: "device_id",
-			Value:  json.DeviceId,
+			Value:  json.DeviceID,
 		})
 	}
 
@@ -165,7 +165,7 @@ func update(db *bsamdb.DbInfo, json *InfoPUTJSON, userId string) error {
 		_, err := db.Update(
 			"users",
 			"id",
-			userId,
+			userID,
 			data,
 		)
 

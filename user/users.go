@@ -10,12 +10,12 @@ import (
 )
 
 type UserPOSTJSON struct {
-	LoginId     string  `json:"login_id" binding:"required"`
+	LoginID     string  `json:"login_id" binding:"required"`
 	DisplayName string  `json:"display_name" binding:"required"`
 	Password    string  `json:"password" binding:"required"`
-	GroupId     string  `json:"group_id" binding:"required"`
+	GroupID     string  `json:"group_id" binding:"required"`
 	Role        string  `json:"role" binding:"required"`
-	DeviceId    string  `json:"device_id"`
+	DeviceID    string  `json:"device_id"`
 	SailNum     int     `json:"sail_num"`
 	CourseLimit float32 `json:"course_limit"`
 	ImageUrl    string  `json:"image_url"`
@@ -49,7 +49,7 @@ func UsersPOST(c *gin.Context) {
 	defer db.DB.Close()
 
 	// Check already stored this login_id.
-	exist, err := db.IsExist("users", "login_id", json.LoginId)
+	exist, err := db.IsExist("users", "login_id", json.LoginID)
 	if err != nil {
 		panic(err)
 	}
@@ -69,17 +69,17 @@ func UsersPOST(c *gin.Context) {
 func create(db *bsamdb.DbInfo, json *UserPOSTJSON) error {
 	// Records
 	data := []bsamdb.Field{
-		{Column: "login_id", Value: json.LoginId},
+		{Column: "login_id", Value: json.LoginID},
 		{Column: "display_name", Value: json.DisplayName},
 		{Column: "password", Value: json.Password, ToHash: true},
-		{Column: "group_id", Value: json.GroupId},
+		{Column: "group_id", Value: json.GroupID},
 		{Column: "role", Value: json.Role},
 	}
 
-	if json.DeviceId != "" {
+	if json.DeviceID != "" {
 		data = append(data, bsamdb.Field{
 			Column: "device_id",
-			Value:  json.DeviceId,
+			Value:  json.DeviceID,
 		})
 	}
 

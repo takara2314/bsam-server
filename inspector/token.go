@@ -33,7 +33,7 @@ func (ins *Inspector) HasToken() (bool, error) {
 	defer db.Close()
 
 	row := db.QueryRow("SELECT * FROM tokens WHERE token = $1", token)
-	err = row.Scan(&ins.Token.Token, &ins.Token.Type, pq.Array(&ins.Token.Permissions), &ins.Token.UserId, &ins.Token.Description)
+	err = row.Scan(&ins.Token.Token, &ins.Token.Type, pq.Array(&ins.Token.Permissions), &ins.Token.UserID, &ins.Token.Description)
 	if err != nil {
 		ins.IsTokenEnabled = false
 		return false, ErrWrongToken
@@ -43,8 +43,8 @@ func (ins *Inspector) HasToken() (bool, error) {
 	return true, nil
 }
 
-// FetchGroupId fetches groupId identified its request header.
-func (ins *Inspector) FetchGroupId() error {
+// FetchGroupID fetches groupID identified its request header.
+func (ins *Inspector) FetchGroupID() error {
 	_, err := ins.HasToken()
 	if err != nil {
 		return err
@@ -56,8 +56,8 @@ func (ins *Inspector) FetchGroupId() error {
 	}
 	defer db.Close()
 
-	row := db.QueryRow("SELECT group_id FROM users WHERE id = $1", ins.Token.UserId)
-	err = row.Scan(&ins.GroupId)
+	row := db.QueryRow("SELECT group_id FROM users WHERE id = $1", ins.Token.UserID)
+	err = row.Scan(&ins.GroupID)
 	if err != nil {
 		return err
 	}

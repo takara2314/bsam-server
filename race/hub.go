@@ -11,7 +11,7 @@ import (
 )
 
 type Hub struct {
-	RaceId     string
+	RaceID     string
 	Clients    map[string]*Client
 	Managecast chan *ManageInfo
 	Livecast   chan *LiveInfo
@@ -24,9 +24,9 @@ type Hub struct {
 }
 
 // NewHub creates a new hub instrance.
-func NewHub(raceId string) *Hub {
+func NewHub(raceID string) *Hub {
 	return &Hub{
-		RaceId:     raceId,
+		RaceID:     raceID,
 		Clients:    make(map[string]*Client),
 		Managecast: make(chan *ManageInfo),
 		Livecast:   make(chan *LiveInfo),
@@ -60,10 +60,10 @@ func (hub *Hub) Run() {
 
 // registerEvent adds new device.
 func (hub *Hub) registerEvent(client *Client) {
-	log.Println(client.UserId, "joined.")
+	log.Println(client.UserID, "joined.")
 
-	hub.Clients[client.UserId] = client
-	err := hub.addAthlete(client.UserId)
+	hub.Clients[client.UserID] = client
+	err := hub.addAthlete(client.UserID)
 	if err != nil {
 		panic(err)
 	}
@@ -71,21 +71,21 @@ func (hub *Hub) registerEvent(client *Client) {
 
 // unregisterEvent removes this client.
 func (hub *Hub) unregisterEvent(client *Client) {
-	log.Println(client.UserId, "left.")
+	log.Println(client.UserID, "left.")
 
-	if hub.isExistUser(client.UserId) {
+	if hub.isExistUser(client.UserID) {
 		close(client.Send)
 		close(client.SendManage)
 		close(client.SendLive)
 
-		if !strings.HasPrefix(client.UserId, "NPC") {
-			err := hub.removeAthlete(client.UserId)
+		if !strings.HasPrefix(client.UserID, "NPC") {
+			err := hub.removeAthlete(client.UserID)
 			if err != nil {
 				panic(err)
 			}
 		}
 
-		delete(hub.Clients, client.UserId)
+		delete(hub.Clients, client.UserID)
 	}
 }
 
@@ -115,23 +115,23 @@ func (hub *Hub) livecastEvent(message *LiveInfo) {
 	}
 }
 
-func (hub *Hub) isExistUser(userId string) bool {
-	_, exist := hub.Clients[userId]
+func (hub *Hub) isExistUser(userID string) bool {
+	_, exist := hub.Clients[userID]
 	return exist
 }
 
 func (hub *Hub) updateMarkPositions() {
-	if hub.PointA.DeviceId != "" && hub.isExistUser(hub.PointA.DeviceId) {
-		hub.PointA.Latitude = hub.Clients[hub.PointA.DeviceId].Position.Latitude
-		hub.PointA.Longitude = hub.Clients[hub.PointA.DeviceId].Position.Longitude
+	if hub.PointA.DeviceID != "" && hub.isExistUser(hub.PointA.DeviceID) {
+		hub.PointA.Latitude = hub.Clients[hub.PointA.DeviceID].Position.Latitude
+		hub.PointA.Longitude = hub.Clients[hub.PointA.DeviceID].Position.Longitude
 	}
-	if hub.PointB.DeviceId != "" && hub.isExistUser(hub.PointB.DeviceId) {
-		hub.PointB.Latitude = hub.Clients[hub.PointB.DeviceId].Position.Latitude
-		hub.PointB.Longitude = hub.Clients[hub.PointB.DeviceId].Position.Longitude
+	if hub.PointB.DeviceID != "" && hub.isExistUser(hub.PointB.DeviceID) {
+		hub.PointB.Latitude = hub.Clients[hub.PointB.DeviceID].Position.Latitude
+		hub.PointB.Longitude = hub.Clients[hub.PointB.DeviceID].Position.Longitude
 	}
-	if hub.PointC.DeviceId != "" && hub.isExistUser(hub.PointC.DeviceId) {
-		hub.PointC.Latitude = hub.Clients[hub.PointC.DeviceId].Position.Latitude
-		hub.PointC.Longitude = hub.Clients[hub.PointC.DeviceId].Position.Longitude
+	if hub.PointC.DeviceID != "" && hub.isExistUser(hub.PointC.DeviceID) {
+		hub.PointC.Latitude = hub.Clients[hub.PointC.DeviceID].Position.Latitude
+		hub.PointC.Longitude = hub.Clients[hub.PointC.DeviceID].Position.Longitude
 	}
 
 	// Livecast for all device
@@ -146,7 +146,7 @@ func (hub *Hub) updateMarkPositions() {
 }
 
 // addAthlete adds a athlete in this race.
-func (hub *Hub) addAthlete(userId string) error {
+func (hub *Hub) addAthlete(userID string) error {
 	// Connect to the database and insert such data.
 	db, err := bsamdb.Open()
 	if err != nil {
@@ -158,7 +158,7 @@ func (hub *Hub) addAthlete(userId string) error {
 	rows, err := db.SelectSpecified(
 		"races",
 		[]bsamdb.Field{
-			{Column: "id", Value: hub.RaceId},
+			{Column: "id", Value: hub.RaceID},
 		},
 		[]string{"athlete"},
 	)
@@ -174,11 +174,11 @@ func (hub *Hub) addAthlete(userId string) error {
 	_, err = db.Update(
 		"races",
 		"id",
-		hub.RaceId,
+		hub.RaceID,
 		[]bsamdb.Field{{
 			Column: "athlete",
 			Value2d: utils.StrSliceToAnySlice(
-				utils.StrSliceAdd(athletes, userId),
+				utils.StrSliceAdd(athletes, userID),
 			),
 		}},
 	)
@@ -187,7 +187,7 @@ func (hub *Hub) addAthlete(userId string) error {
 }
 
 // removeAthlete removes a athlete from this race.
-func (hub *Hub) removeAthlete(userId string) error {
+func (hub *Hub) removeAthlete(userID string) error {
 	// Connect to the database and insert such data.
 	db, err := bsamdb.Open()
 	if err != nil {
@@ -199,7 +199,7 @@ func (hub *Hub) removeAthlete(userId string) error {
 	rows, err := db.SelectSpecified(
 		"races",
 		[]bsamdb.Field{
-			{Column: "id", Value: hub.RaceId},
+			{Column: "id", Value: hub.RaceID},
 		},
 		[]string{"athlete"},
 	)
@@ -215,11 +215,11 @@ func (hub *Hub) removeAthlete(userId string) error {
 	_, err = db.Update(
 		"races",
 		"id",
-		hub.RaceId,
+		hub.RaceID,
 		[]bsamdb.Field{{
 			Column: "athlete",
 			Value2d: utils.StrSliceToAnySlice(
-				utils.StrSliceRemove(athletes, userId),
+				utils.StrSliceRemove(athletes, userID),
 			),
 		}},
 	)

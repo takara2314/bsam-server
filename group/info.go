@@ -17,7 +17,7 @@ type InfoPUTJSON struct {
 // infoPUT is /group/:id PUT request handler.
 func infoPUT(c *gin.Context) {
 	ins := inspector.Inspector{Request: c.Request}
-	groupId := c.Param("id")
+	groupID := c.Param("id")
 
 	// Only JSON.
 	if !ins.IsJSON() {
@@ -41,14 +41,14 @@ func infoPUT(c *gin.Context) {
 	defer db.DB.Close()
 
 	// Check already stored this id.
-	exist, err := db.IsExist("groups", "id", groupId)
+	exist, err := db.IsExist("groups", "id", groupID)
 	if err != nil {
 		panic(err)
 	}
 
 	// Update if already stored.
 	if exist {
-		err = update(&db, &json, groupId)
+		err = update(&db, &json, groupID)
 		if err != nil {
 			switch err {
 			case bsamdb.ErrRecordNotFound:
@@ -65,7 +65,7 @@ func infoPUT(c *gin.Context) {
 }
 
 // Update updates to new data.
-func update(db *bsamdb.DbInfo, json *InfoPUTJSON, groupId string) error {
+func update(db *bsamdb.DbInfo, json *InfoPUTJSON, groupID string) error {
 	// Records
 	data := []bsamdb.Field{}
 
@@ -87,7 +87,7 @@ func update(db *bsamdb.DbInfo, json *InfoPUTJSON, groupId string) error {
 		_, err := db.Update(
 			"groups",
 			"id",
-			groupId,
+			groupID,
 			data,
 		)
 

@@ -9,8 +9,8 @@ import (
 )
 
 // IsSameGroup returns that its group id and request token's group id is same.
-func (ins *Inspector) IsSameGroup(groupId string) bool {
-	if ins.Token.UserId.String == "" {
+func (ins *Inspector) IsSameGroup(groupID string) bool {
+	if ins.Token.UserID.String == "" {
 		return false
 	}
 
@@ -20,14 +20,14 @@ func (ins *Inspector) IsSameGroup(groupId string) bool {
 	}
 	defer db.Close()
 
-	var tokenGroupId string
-	row := db.QueryRow("SELECT group_id FROM users WHERE id = $1", ins.Token.UserId.String)
-	err = row.Scan(&tokenGroupId)
+	var tokenGroupID string
+	row := db.QueryRow("SELECT group_id FROM users WHERE id = $1", ins.Token.UserID.String)
+	err = row.Scan(&tokenGroupID)
 	if err != nil {
 		return false
 	}
 
-	if tokenGroupId != groupId {
+	if tokenGroupID != groupID {
 		return false
 	}
 

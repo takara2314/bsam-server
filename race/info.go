@@ -35,7 +35,7 @@ type InfoPUTJSON struct {
 // infoGET is /race/:id GET request handler.
 func infoGET(c *gin.Context) {
 	// ins := inspector.Inspector{Request: c.Request}
-	raceId := c.Param("id")
+	raceID := c.Param("id")
 
 	// Connect to the database and insert such data.
 	db, err := bsamdb.Open()
@@ -45,14 +45,14 @@ func infoGET(c *gin.Context) {
 	defer db.DB.Close()
 
 	// Check already stored this id.
-	exist, err := db.IsExist("races", "id", raceId)
+	exist, err := db.IsExist("races", "id", raceID)
 	if err != nil {
 		panic(err)
 	}
 
 	// Update if already stored.
 	if exist {
-		race, err := fetch(&db, raceId)
+		race, err := fetch(&db, raceID)
 		if err != nil {
 			panic(err)
 		}
@@ -70,7 +70,7 @@ func infoGET(c *gin.Context) {
 // infoPUT is /race/:id PUT request handler.
 func infoPUT(c *gin.Context) {
 	ins := inspector.Inspector{Request: c.Request}
-	raceId := c.Param("id")
+	raceID := c.Param("id")
 
 	// Only JSON.
 	if !ins.IsJSON() {
@@ -111,14 +111,14 @@ func infoPUT(c *gin.Context) {
 	defer db.DB.Close()
 
 	// Check already stored this id.
-	exist, err := db.IsExist("races", "id", raceId)
+	exist, err := db.IsExist("races", "id", raceID)
 	if err != nil {
 		panic(err)
 	}
 
 	// Update if already stored.
 	if exist {
-		err = update(&db, &json, raceId)
+		err = update(&db, &json, raceID)
 		if err != nil {
 			switch err {
 			case bsamdb.ErrRecordNotFound:
@@ -135,11 +135,11 @@ func infoPUT(c *gin.Context) {
 }
 
 // fetch fetches rows in this group.
-func fetch(db *bsamdb.DbInfo, raceId string) (RaceInfo, error) {
+func fetch(db *bsamdb.DbInfo, raceID string) (RaceInfo, error) {
 	rows, err := db.Select(
 		"races",
 		[]bsamdb.Field{
-			{Column: "id", Value: raceId},
+			{Column: "id", Value: raceID},
 		},
 	)
 	if err != nil {
@@ -150,7 +150,7 @@ func fetch(db *bsamdb.DbInfo, raceId string) (RaceInfo, error) {
 	info := RaceInfo{}
 	rows.Next()
 	err = rows.Scan(
-		&info.Id,
+		&info.ID,
 		&info.Name,
 		&info.StartAt,
 		&info.EndAt,
@@ -170,7 +170,7 @@ func fetch(db *bsamdb.DbInfo, raceId string) (RaceInfo, error) {
 }
 
 // Update updates to new data.
-func update(db *bsamdb.DbInfo, json *InfoPUTJSON, raceId string) error {
+func update(db *bsamdb.DbInfo, json *InfoPUTJSON, raceID string) error {
 	// Records
 	data := []bsamdb.Field{}
 
@@ -248,7 +248,7 @@ func update(db *bsamdb.DbInfo, json *InfoPUTJSON, raceId string) error {
 		_, err := db.Update(
 			"races",
 			"id",
-			raceId,
+			raceID,
 			data,
 		)
 

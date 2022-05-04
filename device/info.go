@@ -27,7 +27,7 @@ type InfoPUTJSON struct {
 // infoPOST is /device/:id POST request handler.
 func infoPOST(c *gin.Context) {
 	ins := inspector.Inspector{Request: c.Request}
-	androidId := c.Param("id")
+	androidID := c.Param("id")
 
 	// Only JSON.
 	if !ins.IsJSON() {
@@ -52,14 +52,14 @@ func infoPOST(c *gin.Context) {
 	defer db.DB.Close()
 
 	// Check already stored this id.
-	exist, err := db.IsExist("devices", "id", androidId)
+	exist, err := db.IsExist("devices", "id", androidID)
 	if err != nil {
 		panic(err)
 	}
 
 	// Create if not stored.
 	if !exist {
-		err = create(&db, &json, androidId)
+		err = create(&db, &json, androidID)
 		if err != nil {
 			panic(err)
 		}
@@ -72,7 +72,7 @@ func infoPOST(c *gin.Context) {
 // infoPUT is /device/:id PUT request handler.
 func infoPUT(c *gin.Context) {
 	ins := inspector.Inspector{Request: c.Request}
-	androidId := c.Param("id")
+	androidID := c.Param("id")
 
 	// Only JSON.
 	if !ins.IsJSON() {
@@ -96,14 +96,14 @@ func infoPUT(c *gin.Context) {
 	defer db.DB.Close()
 
 	// Check already stored this id.
-	exist, err := db.IsExist("devices", "id", androidId)
+	exist, err := db.IsExist("devices", "id", androidID)
 	if err != nil {
 		panic(err)
 	}
 
 	// Update if already stored.
 	if exist {
-		err = update(&db, &json, androidId)
+		err = update(&db, &json, androidID)
 		if err != nil {
 			switch err {
 			case bsamdb.ErrRecordNotFound:
@@ -123,7 +123,7 @@ func infoPUT(c *gin.Context) {
 			return
 		}
 
-		err = create(&db, &newJson, androidId)
+		err = create(&db, &newJson, androidID)
 		if err != nil {
 			panic(err)
 		}
@@ -131,10 +131,10 @@ func infoPUT(c *gin.Context) {
 }
 
 // Create stores new device data.
-func create(db *bsamdb.DbInfo, json *InfoPOSTJSON, androidId string) error {
+func create(db *bsamdb.DbInfo, json *InfoPOSTJSON, androidID string) error {
 	// Records
 	data := []bsamdb.Field{
-		{Column: "id", Value: androidId},
+		{Column: "id", Value: androidID},
 		{Column: "name", Value: json.Name},
 		{Column: "model", Value: json.Model},
 	}
@@ -165,7 +165,7 @@ func create(db *bsamdb.DbInfo, json *InfoPOSTJSON, androidId string) error {
 }
 
 // Update updates to new data.
-func update(db *bsamdb.DbInfo, json *InfoPUTJSON, androidId string) error {
+func update(db *bsamdb.DbInfo, json *InfoPUTJSON, androidID string) error {
 	// Records
 	data := []bsamdb.Field{}
 
@@ -201,7 +201,7 @@ func update(db *bsamdb.DbInfo, json *InfoPUTJSON, androidId string) error {
 		_, err := db.Update(
 			"devices",
 			"id",
-			androidId,
+			androidID,
 			data,
 		)
 

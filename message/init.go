@@ -17,6 +17,6 @@ const (
 	GroupNotFound  = "This group is not found."
 
 	NotSupportWebSocket = "This client is not support WebSocket."
-	NoUserIdContain     = "The user id must be contain."
-	InvalidPointId      = "This point id is invalid."
+	NoUserIDContain     = "The user id must be contain."
+	InvalidPointID      = "This point id is invalid."
 )

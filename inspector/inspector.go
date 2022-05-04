@@ -12,8 +12,8 @@ type Inspector struct {
 		Token       string
 		Type        string
 		Permissions []string
-		UserId      sql.NullString
+		UserID      sql.NullString
 		Description sql.NullString
 	}
-	GroupId string
+	GroupID string
 }
