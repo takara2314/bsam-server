@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"sailing-assist-mie-api/auth"
 	"sailing-assist-mie-api/device"
 	"sailing-assist-mie-api/group"
 	"sailing-assist-mie-api/race"
@@ -36,6 +37,9 @@ func main() {
 	// Group API
 	group.Register(router.Group("/group"))
 	router.POST("/groups", group.GroupsPOST)
+
+	// Authorization API
+	auth.Register(router.Group("/auth"))
 
 	router.Run(":" + os.Getenv("PORT"))
 }

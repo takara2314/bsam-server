@@ -10,6 +10,11 @@ const (
 	AuthorizationTypeInvalid = "This authorization type is not supported."
 	WrongToken               = "This token is wrong."
 	AlreadyExisted           = "This id's record is already existed."
+	WrongIDorPassword        = "This login_id or this password is wrong."
+	ValidJWT                 = "This JWT token is correct."
+	InformedJWT              = "This JWT token is informed."
+	ExpiredOrNotValidYetJWT  = "This JWT token is expired or not valid yet."
+	InvalidJWT               = "This JWT token is invalid."
 
 	DeviceNotFound = "This device is not found."
 	UserNotFound   = "This user is not found."

@@ -161,9 +161,9 @@ CREATE TABLE groups (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), name varcha
 ## tokens（トークン）
 | Column | Type | Options | Description |
 | ------ | ---- | ------- | ----------- |
-| token | char(64) | NOT NULL PRIMARY KEY | トークン |
+| token | varchar(256) | NOT NULL PRIMARY KEY | トークン |
 | permissions | varchar(64)[] | | 権限一覧 |
 | user_id | uuid | | ユーザーID |
 | description | text | | 概要 |
 
-CREATE TABLE tokens (token char(64) NOT NULL PRIMARY KEY, permissions varchar(64)[], user_id uuid, description text);
+CREATE TABLE tokens (token varchar(256) NOT NULL PRIMARY KEY, permissions varchar(64)[], user_id uuid, description text);
