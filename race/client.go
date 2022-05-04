@@ -3,7 +3,6 @@ package race
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -308,10 +307,8 @@ func (c *Client) sendNextNav() error {
 	}
 
 	if IsClosedSendChan(c.Send) {
-		fmt.Println("送信できますね！", nav)
 		c.Send <- &nav
 	} else {
-		fmt.Println("送信できないね…")
 		return ErrClosedChannel
 	}
 

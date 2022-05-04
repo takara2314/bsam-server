@@ -28,7 +28,7 @@ type InfoPUTJSON struct {
 	PointC     string   `json:"point_c"`
 	Athletes   []string `json:"athletes"`
 	Memo       string   `json:"memo"`
-	ImageUrl   string   `json:"image_url"`
+	ImageURL   string   `json:"image_url"`
 	Holding    *bool    `json:"is_holding"`
 }
 
@@ -159,7 +159,7 @@ func fetch(db *bsamdb.DbInfo, raceID string) (RaceInfo, error) {
 		&info.PointC,
 		pq.Array(&info.Athletes),
 		&info.Memo,
-		&info.ImageUrl,
+		&info.ImageURL,
 		&info.Holding,
 	)
 	if err != nil {
@@ -230,10 +230,10 @@ func update(db *bsamdb.DbInfo, json *InfoPUTJSON, raceID string) error {
 		})
 	}
 
-	if json.ImageUrl != "" {
+	if json.ImageURL != "" {
 		data = append(data, bsamdb.Field{
 			Column: "image_url",
-			Value:  json.ImageUrl,
+			Value:  json.ImageURL,
 		})
 	}
 

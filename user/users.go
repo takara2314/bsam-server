@@ -18,7 +18,7 @@ type UserPOSTJSON struct {
 	DeviceID    string  `json:"device_id"`
 	SailNum     int     `json:"sail_num"`
 	CourseLimit float32 `json:"course_limit"`
-	ImageUrl    string  `json:"image_url"`
+	ImageURL    string  `json:"image_url"`
 	Note        string  `json:"note"`
 }
 
@@ -97,10 +97,10 @@ func create(db *bsamdb.DbInfo, json *UserPOSTJSON) error {
 		})
 	}
 
-	if json.ImageUrl != "" {
+	if json.ImageURL != "" {
 		data = append(data, bsamdb.Field{
 			Column: "image_url",
-			Value:  json.ImageUrl,
+			Value:  json.ImageURL,
 		})
 	}
 
