@@ -1,6 +1,7 @@
 package user
 
 import (
+	"net/http"
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/inspector"
@@ -8,6 +9,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type UserGETJSON struct {
+	Status string     `json:"status"`
+	Users  []UserInfo `json:"users"`
+}
 
 type UserPOSTJSON struct {
 	LoginID     string  `json:"login_id" binding:"required"`
@@ -20,6 +26,28 @@ type UserPOSTJSON struct {
 	CourseLimit float32 `json:"course_limit"`
 	ImageURL    string  `json:"image_url"`
 	Note        string  `json:"note"`
+}
+
+// UsersGET is /users GET request handler.
+func UsersGET(c *gin.Context) {
+	// ins := inspector.Inspector{Request: c.Request}
+
+	// Connect to the database and insert such data.
+	db, err := bsamdb.Open()
+	if err != nil {
+		panic(err)
+	}
+	defer db.DB.Close()
+
+	users, err := fetchAll(&db, c.Query("role"))
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(http.StatusOK, UserGETJSON{
+		Status: "OK",
+		Users:  users,
+	})
 }
 
 // UsersPOST is /users POST request handler.
@@ -63,6 +91,55 @@ func UsersPOST(c *gin.Context) {
 		abort.Conflict(c, message.AlreadyExisted)
 		return
 	}
+}
+
+// fetchAll fetches all of rows.
+//   selector: role
+func fetchAll(db *bsamdb.DbInfo, role string) ([]UserInfo, error) {
+	users := make([]UserInfo, 0)
+	data := make([]bsamdb.Field, 0)
+
+	if role != "" {
+		data = append(
+			data,
+			bsamdb.Field{Column: "role", Value: role},
+		)
+	}
+
+	rows, err := db.Select(
+		"users",
+		data,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var password string
+
+	for rows.Next() {
+		info := UserInfo{}
+		err = rows.Scan(
+			&info.UserID,
+			&info.LoginID,
+			&info.DisplayName,
+			&password,
+			&info.GroupID,
+			&info.Role,
+			&info.DeviceID,
+			&info.SailNum,
+			&info.CourseLimit,
+			&info.ImageURL,
+			&info.Note,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, info)
+	}
+
+	return users, nil
 }
 
 // Create stores new device data.

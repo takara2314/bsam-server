@@ -25,6 +25,7 @@ func main() {
 
 	// User API
 	user.Register(router.Group("/user"))
+	router.GET("/users", user.UsersGET)
 	router.POST("/users", user.UsersPOST)
 
 	// Race API and Race Socket

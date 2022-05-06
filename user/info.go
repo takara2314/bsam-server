@@ -27,16 +27,16 @@ type UserInfoNullable struct {
 }
 
 type UserInfo struct {
-	UserID      string  `json:"user_id"`
-	LoginID     string  `json:"login_id"`
-	DisplayName string  `json:"display_name"`
-	GroupID     string  `json:"group_id"`
-	Role        string  `json:"role"`
-	DeviceID    string  `json:"device_id"`
-	SailNum     int     `json:"sail_num"`
-	CourseLimit float32 `json:"course_limit"`
-	ImageURL    string  `json:"image_url"`
-	Note        string  `json:"note"`
+	UserID      *string  `json:"user_id"`
+	LoginID     *string  `json:"login_id"`
+	DisplayName *string  `json:"display_name"`
+	GroupID     *string  `json:"group_id"`
+	Role        *string  `json:"role"`
+	DeviceID    *string  `json:"device_id"`
+	SailNum     *int     `json:"sail_num"`
+	CourseLimit *float32 `json:"course_limit"`
+	ImageURL    *string  `json:"image_url"`
+	Note        *string  `json:"note"`
 }
 
 type InfoGETResponse struct {
@@ -109,17 +109,20 @@ func infoGET(c *gin.Context) {
 		panic(err)
 	}
 
+	sailNum := int(tmp.SailNum.Int16)
+	courseLimit := float32(tmp.CourseLimit.Float64)
+
 	info := UserInfo{
-		UserID:      tmp.UserID,
-		LoginID:     tmp.LoginID,
-		DisplayName: tmp.DisplayName,
-		GroupID:     tmp.GroupID,
-		Role:        tmp.Role,
-		DeviceID:    tmp.DeviceID.String,
-		SailNum:     int(tmp.SailNum.Int16),
-		CourseLimit: float32(tmp.CourseLimit.Float64),
-		ImageURL:    tmp.ImageURL.String,
-		Note:        tmp.Note.String,
+		UserID:      &tmp.UserID,
+		LoginID:     &tmp.LoginID,
+		DisplayName: &tmp.DisplayName,
+		GroupID:     &tmp.GroupID,
+		Role:        &tmp.Role,
+		DeviceID:    &tmp.DeviceID.String,
+		SailNum:     &sailNum,
+		CourseLimit: &courseLimit,
+		ImageURL:    &tmp.ImageURL.String,
+		Note:        &tmp.Note.String,
 	}
 
 	c.JSON(http.StatusOK, InfoGETResponse{
