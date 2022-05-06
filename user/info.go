@@ -167,7 +167,7 @@ func infoPUT(c *gin.Context) {
 	if exist {
 		if json.LoginID != "" {
 			// Check already stored this login_id.
-			exist, err := db.IsExistNotIt("users", "id", userID, "login_id", json.LoginID)
+			exist, err := db.IsExist2("users", "id", userID, "login_id", json.LoginID)
 			if err != nil {
 				panic(err)
 			}
