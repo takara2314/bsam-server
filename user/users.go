@@ -172,6 +172,11 @@ func create(db *bsamdb.DbInfo, json *UserPOSTJSON) error {
 			Column: "course_limit",
 			Value:  json.CourseLimit,
 		})
+	} else {
+		data = append(data, bsamdb.Field{
+			Column: "course_limit",
+			Value:  10.0,
+		})
 	}
 
 	if json.ImageURL != "" {
