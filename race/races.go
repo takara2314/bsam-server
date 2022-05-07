@@ -150,6 +150,11 @@ func fetchAll(db *bsamdb.DbInfo, groupID string) ([]RaceInfo, error) {
 			&info.ImageURL,
 			&info.Holding,
 		)
+		startAtLocal := (*info.StartAt).Local()
+		info.StartAt = &startAtLocal
+		endAtLocal := (*info.EndAt).Local()
+		info.EndAt = &endAtLocal
+
 		if err != nil {
 			return nil, err
 		}

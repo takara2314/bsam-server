@@ -137,8 +137,8 @@ CREATE TABLE users (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), login_id var
 | ------ | ---- | ------- | ----------- |
 | id | uuid | PRIMARY KEY DEFAULT uuid_generate_v4() | レースID |
 | name | varchar(32) | NOT NULL | レース名 |
-| start_at | timestamp | NOT NULL | 開始時刻 |
-| end_at | timestamp | NOT NULL | 終了時刻 |
+| start_at | timestamptz | NOT NULL | 開始時刻 |
+| end_at | timestamptz | NOT NULL | 終了時刻 |
 | point_a | char(16) | | A地点のデバイスID |
 | point_b | char(16) | | B地点のデバイスID |
 | point_c | char(16) | | C地点のデバイスID |
@@ -147,7 +147,7 @@ CREATE TABLE users (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), login_id var
 | image_url | varchar(512) | | レースのヘッダー画像のURL (Cloudinary) |
 | is_holding | boolean | NOT NULL | 開催されているか |
 
-CREATE TABLE races (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), name varchar(32) NOT NULL, start_at timestamp NOT NULL, end_at timestamp NOT NULL, point_a char(16), point_b char(16), point_c char(16), athlete uuid[], memo text, image_url varchar(512), is_holding boolean);
+CREATE TABLE races (id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), name varchar(32) NOT NULL, start_at timestamptz NOT NULL, end_at timestamptz NOT NULL, point_a char(16), point_b char(16), point_c char(16), athlete uuid[], memo text, image_url varchar(512), is_holding boolean);
 
 ## groups（グループ）
 | Column | Type | Options | Description |
