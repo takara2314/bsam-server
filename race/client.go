@@ -3,6 +3,7 @@ package race
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -105,7 +106,12 @@ func (c *Client) readPump() {
 		}
 
 		// Obtain a position info into a client instance.
-		err = json.Unmarshal(message, &c.Position)
+		var tmp Position
+		err = json.Unmarshal(message, &tmp)
+		if !(tmp.Latitude == 0.0 || tmp.Longitude == 0.0) {
+			fmt.Println(c.UserID, c.Position)
+			c.Position = tmp
+		}
 		if err != nil {
 			panic(err)
 		}
