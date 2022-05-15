@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"net/http"
 	"sailing-assist-mie-api/abort"
 	"sailing-assist-mie-api/bsamdb"
@@ -143,6 +144,7 @@ func (c *Client) passCheck() {
 			c.Hub.PointA.Latitude,
 			c.Hub.PointA.Longitude,
 		)
+		fmt.Println("distance:", distance)
 
 		if distance < float64(c.CourseLimit) {
 			c.NextPoint = 2
@@ -156,6 +158,7 @@ func (c *Client) passCheck() {
 			c.Hub.PointB.Latitude,
 			c.Hub.PointB.Longitude,
 		)
+		fmt.Println("distance:", distance)
 
 		if distance < float64(c.CourseLimit) {
 			c.NextPoint = 3
@@ -169,6 +172,7 @@ func (c *Client) passCheck() {
 			c.Hub.PointC.Latitude,
 			c.Hub.PointC.Longitude,
 		)
+		fmt.Println("distance:", distance)
 
 		if distance < float64(c.CourseLimit) {
 			c.NextPoint = 1

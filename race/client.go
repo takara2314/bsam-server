@@ -45,9 +45,11 @@ type Position struct {
 }
 
 type PointNav struct {
-	Begin  bool  `json:"is_begin"`
-	Next   Point `json:"next"`
-	Latest int   `json:"latest"`
+	Begin       bool    `json:"is_begin"`
+	Next        Point   `json:"next"`
+	Latest      int     `json:"latest"`
+	DebugNowLat float64 `json:"debug_now_lat"`
+	DebugNowLng float64 `json:"debug_now_lng"`
 }
 
 type Point struct {
@@ -110,6 +112,7 @@ func (c *Client) readPump() {
 		err = json.Unmarshal(message, &tmp)
 		if !(tmp.Latitude == 0.0 || tmp.Longitude == 0.0) {
 			fmt.Println(c.UserID, c.Position)
+			// Update client position
 			c.Position = tmp
 		}
 		if err != nil {
@@ -309,7 +312,9 @@ func (c *Client) sendNextNav() error {
 			Latitude:  nextLat,
 			Longitude: nextLng,
 		},
-		Latest: c.LatestPoint,
+		Latest:      c.LatestPoint,
+		DebugNowLat: c.Position.Latitude,
+		DebugNowLng: c.Position.Longitude,
 	}
 
 	if IsClosedSendChan(c.Send) {
