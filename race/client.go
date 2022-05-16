@@ -66,6 +66,7 @@ type PointDevice struct {
 
 type ManageInfo struct {
 	UserID    string   `json:"user_id"`
+	Role      string   `json:"role"`
 	Latitude  float64  `json:"latitude"`
 	Longitude float64  `json:"longitude"`
 	Next      PointNav `json:"next"`
@@ -326,6 +327,7 @@ func (c *Client) sendNextNav() error {
 	// Broadcast for manage users and admin users.
 	c.Hub.Managecast <- &ManageInfo{
 		UserID:    c.UserID,
+		Role:      c.Role,
 		Latitude:  c.Position.Latitude,
 		Longitude: c.Position.Longitude,
 		Next:      nav,
