@@ -63,9 +63,12 @@ func (hub *Hub) registerEvent(client *Client) {
 	log.Println(client.UserID, "joined.")
 
 	hub.Clients[client.UserID] = client
-	err := hub.addAthlete(client.UserID)
-	if err != nil {
-		panic(err)
+
+	if client.Role == "athlete" {
+		err := hub.addAthlete(client.UserID)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -78,7 +81,7 @@ func (hub *Hub) unregisterEvent(client *Client) {
 		close(client.SendManage)
 		close(client.SendLive)
 
-		if !strings.HasPrefix(client.UserID, "NPC") {
+		if !strings.HasPrefix(client.UserID, "NPC") && client.Role == "athlete" {
 			err := hub.removeAthlete(client.UserID)
 			if err != nil {
 				panic(err)
