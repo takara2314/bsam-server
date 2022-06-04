@@ -46,3 +46,32 @@ func (db *DbInfo) Update(table string, primaryKey string, id interface{}, fields
 
 	return db.DB.QueryRow(sql, values...), nil
 }
+
+// Update updates all values.
+func (db *DbInfo) UpdateAll(table string, fields []Field) (*sql.Row, error) {
+	sql := "UPDATE %s SET %s"
+
+	// Convert to insertable form.
+	columns, _, err := valueToQueryable(fields)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create sql selectors.
+	sqlSelectors := createSQLSelector(fields)
+
+	// Create the alter statement.
+	alter, err := utils.CreateStrSliceEqualStrSlice(columns, sqlSelectors)
+	if err != nil {
+		return nil, err
+	}
+
+	// Execute sql query.
+	sql = fmt.Sprintf(
+		sql,
+		table,
+		alter,
+	)
+
+	return db.DB.QueryRow(sql), nil
+}
