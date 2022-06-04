@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
 )
@@ -13,6 +14,8 @@ func init() {
 	}
 	defer db.DB.Close()
 
+	fmt.Println("今から実行するで！")
+
 	// Update the database to reset registered athletes info.
 	_, err = db.UpdateAll(
 		"races",
@@ -23,4 +26,8 @@ func init() {
 			),
 		}},
 	)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }
