@@ -87,9 +87,15 @@ func (hub *Hub) unregisterEvent(client *Client) {
 	log.Println(client.UserID, "left.")
 
 	if hub.isExistUser(client.UserID) {
-		close(client.Send)
-		close(client.SendManage)
-		close(client.SendLive)
+		if !IsClosedSendChan(client.Send) {
+			close(client.Send)
+		}
+		if !IsClosedSendManageChan(client.SendManage) {
+			close(client.SendManage)
+		}
+		if !IsClosedSendLiveChan(client.SendLive) {
+			close(client.SendLive)
+		}
 
 		if !strings.HasPrefix(client.UserID, "NPC") && client.Role == "athlete" {
 			err := hub.removeAthlete(client.UserID)
