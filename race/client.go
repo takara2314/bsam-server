@@ -292,6 +292,11 @@ func (c *Client) pingEvent() error {
 }
 
 func (c *Client) sendNextNav() error {
+	if !IsClosedSendChan(c.Send) {
+		fmt.Println("IT'S CLOSED", c.UserID)
+		return ErrClosedChannel
+	}
+
 	// Announce next point info.
 	var nextLat, nextLng float64
 	switch c.NextPoint {
@@ -306,10 +311,6 @@ func (c *Client) sendNextNav() error {
 		nextLng = c.Hub.PointC.Longitude
 	}
 
-	fmt.Println("send for:", c.UserID)
-	fmt.Println("next point>>", c.NextPoint)
-	fmt.Println("latest point>>", c.LatestPoint)
-
 	nav := PointNav{
 		Begin: c.Hub.Begin,
 		Next: Point{
@@ -322,11 +323,10 @@ func (c *Client) sendNextNav() error {
 		DebugNowLng: c.Position.Longitude,
 	}
 
-	if IsClosedSendChan(c.Send) {
-		c.Send <- &nav
-	} else {
-		return ErrClosedChannel
-	}
+	fmt.Println("send for:", c.UserID)
+	fmt.Println("next point>>", c.NextPoint)
+	fmt.Println("latest point>>", c.LatestPoint)
+	c.Send <- &nav
 
 	// Broadcast for manage users and admin users.
 	c.Hub.Managecast <- &ManageInfo{

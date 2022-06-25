@@ -1,6 +1,7 @@
 package race
 
 import (
+	"fmt"
 	"log"
 	"sailing-assist-mie-api/bsamdb"
 	"sailing-assist-mie-api/utils"
@@ -62,7 +63,14 @@ func (hub *Hub) Run() {
 func (hub *Hub) registerEvent(client *Client) {
 	log.Println(client.UserID, "joined.")
 
+	if _, ok := hub.Clients[client.UserID]; ok {
+		fmt.Println("!? 重複しています !?", client.UserID)
+	}
+
 	hub.Clients[client.UserID] = client
+
+	fmt.Println(len(hub.Clients))
+	fmt.Println(hub.Clients)
 
 	if client.Role == "athlete" {
 		err := hub.addAthlete(client.UserID)
