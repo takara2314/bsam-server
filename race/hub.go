@@ -65,6 +65,8 @@ func (hub *Hub) registerEvent(client *Client) {
 
 	if _, ok := hub.Clients[client.UserID]; ok {
 		fmt.Println("!? 重複しています !?", client.UserID)
+		hub.unregisterEvent(hub.Clients[client.UserID])
+		fmt.Println("古いのを削除しました。")
 	}
 
 	hub.Clients[client.UserID] = client
