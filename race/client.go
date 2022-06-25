@@ -306,6 +306,7 @@ func (c *Client) sendNextNav() error {
 		nextLng = c.Hub.PointC.Longitude
 	}
 
+	fmt.Println("send for:", c.UserID)
 	fmt.Println("next point>>", c.NextPoint)
 	fmt.Println("latest point>>", c.LatestPoint)
 
