@@ -144,7 +144,7 @@ func (c *Client) passCheck() {
 			c.Hub.PointA.Latitude,
 			c.Hub.PointA.Longitude,
 		)
-		fmt.Println("distance:", distance)
+		fmt.Println("distance1:", distance)
 
 		if distance < float64(c.CourseLimit) {
 			fmt.Println(c.UserID, ">> passed 1")
@@ -159,7 +159,7 @@ func (c *Client) passCheck() {
 			c.Hub.PointB.Latitude,
 			c.Hub.PointB.Longitude,
 		)
-		fmt.Println("distance:", distance)
+		fmt.Println("distance2:", distance)
 
 		if distance < float64(c.CourseLimit) {
 			fmt.Println(c.UserID, ">> passed 2")
@@ -174,7 +174,7 @@ func (c *Client) passCheck() {
 			c.Hub.PointC.Latitude,
 			c.Hub.PointC.Longitude,
 		)
-		fmt.Println("distance:", distance)
+		fmt.Println("distance3:", distance)
 
 		if distance < float64(c.CourseLimit) {
 			fmt.Println(c.UserID, ">> passed 3")
