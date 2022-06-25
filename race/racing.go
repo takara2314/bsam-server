@@ -147,6 +147,7 @@ func (c *Client) passCheck() {
 		fmt.Println("distance:", distance)
 
 		if distance < float64(c.CourseLimit) {
+			fmt.Println(c.UserID, ">> passed 1")
 			c.NextPoint = 2
 			c.LatestPoint = 1
 		}
@@ -161,6 +162,7 @@ func (c *Client) passCheck() {
 		fmt.Println("distance:", distance)
 
 		if distance < float64(c.CourseLimit) {
+			fmt.Println(c.UserID, ">> passed 2")
 			c.NextPoint = 3
 			c.LatestPoint = 2
 		}
@@ -175,6 +177,7 @@ func (c *Client) passCheck() {
 		fmt.Println("distance:", distance)
 
 		if distance < float64(c.CourseLimit) {
+			fmt.Println(c.UserID, ">> passed 3")
 			c.NextPoint = 1
 			c.LatestPoint = 2
 		}
