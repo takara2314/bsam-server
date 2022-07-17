@@ -1,1 +1,1 @@
-web: sailing-assist-mie-api
+web: bsam-server
