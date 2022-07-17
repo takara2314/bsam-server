@@ -1,9 +1,9 @@
 package bsamdb
 
 import (
+	"bsam-server/utils"
 	"database/sql"
 	"fmt"
-	"sailing-assist-mie-api/utils"
 )
 
 // Insert runs a insert query.

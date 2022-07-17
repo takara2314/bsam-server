@@ -1,7 +1,7 @@
 package inspector
 
 import (
-	"sailing-assist-mie-api/utils"
+	"bsam-server/utils"
 	"strings"
 )
 

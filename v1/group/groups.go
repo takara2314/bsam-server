@@ -1,10 +1,10 @@
 package group
 
 import (
-	"sailing-assist-mie-api/abort"
-	"sailing-assist-mie-api/bsamdb"
-	"sailing-assist-mie-api/inspector"
-	"sailing-assist-mie-api/message"
+	"bsam-server/v1/abort"
+	"bsam-server/v1/bsamdb"
+	"bsam-server/v1/inspector"
+	"bsam-server/v1/message"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,7 +1,7 @@
 package race
 
 import (
-	"sailing-assist-mie-api/bsamdb"
+	"bsam-server/v1/bsamdb"
 	"time"
 )
 

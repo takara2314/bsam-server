@@ -1,9 +1,9 @@
 package bsamdb
 
 import (
+	"bsam-server/utils"
 	"database/sql"
 	"fmt"
-	"sailing-assist-mie-api/utils"
 )
 
 // Update updates values by selecting the primaryKey.

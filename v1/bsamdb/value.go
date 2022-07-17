@@ -1,8 +1,8 @@
 package bsamdb
 
 import (
+	"bsam-server/utils"
 	"fmt"
-	"sailing-assist-mie-api/utils"
 	"strconv"
 	"time"
 )

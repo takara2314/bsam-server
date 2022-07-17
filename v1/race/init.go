@@ -1,9 +1,9 @@
 package race
 
 import (
+	"bsam-server/utils"
+	"bsam-server/v1/bsamdb"
 	"fmt"
-	"sailing-assist-mie-api/bsamdb"
-	"sailing-assist-mie-api/utils"
 )
 
 func init() {
