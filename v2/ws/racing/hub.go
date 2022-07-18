@@ -1,5 +1,7 @@
 package racing
 
+import "log"
+
 type Hub struct {
 	RaceID     string
 	Clients    map[string]*Client
@@ -28,6 +30,7 @@ func (h *Hub) Run() {
 }
 
 func (h *Hub) registerEvent(c *Client) {
+	log.Println("Joined:", c.ID)
 	h.Clients[c.ID] = c
 }
 
@@ -36,7 +39,7 @@ func (h *Hub) unregisterEvent(c *Client) {
 		return
 	}
 
+	log.Println("Left:", c.ID)
 	c.Conn.Close()
-	close(c.Send)
 	delete(h.Clients, c.ID)
 }
