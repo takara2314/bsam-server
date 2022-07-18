@@ -13,13 +13,16 @@ func main() {
 	router := gin.Default()
 
 	// CORS settings
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{
-		"http://localhost:3000",
-		"http://sailing-assist-mie-manage.herokuapp.com",
-		"https://sailing-assist-mie-manage.herokuapp.com",
+	if os.Getenv("GIN_MODE") == "release" {
+		corsConfig := cors.DefaultConfig()
+		corsConfig.AllowOrigins = []string{
+			"http://sailing-assist-mie-manage.herokuapp.com",
+			"https://sailing-assist-mie-manage.herokuapp.com",
+		}
+		router.Use(cors.New(corsConfig))
+	} else {
+		router.Use(cors.Default())
 	}
-	router.Use(cors.New(corsConfig))
 
 	v1.Register(router)
 	v2.Register(router)

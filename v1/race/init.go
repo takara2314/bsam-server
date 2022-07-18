@@ -14,8 +14,6 @@ func init() {
 	}
 	defer db.DB.Close()
 
-	fmt.Println("今から実行するで！")
-
 	// Update the database to reset registered athletes info.
 	_, err = db.UpdateAll(
 		"races",
