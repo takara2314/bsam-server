@@ -15,6 +15,8 @@ func NewHub(raceID string) *Hub {
 	return &Hub{
 		RaceID:     raceID,
 		Clients:    make(map[string]*Client),
+		Athletes:   make(map[string]*Client),
+		Marks:      make(map[string]*Client),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 	}
