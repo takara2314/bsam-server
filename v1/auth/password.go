@@ -52,9 +52,10 @@ func passwordPOST(c *gin.Context) {
 	}
 	defer db.DB.Close()
 
-	row := db.DB.QueryRow("SELECT id FROM users WHERE login_id = $1 AND password = digest($2, 'sha3-256')", json.LoginID, json.Password)
+	row := db.DB.QueryRow("SELECT id, role FROM users WHERE login_id = $1 AND password = digest($2, 'sha3-256')", json.LoginID, json.Password)
 	var userID string
-	err = row.Scan(&userID)
+	var role string
+	err = row.Scan(&userID, &role)
 	if err != nil {
 		abort.Forbidden(c, message.WrongIDorPassword)
 		return
@@ -63,6 +64,7 @@ func passwordPOST(c *gin.Context) {
 	// Generate JWT token.
 	claims := jwt.MapClaims{
 		"user_id": userID,
+		"role":    role,
 		"exp":     time.Now().Add(time.Hour * 24 * 30 * 3).Unix(),
 	}
 

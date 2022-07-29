@@ -3,7 +3,6 @@ package racing
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -28,8 +27,6 @@ func (c *Client) auth(msg *AuthInfo) {
 		return
 	}
 
-	fmt.Println(userID, "認証されました")
-
 	c.UserID = userID
 	c.Role = role
 
@@ -39,6 +36,8 @@ func (c *Client) auth(msg *AuthInfo) {
 	case "mark":
 		c.Hub.Marks[c.ID] = c
 	}
+
+	c.sendMarkPosMsg()
 }
 
 func (c *Client) receivePos(msg *Position) {

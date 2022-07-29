@@ -12,7 +12,7 @@ const (
 	writeWait      = 10 * time.Second
 	pongWait       = 10 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
-	navPeriod      = 5 * time.Second
+	markPosPeriod  = 5 * time.Second
 	maxMessageSize = 1024
 )
 

@@ -49,3 +49,17 @@ func (h *Hub) unregisterEvent(c *Client) {
 	delete(h.Athletes, c.ID)
 	delete(h.Marks, c.ID)
 }
+
+func (h Hub) getMarkPositions() []Position {
+	n := len(h.Marks)
+	positions := make([]Position, n)
+
+	for _, c := range h.Marks {
+		if c.MarkNo > n {
+			panic("invalid mark no")
+		}
+		positions[c.MarkNo-1] = c.Position
+	}
+
+	return positions
+}

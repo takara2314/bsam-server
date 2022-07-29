@@ -20,15 +20,22 @@ type LiveMsg struct {
 	Marks    []PositionWithID     `json:"marks"`
 }
 
-func (c *Client) sendMarkPosMsg(msg *MarkPosMsg) {
+func (c *Client) sendMarkPosMsg() {
+	msg := MarkPosMsg{
+		Positions: c.Hub.getMarkPositions(),
+	}
+	c.sendMarkPosMsgEvent(&msg)
+}
+
+func (c *Client) sendMarkPosMsgEvent(msg *MarkPosMsg) {
 	c.Send <- insertTypeToJSON(msg, "mark_position")
 }
 
-func (c *Client) sendNearSailMsg(msg *NearSailMsg) {
+func (c *Client) sendNearSailMsgEvent(msg *NearSailMsg) {
 	c.Send <- insertTypeToJSON(msg, "near_sail")
 }
 
-func (c *Client) sendLiveMsg(msg *LiveMsg) {
+func (c *Client) sendLiveMsgEvent(msg *LiveMsg) {
 	c.Send <- insertTypeToJSON(msg, "live")
 }
 
@@ -61,8 +68,11 @@ func (c *Client) pingEvent() error {
 
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
+	tickerMarkPos := time.NewTicker(markPosPeriod)
+
 	defer func() {
 		ticker.Stop()
+		tickerMarkPos.Stop()
 		c.Hub.Unregister <- c
 	}()
 
@@ -73,6 +83,9 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
+
+		case <-tickerMarkPos.C:
+			c.sendMarkPosMsg()
 
 		case <-ticker.C:
 			err := c.pingEvent()
