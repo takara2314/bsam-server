@@ -1,13 +1,19 @@
 package racing
 
 import (
-	"bsam-server/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/websocket"
+)
+
+var (
+	ErrInvalidJWT = errors.New("invalid jwt")
 )
 
 type AuthInfo struct {
@@ -16,7 +22,7 @@ type AuthInfo struct {
 }
 
 func (c *Client) auth(msg *AuthInfo) {
-	userID, err := utils.GetUserIDFromJWT(msg.Token)
+	userID, role, err := getUserInfoFromJWT(msg.Token)
 	if err != nil {
 		c.Hub.Unregister <- c
 		return
@@ -25,9 +31,9 @@ func (c *Client) auth(msg *AuthInfo) {
 	fmt.Println(userID, "認証されました")
 
 	c.UserID = userID
-	c.Role = msg.Role
+	c.Role = role
 
-	switch msg.Role {
+	switch role {
 	case "athlete":
 		c.Hub.Athletes[c.ID] = c
 	case "mark":
@@ -82,4 +88,23 @@ func (c *Client) readPump() {
 			c.receivePos(&msg)
 		}
 	}
+}
+
+func getUserInfoFromJWT(t string) (string, string, error) {
+	token, err := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+
+	if token == nil || err != nil {
+		return "", "", ErrInvalidJWT
+	}
+
+	if !token.Valid {
+		return "", "", ErrInvalidJWT
+	}
+
+	userID := token.Claims.(jwt.MapClaims)["user_id"].(string)
+	role := token.Claims.(jwt.MapClaims)["role"].(string)
+
+	return userID, role, nil
 }
