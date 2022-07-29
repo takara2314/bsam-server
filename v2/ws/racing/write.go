@@ -68,11 +68,11 @@ func (c *Client) pingEvent() error {
 
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
-	tickerMarkPos := time.NewTicker(markPosPeriod)
+	// tickerMarkPos := time.NewTicker(markPosPeriod)
 
 	defer func() {
 		ticker.Stop()
-		tickerMarkPos.Stop()
+		// tickerMarkPos.Stop()
 		c.Hub.Unregister <- c
 	}()
 
@@ -84,8 +84,8 @@ func (c *Client) writePump() {
 				return
 			}
 
-		case <-tickerMarkPos.C:
-			c.sendMarkPosMsg()
+		// case <-tickerMarkPos.C:
+		// 	c.sendMarkPosMsg()
 
 		case <-ticker.C:
 			err := c.pingEvent()
