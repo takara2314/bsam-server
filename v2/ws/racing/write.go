@@ -2,7 +2,6 @@ package racing
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -25,7 +24,6 @@ func (c *Client) sendMarkPosMsg() {
 	msg := MarkPosMsg{
 		Positions: c.Hub.getMarkPositions(),
 	}
-	fmt.Println(msg)
 	c.sendMarkPosMsgEvent(&msg)
 }
 
@@ -87,7 +85,6 @@ func (c *Client) writePump() {
 			}
 
 		case <-tickerMarkPos.C:
-			fmt.Println("時間になったので実行します")
 			go c.sendMarkPosMsg()
 
 		case <-ticker.C:

@@ -33,3 +33,32 @@ func Handler(c *gin.Context) {
 	go client.readPump()
 	go client.writePump()
 }
+
+func (c *Client) auth(msg *AuthInfo) {
+	userID, role, err := getUserInfoFromJWT(msg.Token)
+	if err != nil {
+		c.Hub.Unregister <- c
+		return
+	}
+
+	c.UserID = userID
+	c.Role = role
+
+	switch role {
+	case "athlete":
+		c.Hub.Athletes[c.ID] = c
+	case "mark":
+		c.Hub.Marks[c.ID] = c
+	}
+
+	c.sendMarkPosMsg()
+}
+
+func (c *Client) receivePos(msg *Position) {
+	c.Position = *msg
+}
+
+func (c *Client) handlerPassed(msg *PassedInfo) {
+	c.MarkNo = msg.MarkNo
+	c.NextMarkNo = msg.NextMarkNo
+}

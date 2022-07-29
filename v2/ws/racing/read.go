@@ -20,28 +20,9 @@ type AuthInfo struct {
 	Role  string `json:"role"`
 }
 
-func (c *Client) auth(msg *AuthInfo) {
-	userID, role, err := getUserInfoFromJWT(msg.Token)
-	if err != nil {
-		c.Hub.Unregister <- c
-		return
-	}
-
-	c.UserID = userID
-	c.Role = role
-
-	switch role {
-	case "athlete":
-		c.Hub.Athletes[c.ID] = c
-	case "mark":
-		c.Hub.Marks[c.ID] = c
-	}
-
-	c.sendMarkPosMsg()
-}
-
-func (c *Client) receivePos(msg *Position) {
-	c.Position = *msg
+type PassedInfo struct {
+	MarkNo     int `json:"mark_no"`
+	NextMarkNo int `json:"next_mark_no"`
 }
 
 func (c *Client) readPump() {
@@ -85,6 +66,11 @@ func (c *Client) readPump() {
 			var msg Position
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.receivePos(&msg)
+
+		case "passed":
+			var msg PassedInfo
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.handlerPassed(&msg)
 		}
 	}
 }
