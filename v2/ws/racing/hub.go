@@ -5,6 +5,8 @@ import "log"
 type Hub struct {
 	RaceID     string
 	Clients    map[string]*Client
+	Athletes   map[string]*Client
+	Marks      map[string]*Client
 	Register   chan *Client
 	Unregister chan *Client
 }
@@ -42,4 +44,6 @@ func (h *Hub) unregisterEvent(c *Client) {
 	log.Println("Left:", c.ID)
 	c.Conn.Close()
 	delete(h.Clients, c.ID)
+	delete(h.Athletes, c.ID)
+	delete(h.Marks, c.ID)
 }

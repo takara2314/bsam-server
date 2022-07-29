@@ -1,12 +1,39 @@
 package racing
 
 import (
+	"bsam-server/utils"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
+
+type AuthInfo struct {
+	Token string `json:"token"`
+	Role  string `json:"role"`
+}
+
+func (c *Client) auth(msg *AuthInfo) {
+	userID, err := utils.GetUserIDFromJWT(msg.Token)
+	if err != nil {
+		c.Hub.Unregister <- c
+		return
+	}
+
+	fmt.Println(userID, "認証されました")
+
+	c.UserID = userID
+	c.Role = msg.Role
+
+	switch msg.Role {
+	case "athlete":
+		c.Hub.Athletes[c.ID] = c
+	case "mark":
+		c.Hub.Marks[c.ID] = c
+	}
+}
 
 func (c *Client) receivePos(msg *Position) {
 	c.Position = *msg
@@ -44,6 +71,11 @@ func (c *Client) readPump() {
 		}
 
 		switch msg["type"].(string) {
+		case "auth":
+			var msg AuthInfo
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.auth(&msg)
+
 		case "position":
 			var msg Position
 			json.Unmarshal([]byte(msgRaw), &msg)
