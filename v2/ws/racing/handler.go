@@ -35,7 +35,7 @@ func Handler(c *gin.Context) {
 }
 
 func (c *Client) auth(msg *AuthInfo) {
-	userID, role, err := getUserInfoFromJWT(msg.Token)
+	userID, role, markNo, err := getUserInfoFromJWT(msg.Token)
 	if err != nil {
 		c.Hub.Unregister <- c
 		return
@@ -43,6 +43,7 @@ func (c *Client) auth(msg *AuthInfo) {
 
 	c.UserID = userID
 	c.Role = role
+	c.MarkNo = markNo
 
 	switch role {
 	case "athlete":
