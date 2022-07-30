@@ -92,8 +92,7 @@ func getUserInfoFromJWT(t string) (string, string, int, error) {
 
 	userID := token.Claims.(jwt.MapClaims)["user_id"].(string)
 	role := token.Claims.(jwt.MapClaims)["role"].(string)
-	fmt.Println(token.Claims.(jwt.MapClaims)["mark_no"])
-	markNo := token.Claims.(jwt.MapClaims)["mark_no"].(int)
+	markNo := int(token.Claims.(jwt.MapClaims)["mark_no"].(float64))
 
 	return userID, role, markNo, nil
 }
