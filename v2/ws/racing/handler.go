@@ -45,6 +45,8 @@ func (c *Client) auth(msg *AuthInfo) {
 	c.Role = role
 	c.MarkNo = markNo
 
+	fmt.Println(c.UserID, "さん:", c.Role, c.MarkNo)
+
 	switch role {
 	case "athlete":
 		c.Hub.Athletes[c.ID] = c
