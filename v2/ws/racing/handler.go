@@ -37,6 +37,7 @@ func Handler(c *gin.Context) {
 func (c *Client) auth(msg *AuthInfo) {
 	userID, role, markNo, err := getUserInfoFromJWT(msg.Token)
 	if err != nil {
+		fmt.Println("認証に失敗しました。")
 		c.Hub.Unregister <- c
 		return
 	}

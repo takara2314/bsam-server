@@ -8,6 +8,7 @@ import (
 )
 
 type MarkPosMsg struct {
+	MarkNum   int        `json:"mark_num"`
 	Positions []Position `json:"positions"`
 }
 
@@ -22,6 +23,7 @@ type LiveMsg struct {
 
 func (c *Client) sendMarkPosMsg() {
 	msg := MarkPosMsg{
+		MarkNum:   c.Hub.MarkNum,
 		Positions: c.Hub.getMarkPositions(),
 	}
 	c.sendMarkPosMsgEvent(&msg)

@@ -7,6 +7,7 @@ type Hub struct {
 	Clients    map[string]*Client
 	Athletes   map[string]*Client
 	Marks      map[string]*Client
+	MarkNum    int
 	Register   chan *Client
 	Unregister chan *Client
 }
@@ -17,6 +18,7 @@ func NewHub(raceID string) *Hub {
 		Clients:    make(map[string]*Client),
 		Athletes:   make(map[string]*Client),
 		Marks:      make(map[string]*Client),
+		MarkNum:    3,
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 	}
@@ -51,11 +53,10 @@ func (h *Hub) unregisterEvent(c *Client) {
 }
 
 func (h Hub) getMarkPositions() []Position {
-	n := len(h.Marks)
-	positions := make([]Position, n)
+	positions := make([]Position, h.MarkNum)
 
 	for _, c := range h.Marks {
-		if c.MarkNo > n {
+		if c.MarkNo > h.MarkNum {
 			panic("invalid mark no")
 		}
 		positions[c.MarkNo-1] = c.Position
