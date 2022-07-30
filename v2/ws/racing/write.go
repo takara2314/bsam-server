@@ -23,7 +23,7 @@ type LiveMsg struct {
 
 func (c *Client) sendMarkPosMsg() {
 	msg := MarkPosMsg{
-		MarkNum:   c.Hub.MarkNum,
+		MarkNum:   len(c.Hub.Marks),
 		Positions: c.Hub.getMarkPositions(),
 	}
 	c.sendMarkPosMsgEvent(&msg)
