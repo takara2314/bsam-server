@@ -3,6 +3,7 @@ package racing
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -87,8 +88,11 @@ func getUserInfoFromJWT(t string) (string, string, int, error) {
 		return "", "", -1, ErrInvalidJWT
 	}
 
+	fmt.Println(token.Claims.(jwt.MapClaims))
+
 	userID := token.Claims.(jwt.MapClaims)["user_id"].(string)
 	role := token.Claims.(jwt.MapClaims)["role"].(string)
+	fmt.Println(token.Claims.(jwt.MapClaims)["mark_no"])
 	markNo := token.Claims.(jwt.MapClaims)["mark_no"].(int)
 
 	return userID, role, markNo, nil
