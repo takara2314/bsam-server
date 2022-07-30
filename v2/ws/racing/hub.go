@@ -49,7 +49,7 @@ func (h *Hub) unregisterEvent(c *Client) {
 	c.Conn.Close()
 	delete(h.Clients, c.ID)
 	delete(h.Athletes, c.ID)
-	// delete(h.Marks, c.ID)
+	delete(h.Marks, c.ID)
 }
 
 func (h Hub) getMarkPositions() []Position {
