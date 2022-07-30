@@ -12,7 +12,7 @@ func AutoRooming() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
-	races := []string{"hogehoge", "piyopiyo"}
+	races := []string{"hogehoge", "piyopiyo", "3ae8c214-eb72-481c-b110-8e8f32ecf02d"}
 
 	for {
 		scale(races)
