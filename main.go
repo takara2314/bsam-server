@@ -1,12 +1,9 @@
 package main
 
 import (
+	v1 "bsam-server/v1"
+	v2 "bsam-server/v2"
 	"os"
-	"sailing-assist-mie-api/auth"
-	"sailing-assist-mie-api/device"
-	"sailing-assist-mie-api/group"
-	"sailing-assist-mie-api/race"
-	"sailing-assist-mie-api/user"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -16,31 +13,19 @@ func main() {
 	router := gin.Default()
 
 	// CORS settings
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:3000", "http://sailing-assist-mie-manage.herokuapp.com", "https://sailing-assist-mie-manage.herokuapp.com"}
-	router.Use(cors.New(corsConfig))
+	if os.Getenv("GIN_MODE") == "release" {
+		corsConfig := cors.DefaultConfig()
+		corsConfig.AllowOrigins = []string{
+			"http://sailing-assist-mie-manage.herokuapp.com",
+			"https://sailing-assist-mie-manage.herokuapp.com",
+		}
+		router.Use(cors.New(corsConfig))
+	} else {
+		router.Use(cors.Default())
+	}
 
-	// Device API
-	device.Register(router.Group("/device"))
-
-	// User API
-	user.Register(router.Group("/user"))
-	router.GET("/users", user.UsersGET)
-	router.POST("/users", user.UsersPOST)
-
-	// Race API and Race Socket
-	race.Register(router.Group("/race"))
-	router.GET("/races", race.RacesGET)
-	router.POST("/races", race.RacesPOST)
-	router.GET("/racing/:id", race.RacingWS)
-	go race.AutoRooming()
-
-	// Group API
-	group.Register(router.Group("/group"))
-	router.POST("/groups", group.GroupsPOST)
-
-	// Authorization API
-	auth.Register(router.Group("/auth"))
+	v1.Register(router)
+	v2.Register(router)
 
 	router.Run(":" + os.Getenv("PORT"))
 }
