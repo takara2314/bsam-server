@@ -43,6 +43,12 @@ func (c *Client) auth(msg *AuthInfo) {
 		return
 	}
 
+	if role == "mark" && msg.MarkNo == 0 {
+		log.Println("Not select mark no:", c.ID)
+		c.Hub.Unregister <- c
+		return
+	}
+
 	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, userID, role)
 
 	c.UserID = userID
