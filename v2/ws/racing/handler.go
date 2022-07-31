@@ -2,6 +2,7 @@ package racing
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,23 +36,23 @@ func Handler(c *gin.Context) {
 }
 
 func (c *Client) auth(msg *AuthInfo) {
-	userID, role, markNo, err := getUserInfoFromJWT(msg.Token)
+	userID, role, err := getUserInfoFromJWT(msg.Token)
 	if err != nil {
-		fmt.Println("認証に失敗しました。")
+		log.Println("Unauthorized:", c.ID)
 		c.Hub.Unregister <- c
 		return
 	}
 
+	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, userID, role)
+
 	c.UserID = userID
 	c.Role = role
-	c.MarkNo = markNo
-
-	fmt.Println(c.UserID, "さん:", c.Role, c.MarkNo)
 
 	switch role {
 	case "athlete":
 		c.Hub.Athletes[c.ID] = c
 	case "mark":
+		c.MarkNo = msg.MarkNo
 		c.Hub.Marks[c.ID] = c
 	}
 
@@ -63,6 +64,8 @@ func (c *Client) receivePos(msg *Position) {
 }
 
 func (c *Client) handlerPassed(msg *PassedInfo) {
+	log.Printf("Passed: [%d] -> %s -> [%d]\n", msg.MarkNo, c.UserID, msg.NextMarkNo)
+
 	c.MarkNo = msg.MarkNo
 	c.NextMarkNo = msg.NextMarkNo
 }

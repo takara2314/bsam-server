@@ -17,7 +17,8 @@ var (
 )
 
 type AuthInfo struct {
-	Token string `json:"token"`
+	Token  string `json:"token"`
+	MarkNo int    `json:"mark_no"`
 }
 
 type PassedInfo struct {
@@ -75,24 +76,23 @@ func (c *Client) readPump() {
 	}
 }
 
-func getUserInfoFromJWT(t string) (string, string, int, error) {
+func getUserInfoFromJWT(t string) (string, string, error) {
 	token, err := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if token == nil || err != nil {
-		return "", "", -1, ErrInvalidJWT
+		return "", "", ErrInvalidJWT
 	}
 
 	if !token.Valid {
-		return "", "", -1, ErrInvalidJWT
+		return "", "", ErrInvalidJWT
 	}
 
 	fmt.Println(token.Claims.(jwt.MapClaims))
 
 	userID := token.Claims.(jwt.MapClaims)["user_id"].(string)
 	role := token.Claims.(jwt.MapClaims)["role"].(string)
-	markNo := int(token.Claims.(jwt.MapClaims)["mark_no"].(float64))
 
-	return userID, role, markNo, nil
+	return userID, role, nil
 }
