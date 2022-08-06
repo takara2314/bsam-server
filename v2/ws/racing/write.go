@@ -127,14 +127,15 @@ func (h *Hub) generateLiveMsg() LiveMsg {
 	cnt := 0
 	for _, c := range h.Athletes {
 		athletes[cnt] = LocationWithDetail{
-			UserID:      c.UserID,
-			Lat:         c.Location.Lat,
-			Lng:         c.Location.Lng,
-			Acc:         c.Location.Acc,
-			Heading:     c.Location.Heading,
-			MarkNo:      c.MarkNo,
-			NextMarkNo:  c.NextMarkNo,
-			CourseLimit: c.CourseLimit,
+			UserID:       c.UserID,
+			Lat:          c.Location.Lat,
+			Lng:          c.Location.Lng,
+			Acc:          c.Location.Acc,
+			Heading:      c.Location.Heading,
+			HeadingFixed: c.Location.HeadingFixed,
+			MarkNo:       c.MarkNo,
+			NextMarkNo:   c.NextMarkNo,
+			CourseLimit:  c.CourseLimit,
 		}
 		cnt++
 	}

@@ -40,10 +40,11 @@ type Position struct {
 }
 
 type Location struct {
-	Lat     float64 `json:"latitude"`
-	Lng     float64 `json:"longitude"`
-	Acc     float64 `json:"accuracy"`
-	Heading float64 `json:"heading"`
+	Lat          float64 `json:"latitude"`
+	Lng          float64 `json:"longitude"`
+	Acc          float64 `json:"accuracy"`
+	Heading      float64 `json:"heading"`
+	HeadingFixed float64 `json:"heading_fixed"`
 }
 
 type PositionWithID struct {
@@ -53,14 +54,15 @@ type PositionWithID struct {
 }
 
 type LocationWithDetail struct {
-	UserID      string  `json:"user_id"`
-	Lat         float64 `json:"latitude"`
-	Lng         float64 `json:"longitude"`
-	Acc         float64 `json:"accuracy"`
-	Heading     float64 `json:"heading"`
-	MarkNo      int     `json:"mark_no"`
-	NextMarkNo  int     `json:"next_mark_no"`
-	CourseLimit float32 `json:"course_limit"`
+	UserID       string  `json:"user_id"`
+	Lat          float64 `json:"latitude"`
+	Lng          float64 `json:"longitude"`
+	Acc          float64 `json:"accuracy"`
+	Heading      float64 `json:"heading"`
+	HeadingFixed float64 `json:"heading_fixed"`
+	MarkNo       int     `json:"mark_no"`
+	NextMarkNo   int     `json:"next_mark_no"`
+	CourseLimit  float32 `json:"course_limit"`
 }
 
 func NewClient(raceID string, conn *websocket.Conn) *Client {
