@@ -69,6 +69,11 @@ func (c *Client) receivePos(msg *Position) {
 	c.Position = *msg
 }
 
+func (c *Client) receiveLoc(msg *Location) {
+	c.Position = Position{Lat: msg.Lat, Lng: msg.Lng}
+	c.Location = *msg
+}
+
 func (c *Client) handlerPassed(msg *PassedInfo) {
 	log.Printf("Passed: [%d] -> %s -> [%d]\n", msg.MarkNo, c.UserID, msg.NextMarkNo)
 

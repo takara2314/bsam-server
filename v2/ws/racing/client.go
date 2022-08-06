@@ -30,12 +30,20 @@ type Client struct {
 	NextMarkNo  int
 	CourseLimit float32
 	Position    Position
+	Location    Location
 	Send        chan []byte
 }
 
 type Position struct {
 	Lat float64 `json:"latitude"`
 	Lng float64 `json:"longitude"`
+}
+
+type Location struct {
+	Lat     float64 `json:"latitude"`
+	Lng     float64 `json:"longitude"`
+	Acc     float64 `json:"accuracy"`
+	Heading float64 `json:"heading"`
 }
 
 type PositionWithID struct {

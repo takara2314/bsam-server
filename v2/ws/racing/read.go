@@ -67,6 +67,11 @@ func (c *Client) readPump() {
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.receivePos(&msg)
 
+		case "location":
+			var msg Location
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.receiveLoc(&msg)
+
 		case "passed":
 			var msg PassedInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
