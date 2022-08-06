@@ -17,7 +17,7 @@ type NearSailMsg struct {
 }
 
 type LiveMsg struct {
-	Athletes []PositionWithDetail `json:"athletes"`
+	Athletes []LocationWithDetail `json:"athletes"`
 	Marks    []PositionWithID     `json:"marks"`
 }
 
@@ -27,6 +27,15 @@ func (c *Client) sendMarkPosMsg() {
 		Positions: c.Hub.getMarkPositions(),
 	}
 	c.sendMarkPosMsgEvent(&msg)
+}
+
+func (c *Client) sendLiveMsg() {
+	if c.Role != "manage" {
+		return
+	}
+
+	msg := c.Hub.generateLiveMsg()
+	c.sendLiveMsgEvent(&msg)
 }
 
 func (c *Client) sendMarkPosMsgEvent(msg *MarkPosMsg) {
@@ -71,10 +80,12 @@ func (c *Client) pingEvent() error {
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	tickerMarkPos := time.NewTicker(markPosPeriod)
+	tickerLive := time.NewTicker(markPosPeriod)
 
 	defer func() {
 		ticker.Stop()
 		tickerMarkPos.Stop()
+		tickerLive.Stop()
 		c.Hub.Unregister <- c
 	}()
 
@@ -88,6 +99,9 @@ func (c *Client) writePump() {
 
 		case <-tickerMarkPos.C:
 			go c.sendMarkPosMsg()
+
+		case <-tickerLive.C:
+			go c.sendLiveMsg()
 
 		case <-ticker.C:
 			err := c.pingEvent()
@@ -104,4 +118,39 @@ func insertTypeToJSON(msg interface{}, typeStr string) []byte {
 	text := []byte("\"type\":\"" + typeStr + "\",")
 
 	return append(encoded[:1], append(text, encoded[1:]...)...)
+}
+
+func (h *Hub) generateLiveMsg() LiveMsg {
+	athletes := make([]LocationWithDetail, len(h.Athletes))
+	marks := make([]PositionWithID, len(h.Marks))
+
+	cnt := 0
+	for _, c := range h.Athletes {
+		athletes[cnt] = LocationWithDetail{
+			UserID:      c.UserID,
+			Lat:         c.Location.Lat,
+			Lng:         c.Location.Lng,
+			Acc:         c.Location.Acc,
+			Heading:     c.Location.Heading,
+			MarkNo:      c.MarkNo,
+			NextMarkNo:  c.NextMarkNo,
+			CourseLimit: c.CourseLimit,
+		}
+		cnt++
+	}
+
+	cnt = 0
+	for _, c := range h.Marks {
+		marks[cnt] = PositionWithID{
+			UserID: c.UserID,
+			Lat:    c.Location.Lat,
+			Lng:    c.Location.Lng,
+		}
+		cnt++
+	}
+
+	return LiveMsg{
+		Athletes: athletes,
+		Marks:    marks,
+	}
 }

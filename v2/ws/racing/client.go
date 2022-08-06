@@ -52,11 +52,14 @@ type PositionWithID struct {
 	Lng    float64 `json:"longitude"`
 }
 
-type PositionWithDetail struct {
+type LocationWithDetail struct {
 	UserID      string  `json:"user_id"`
 	Lat         float64 `json:"latitude"`
 	Lng         float64 `json:"longitude"`
-	LastMarkNo  int     `json:"last_mark_no"`
+	Acc         float64 `json:"accuracy"`
+	Heading     float64 `json:"heading"`
+	MarkNo      int     `json:"mark_no"`
+	NextMarkNo  int     `json:"next_mark_no"`
 	CourseLimit float32 `json:"course_limit"`
 }
 
