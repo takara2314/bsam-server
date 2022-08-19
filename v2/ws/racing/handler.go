@@ -67,6 +67,7 @@ func (c *Client) auth(msg *AuthInfo) {
 
 func (c *Client) receivePos(msg *Position) {
 	c.Position = *msg
+	c.Location = Location{Lat: msg.Lat, Lng: msg.Lng}
 }
 
 func (c *Client) receiveLoc(msg *Location) {
