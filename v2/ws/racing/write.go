@@ -29,6 +29,17 @@ func (c *Client) sendMarkPosMsg() {
 	c.sendMarkPosMsgEvent(&msg)
 }
 
+func (c *Client) sendNearSailMsg() {
+	if c.Role != "athlete" {
+		return
+	}
+
+	msg := NearSailMsg{
+		Neighbors: c.getNearSail(),
+	}
+	c.sendNearSailMsgEvent(&msg)
+}
+
 func (c *Client) sendLiveMsg() {
 	if c.Role != "manage" {
 		return
@@ -80,6 +91,7 @@ func (c *Client) pingEvent() error {
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	tickerMarkPos := time.NewTicker(markPosPeriod)
+	tickerNearSail := time.NewTicker(markPosPeriod)
 	tickerLive := time.NewTicker(markPosPeriod)
 
 	defer func() {
@@ -99,6 +111,9 @@ func (c *Client) writePump() {
 
 		case <-tickerMarkPos.C:
 			go c.sendMarkPosMsg()
+
+		case <-tickerNearSail.C:
+			go c.sendNearSailMsg()
 
 		case <-tickerLive.C:
 			go c.sendLiveMsg()

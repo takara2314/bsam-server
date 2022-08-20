@@ -14,6 +14,7 @@ const (
 	pingPeriod     = (pongWait * 9) / 10
 	markPosPeriod  = 5 * time.Second
 	maxMessageSize = 1024
+	nearRange      = 5.0
 )
 
 var (
@@ -80,4 +81,28 @@ func NewClient(raceID string, conn *websocket.Conn) *Client {
 		Position:    Position{Lat: 0.0, Lng: 0.0},
 		Send:        make(chan []byte),
 	}
+}
+
+// getNearSail returns the sail that is near to the client.
+func (c *Client) getNearSail() []PositionWithID {
+	var result []PositionWithID
+
+	for _, athlete := range c.Hub.Athletes {
+		if c.UserID == athlete.UserID {
+			continue
+		}
+
+		if utils.CalcDistanceAtoBEarth(c.Position.Lat, c.Position.Lng, athlete.Position.Lat, athlete.Position.Lng) < nearRange {
+			result = append(
+				result,
+				PositionWithID{
+					UserID: athlete.UserID,
+					Lat:    athlete.Position.Lat,
+					Lng:    athlete.Position.Lng,
+				},
+			)
+		}
+	}
+
+	return result
 }
