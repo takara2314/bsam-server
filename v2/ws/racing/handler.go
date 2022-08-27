@@ -57,12 +57,13 @@ func (c *Client) auth(msg *AuthInfo) {
 	switch role {
 	case "athlete":
 		c.Hub.Athletes[c.ID] = c
+		c.sendMarkPosMsg()
 	case "mark":
 		c.MarkNo = msg.MarkNo
 		c.Hub.Marks[c.ID] = c
+	case "manage":
+		c.sendLiveMsg()
 	}
-
-	c.sendMarkPosMsg()
 }
 
 func (c *Client) receivePos(msg *Position) {
