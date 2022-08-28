@@ -156,14 +156,12 @@ func (h *Hub) generateLiveMsg() LiveMsg {
 		cnt++
 	}
 
-	cnt = 0
 	for _, c := range h.Marks {
-		marks[cnt] = PositionWithID{
+		marks[c.MarkNo-1] = PositionWithID{
 			UserID: c.UserID,
 			Lat:    c.Position.Lat,
 			Lng:    c.Position.Lng,
 		}
-		cnt++
 	}
 
 	return LiveMsg{
