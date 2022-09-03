@@ -45,7 +45,7 @@ type Location struct {
 	Lng           float64 `json:"longitude"`
 	Acc           float64 `json:"accuracy"`
 	Heading       float64 `json:"heading"`
-	CompassFixing float64 `json:"compass_fixing"`
+	HeadingFixing float64 `json:"heading_fixing"`
 	CompassDeg    float64 `json:"compass_degree"`
 }
 
@@ -61,7 +61,7 @@ type LocationWithDetail struct {
 	Lng           float64 `json:"longitude"`
 	Acc           float64 `json:"accuracy"`
 	Heading       float64 `json:"heading"`
-	CompassFixing float64 `json:"compass_fixing"`
+	HeadingFixing float64 `json:"heading_fixing"`
 	CompassDeg    float64 `json:"compass_degree"`
 	MarkNo        int     `json:"mark_no"`
 	NextMarkNo    int     `json:"next_mark_no"`

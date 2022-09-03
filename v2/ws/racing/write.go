@@ -147,7 +147,7 @@ func (h *Hub) generateLiveMsg() LiveMsg {
 			Lng:           c.Location.Lng,
 			Acc:           c.Location.Acc,
 			Heading:       c.Location.Heading,
-			CompassFixing: c.Location.CompassFixing,
+			HeadingFixing: c.Location.HeadingFixing,
 			CompassDeg:    c.Location.CompassDeg,
 			MarkNo:        c.MarkNo,
 			NextMarkNo:    c.NextMarkNo,
