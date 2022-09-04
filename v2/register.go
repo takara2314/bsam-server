@@ -12,7 +12,7 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 
 	// Test API
 	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello 2th version API!")
+		c.String(http.StatusOK, "Hello 2nd version API!")
 	})
 
 	// Racing Socket
