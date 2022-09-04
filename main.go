@@ -16,8 +16,8 @@ func main() {
 	if os.Getenv("GIN_MODE") == "release" {
 		corsConfig := cors.DefaultConfig()
 		corsConfig.AllowOrigins = []string{
-			"http://sailing-assist-mie-manage.herokuapp.com",
 			"https://sailing-assist-mie-manage.herokuapp.com",
+			"https://bsam-manage.pages.dev",
 		}
 		router.Use(cors.New(corsConfig))
 	} else {
