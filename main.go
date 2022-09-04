@@ -17,7 +17,7 @@ func main() {
 		corsConfig := cors.DefaultConfig()
 		corsConfig.AllowOrigins = []string{
 			"https://sailing-assist-mie-manage.herokuapp.com",
-			"https://bsam-manage.pages.dev",
+			"https://bsam-manage.vercel.app",
 		}
 		router.Use(cors.New(corsConfig))
 	} else {
