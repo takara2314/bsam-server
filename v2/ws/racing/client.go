@@ -13,6 +13,7 @@ const (
 	pongWait       = 10 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
 	markPosPeriod  = 5 * time.Second
+	livePeriod     = 1 * time.Second
 	maxMessageSize = 1024
 	nearRange      = 5.0
 )

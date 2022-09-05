@@ -92,7 +92,7 @@ func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	tickerMarkPos := time.NewTicker(markPosPeriod)
 	tickerNearSail := time.NewTicker(markPosPeriod)
-	tickerLive := time.NewTicker(markPosPeriod)
+	tickerLive := time.NewTicker(livePeriod)
 
 	defer func() {
 		ticker.Stop()
