@@ -9,6 +9,6 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/websocket v1.5.0
 	github.com/lib/pq v1.10.6
-	github.com/xo/dburl v0.12.1
+	github.com/xo/dburl v0.2.0
 	gopkg.in/yaml.v3 v3.0.1
 )
