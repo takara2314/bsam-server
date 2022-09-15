@@ -21,6 +21,15 @@ type LiveMsg struct {
 	Marks    []PositionWithID     `json:"marks"`
 }
 
+type StartRaceMsg struct {
+	IsStarted bool `json:"started"`
+}
+
+type SetMarkNoMsg struct {
+	MarkNo     int `json:"mark_no"`
+	NextMarkNo int `json:"next_mark_no"`
+}
+
 func (c *Client) sendMarkPosMsg() {
 	msg := MarkPosMsg{
 		MarkNum:   len(c.Hub.Marks),
@@ -49,6 +58,12 @@ func (c *Client) sendLiveMsg() {
 	c.sendLiveMsgEvent(&msg)
 }
 
+func (c *Client) sendStartRaceMsg() {
+	c.sendStartRaceMsgEvent(&StartRaceMsg{
+		IsStarted: c.Hub.IsStarted,
+	})
+}
+
 func (c *Client) sendMarkPosMsgEvent(msg *MarkPosMsg) {
 	c.Send <- insertTypeToJSON(msg, "mark_position")
 }
@@ -59,6 +74,14 @@ func (c *Client) sendNearSailMsgEvent(msg *NearSailMsg) {
 
 func (c *Client) sendLiveMsgEvent(msg *LiveMsg) {
 	c.Send <- insertTypeToJSON(msg, "live")
+}
+
+func (c *Client) sendStartRaceMsgEvent(msg *StartRaceMsg) {
+	c.Send <- insertTypeToJSON(msg, "start_race")
+}
+
+func (c *Client) sendSetMarkNoEvent(msg *SetMarkNoMsg) {
+	c.Send <- insertTypeToJSON(msg, "set_mark_no")
 }
 
 func (c *Client) sendEvent(msg []byte, ok bool) error {

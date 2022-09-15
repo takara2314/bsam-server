@@ -58,6 +58,7 @@ func (c *Client) auth(msg *AuthInfo) {
 	case "athlete":
 		c.Hub.Athletes[c.ID] = c
 		c.sendMarkPosMsg()
+		c.sendStartRaceMsg()
 	case "mark":
 		c.MarkNo = msg.MarkNo
 		c.Hub.Marks[c.ID] = c

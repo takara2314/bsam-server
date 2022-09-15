@@ -8,6 +8,7 @@ type Hub struct {
 	Athletes   map[string]*Client
 	Marks      map[string]*Client
 	MarkNum    int
+	IsStarted  bool
 	Register   chan *Client
 	Unregister chan *Client
 }
@@ -19,6 +20,7 @@ func NewHub(raceID string) *Hub {
 		Athletes:   make(map[string]*Client),
 		Marks:      make(map[string]*Client),
 		MarkNum:    3,
+		IsStarted:  false,
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 	}
@@ -63,4 +65,39 @@ func (h Hub) getMarkPositions() []Position {
 	}
 
 	return positions
+}
+
+func (h Hub) startRace(isStarted bool) {
+	h.IsStarted = isStarted
+
+	for _, c := range h.Athletes {
+		c.sendStartRaceMsg()
+	}
+}
+
+func (h Hub) setMarkNo(info *SetMarkNoInfo) {
+	id := h.findClientID(info.UserID)
+	if id == "" {
+		return
+	}
+
+	log.Printf("Force Mark Changed: [%d] -> %s -> [%d]\n", info.MarkNo, info.UserID, info.NextMarkNo)
+
+	h.Clients[id].MarkNo = info.MarkNo
+	h.Clients[id].NextMarkNo = info.NextMarkNo
+
+	h.Clients[id].sendSetMarkNoEvent(&SetMarkNoMsg{
+		MarkNo:     info.MarkNo,
+		NextMarkNo: info.NextMarkNo,
+	})
+}
+
+func (h Hub) findClientID(userID string) string {
+	for _, c := range h.Clients {
+		if c.UserID == userID {
+			return c.ID
+		}
+	}
+
+	return ""
 }

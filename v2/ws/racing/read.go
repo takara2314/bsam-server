@@ -25,6 +25,16 @@ type PassedInfo struct {
 	NextMarkNo int `json:"next_mark_no"`
 }
 
+type StartInfo struct {
+	IsStarted bool `json:"started"`
+}
+
+type SetMarkNoInfo struct {
+	UserID     string `json:"user_id"`
+	MarkNo     int    `json:"mark_no"`
+	NextMarkNo int    `json:"next_mark_no"`
+}
+
 func (c *Client) readPump() {
 	defer func() {
 		c.Hub.Unregister <- c
@@ -76,6 +86,16 @@ func (c *Client) readPump() {
 			var msg PassedInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.handlerPassed(&msg)
+
+		case "start":
+			var msg StartInfo
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.Hub.startRace(msg.IsStarted)
+
+		case "set_mark_no":
+			var msg SetMarkNoInfo
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.Hub.setMarkNo(&msg)
 		}
 	}
 }
