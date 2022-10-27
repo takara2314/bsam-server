@@ -7,6 +7,7 @@ type Hub struct {
 	Clients    map[string]*Client
 	Athletes   map[string]*Client
 	Marks      map[string]*Client
+	Manages    map[string]*Client
 	MarkNum    int
 	IsStarted  bool
 	Register   chan *Client
@@ -19,6 +20,7 @@ func NewHub(raceID string) *Hub {
 		Clients:    make(map[string]*Client),
 		Athletes:   make(map[string]*Client),
 		Marks:      make(map[string]*Client),
+		Manages:    make(map[string]*Client),
 		MarkNum:    3,
 		IsStarted:  false,
 		Register:   make(chan *Client),
@@ -52,6 +54,7 @@ func (h *Hub) unregisterEvent(c *Client) {
 	delete(h.Clients, c.ID)
 	delete(h.Athletes, c.ID)
 	delete(h.Marks, c.ID)
+	delete(h.Manages, c.ID)
 }
 
 func (h Hub) getMarkPositions() []Position {
@@ -71,6 +74,9 @@ func (h Hub) startRace(isStarted bool) {
 	h.IsStarted = isStarted
 
 	for _, c := range h.Athletes {
+		c.sendStartRaceMsg()
+	}
+	for _, c := range h.Manages {
 		c.sendStartRaceMsg()
 	}
 }
