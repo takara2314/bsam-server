@@ -1,7 +1,6 @@
 package racing
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -60,7 +59,7 @@ func (h *Hub) unregisterEvent(c *Client) {
 	delete(h.Manages, c.ID)
 }
 
-func (h Hub) getMarkPositions() []Position {
+func (h *Hub) getMarkPositions() []Position {
 	positions := make([]Position, h.MarkNum)
 
 	for _, c := range h.Marks {
@@ -76,10 +75,6 @@ func (h Hub) getMarkPositions() []Position {
 func (h *Hub) startRace(isStarted bool) {
 	h.IsStarted = isStarted
 
-	fmt.Println("startRace:", isStarted)
-	fmt.Println(h.IsStarted)
-	fmt.Println("Hub Pointer:", h)
-
 	for _, c := range h.Athletes {
 		c.sendStartRaceMsg()
 	}
@@ -88,7 +83,7 @@ func (h *Hub) startRace(isStarted bool) {
 	}
 }
 
-func (h Hub) setMarkNo(info *SetMarkNoInfo) {
+func (h *Hub) setMarkNo(info *SetMarkNoInfo) {
 	id := h.findClientID(info.UserID)
 	if id == "" {
 		return
@@ -105,7 +100,7 @@ func (h Hub) setMarkNo(info *SetMarkNoInfo) {
 	})
 }
 
-func (h Hub) findClientID(userID string) string {
+func (h *Hub) findClientID(userID string) string {
 	for _, c := range h.Clients {
 		if c.UserID == userID {
 			return c.ID

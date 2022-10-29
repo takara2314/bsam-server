@@ -2,7 +2,6 @@ package racing
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -60,8 +59,6 @@ func (c *Client) sendLiveMsg() {
 }
 
 func (c *Client) sendStartRaceMsg() {
-	fmt.Println("送るもの:", c.Hub.IsStarted)
-	fmt.Println("Hub Pointer:", &c.Hub)
 	c.sendStartRaceMsgEvent(&StartRaceMsg{
 		IsStarted: c.Hub.IsStarted,
 	})
