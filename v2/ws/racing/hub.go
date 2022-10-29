@@ -73,11 +73,12 @@ func (h Hub) getMarkPositions() []Position {
 	return positions
 }
 
-func (h Hub) startRace(isStarted bool) {
+func (h *Hub) startRace(isStarted bool) {
 	h.IsStarted = isStarted
 
 	fmt.Println("startRace:", isStarted)
 	fmt.Println(h.IsStarted)
+	fmt.Println("Hub Pointer:", h)
 
 	for _, c := range h.Athletes {
 		c.sendStartRaceMsg()
