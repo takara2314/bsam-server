@@ -1,6 +1,9 @@
 package racing
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 type Hub struct {
 	RaceID     string
@@ -72,6 +75,8 @@ func (h Hub) getMarkPositions() []Position {
 
 func (h Hub) startRace(isStarted bool) {
 	h.IsStarted = isStarted
+
+	fmt.Println(h.IsStarted)
 
 	for _, c := range h.Athletes {
 		c.sendStartRaceMsg()
