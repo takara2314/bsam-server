@@ -160,7 +160,7 @@ func insertTypeToJSON(msg interface{}, typeStr string) []byte {
 
 func (h *Hub) generateLiveMsg() LiveMsg {
 	athletes := make([]LocationWithDetail, len(h.Athletes))
-	marks := make([]PositionWithID, len(h.Marks))
+	marks := make([]PositionWithID, h.MarkNum)
 
 	cnt := 0
 	for _, c := range h.Athletes {
