@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"bsam-server/v2/api/status"
 	"bsam-server/v2/ws/racing"
 	"net/http"
 
@@ -14,6 +15,9 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello 2nd version API!")
 	})
+
+	// Server Status API
+	router.GET("/status", status.StatusGET)
 
 	// Racing Socket
 	router.GET("/racing/:id", racing.Handler)

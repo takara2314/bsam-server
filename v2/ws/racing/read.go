@@ -3,7 +3,6 @@ package racing
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -91,8 +90,6 @@ func (c *Client) readPump() {
 		case "start":
 			var msg StartInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
-			fmt.Println("start通知！")
-			fmt.Println(msg.IsStarted)
 			c.Hub.startRace(msg.IsStarted)
 
 		case "set_mark_no":
