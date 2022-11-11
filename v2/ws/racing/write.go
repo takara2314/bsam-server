@@ -2,6 +2,7 @@ package racing
 
 import (
 	"encoding/json"
+	"sort"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -178,6 +179,11 @@ func (h *Hub) generateLiveMsg() LiveMsg {
 		}
 		cnt++
 	}
+
+	// sort by user id asc
+	sort.Slice(athletes, func(i int, j int) bool {
+		return athletes[i].UserID > athletes[j].UserID
+	})
 
 	for _, c := range h.Marks {
 		marks[c.MarkNo-1] = PositionWithID{
