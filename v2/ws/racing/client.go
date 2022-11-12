@@ -76,7 +76,7 @@ func NewClient(raceID string, conn *websocket.Conn) *Client {
 		Conn:        conn,
 		UserID:      "",
 		Role:        "",
-		MarkNo:      -1,
+		MarkNo:      1,
 		NextMarkNo:  -1,
 		CourseLimit: 0.0,
 		Position:    Position{Lat: 0.0, Lng: 0.0},
