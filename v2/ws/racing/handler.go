@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -20,6 +21,11 @@ var upgrader = websocket.Upgrader{
 func Handler(c *gin.Context) {
 	raceID := c.Param("id")
 
+	nextMarkNo, err := strconv.Atoi(c.Param("next_mark_no"))
+	if err != nil {
+		nextMarkNo = 1
+	}
+
 	// Upgrade to WebSocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -27,7 +33,7 @@ func Handler(c *gin.Context) {
 		return
 	}
 
-	client := NewClient(raceID, conn)
+	client := NewClient(raceID, conn, nextMarkNo)
 
 	client.Hub.Register <- client
 
