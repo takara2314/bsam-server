@@ -2,7 +2,7 @@ package main
 
 import (
 	v1 "bsam-server/v1"
-	v2 "bsam-server/v2"
+	v3 "bsam-server/v3"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -16,7 +16,6 @@ func main() {
 	if os.Getenv("GIN_MODE") == "release" {
 		corsConfig := cors.DefaultConfig()
 		corsConfig.AllowOrigins = []string{
-			"https://sailing-assist-mie-manage.herokuapp.com",
 			"https://bsam-manage.vercel.app",
 		}
 		router.Use(cors.New(corsConfig))
@@ -25,7 +24,7 @@ func main() {
 	}
 
 	v1.Register(router)
-	v2.Register(router)
+	v3.Register(router)
 
 	router.Run(":" + os.Getenv("PORT"))
 }
