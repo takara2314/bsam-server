@@ -2,6 +2,7 @@ package main
 
 import (
 	v3 "bsam-server/v3"
+	"fmt"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -24,5 +25,6 @@ func main() {
 
 	v3.Register(router)
 
+	fmt.Printf("Server is running on port %s\n", os.Getenv("PORT"))
 	router.Run(":" + os.Getenv("PORT"))
 }

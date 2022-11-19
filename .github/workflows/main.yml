@@ -8,7 +8,6 @@ on:
 
 env:
   SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
-  PORT: ${{ secrets.PORT }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_REGION: ${{ secrets.GCP_REGION }}
   IMAGE: asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }}
@@ -39,10 +38,10 @@ jobs:
       run: |
           gcloud run deploy $SERVICE_NAME \
             --image $IMAGE \
-            --port $PORT \
+            --port 8080 \
             --project $GCP_PROJECT_ID \
             --region $GCP_REGION \
-            --platform=managed \
+            --platform managed \
             --allow-unauthenticated \
             --quiet \
-            --set-env-vars=ENV=PRODUCTION
+            --set-env-vars ENV=PRODUCTION
