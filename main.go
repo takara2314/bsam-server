@@ -1,7 +1,6 @@
 package main
 
 import (
-	v1 "bsam-server/v1"
 	v3 "bsam-server/v3"
 	"os"
 
@@ -23,7 +22,6 @@ func main() {
 		router.Use(cors.Default())
 	}
 
-	v1.Register(router)
 	v3.Register(router)
 
 	router.Run(":" + os.Getenv("PORT"))
