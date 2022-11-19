@@ -26,7 +26,7 @@ jobs:
       with:
         credentials_json: "${{ secrets.GCP_SA_KEY }}"
 
-    - name: Configure Docker to use the gcloud cli
+    - name: Configure Docker to use the gcloud CLI
       run: gcloud auth configure-docker --quiet
 
     - name: Build a Docker image
