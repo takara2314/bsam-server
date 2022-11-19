@@ -3,7 +3,6 @@ package racing
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -24,6 +23,16 @@ type AuthInfo struct {
 type PassedInfo struct {
 	MarkNo     int `json:"mark_no"`
 	NextMarkNo int `json:"next_mark_no"`
+}
+
+type StartInfo struct {
+	IsStarted bool `json:"started"`
+}
+
+type SetMarkNoInfo struct {
+	UserID     string `json:"user_id"`
+	MarkNo     int    `json:"mark_no"`
+	NextMarkNo int    `json:"next_mark_no"`
 }
 
 func (c *Client) readPump() {
@@ -68,10 +77,25 @@ func (c *Client) readPump() {
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.receivePos(&msg)
 
+		case "location":
+			var msg Location
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.receiveLoc(&msg)
+
 		case "passed":
 			var msg PassedInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.handlerPassed(&msg)
+
+		case "start":
+			var msg StartInfo
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.Hub.startRace(msg.IsStarted)
+
+		case "set_mark_no":
+			var msg SetMarkNoInfo
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.Hub.setMarkNo(&msg)
 		}
 	}
 }
@@ -88,8 +112,6 @@ func getUserInfoFromJWT(t string) (string, string, error) {
 	if !token.Valid {
 		return "", "", ErrInvalidJWT
 	}
-
-	fmt.Println(token.Claims.(jwt.MapClaims))
 
 	userID := token.Claims.(jwt.MapClaims)["user_id"].(string)
 	role := token.Claims.(jwt.MapClaims)["role"].(string)

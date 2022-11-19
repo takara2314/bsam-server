@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -20,6 +21,11 @@ var upgrader = websocket.Upgrader{
 func Handler(c *gin.Context) {
 	raceID := c.Param("id")
 
+	nextMarkNo, err := strconv.Atoi(c.Param("next_mark_no"))
+	if err != nil {
+		nextMarkNo = 1
+	}
+
 	// Upgrade to WebSocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -27,7 +33,7 @@ func Handler(c *gin.Context) {
 		return
 	}
 
-	client := NewClient(raceID, conn)
+	client := NewClient(raceID, conn, nextMarkNo)
 
 	client.Hub.Register <- client
 
@@ -35,32 +41,14 @@ func Handler(c *gin.Context) {
 	go client.writePump()
 }
 
-func (c *Client) auth(msg *AuthInfo) {
-	userID, role, err := getUserInfoFromJWT(msg.Token)
-	if err != nil {
-		log.Println("Unauthorized:", c.ID)
-		c.Hub.Unregister <- c
-		return
-	}
-
-	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, userID, role)
-
-	c.UserID = userID
-	c.Role = role
-
-	switch role {
-	case "athlete":
-		c.Hub.Athletes[c.ID] = c
-	case "mark":
-		c.MarkNo = msg.MarkNo
-		c.Hub.Marks[c.ID] = c
-	}
-
-	c.sendMarkPosMsg()
-}
-
 func (c *Client) receivePos(msg *Position) {
 	c.Position = *msg
+	c.Location = Location{Lat: msg.Lat, Lng: msg.Lng}
+}
+
+func (c *Client) receiveLoc(msg *Location) {
+	c.Position = Position{Lat: msg.Lat, Lng: msg.Lng}
+	c.Location = *msg
 }
 
 func (c *Client) handlerPassed(msg *PassedInfo) {

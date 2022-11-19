@@ -20,7 +20,7 @@ type UserInfoNullable struct {
 	GroupID     string
 	Role        string
 	DeviceID    sql.NullString
-	SailNum     sql.NullInt16
+	SailNum     sql.NullInt32
 	CourseLimit sql.NullFloat64
 	ImageURL    sql.NullString
 	Note        sql.NullString
@@ -109,7 +109,7 @@ func infoGET(c *gin.Context) {
 		panic(err)
 	}
 
-	sailNum := int(tmp.SailNum.Int16)
+	sailNum := int(tmp.SailNum.Int32)
 	courseLimit := float32(tmp.CourseLimit.Float64)
 
 	info := UserInfo{

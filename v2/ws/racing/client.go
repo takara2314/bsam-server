@@ -13,7 +13,9 @@ const (
 	pongWait       = 10 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
 	markPosPeriod  = 5 * time.Second
+	livePeriod     = 1 * time.Second
 	maxMessageSize = 1024
+	nearRange      = 5.0
 )
 
 var (
@@ -30,6 +32,7 @@ type Client struct {
 	NextMarkNo  int
 	CourseLimit float32
 	Position    Position
+	Location    Location
 	Send        chan []byte
 }
 
@@ -38,21 +41,35 @@ type Position struct {
 	Lng float64 `json:"longitude"`
 }
 
+type Location struct {
+	Lat           float64 `json:"latitude"`
+	Lng           float64 `json:"longitude"`
+	Acc           float64 `json:"accuracy"`
+	Heading       float64 `json:"heading"`
+	HeadingFixing float64 `json:"heading_fixing"`
+	CompassDeg    float64 `json:"compass_degree"`
+}
+
 type PositionWithID struct {
 	UserID string  `json:"user_id"`
 	Lat    float64 `json:"latitude"`
 	Lng    float64 `json:"longitude"`
 }
 
-type PositionWithDetail struct {
-	UserID      string  `json:"user_id"`
-	Lat         float64 `json:"latitude"`
-	Lng         float64 `json:"longitude"`
-	LastMarkNo  int     `json:"last_mark_no"`
-	CourseLimit float32 `json:"course_limit"`
+type LocationWithDetail struct {
+	UserID        string  `json:"user_id"`
+	Lat           float64 `json:"latitude"`
+	Lng           float64 `json:"longitude"`
+	Acc           float64 `json:"accuracy"`
+	Heading       float64 `json:"heading"`
+	HeadingFixing float64 `json:"heading_fixing"`
+	CompassDeg    float64 `json:"compass_degree"`
+	MarkNo        int     `json:"mark_no"`
+	NextMarkNo    int     `json:"next_mark_no"`
+	CourseLimit   float32 `json:"course_limit"`
 }
 
-func NewClient(raceID string, conn *websocket.Conn) *Client {
+func NewClient(raceID string, conn *websocket.Conn, nextMarkNo int) *Client {
 	return &Client{
 		ID:          utils.RandString(8),
 		Hub:         rooms[raceID],
@@ -60,9 +77,33 @@ func NewClient(raceID string, conn *websocket.Conn) *Client {
 		UserID:      "",
 		Role:        "",
 		MarkNo:      -1,
-		NextMarkNo:  -1,
+		NextMarkNo:  nextMarkNo,
 		CourseLimit: 0.0,
 		Position:    Position{Lat: 0.0, Lng: 0.0},
 		Send:        make(chan []byte),
 	}
+}
+
+// getNearSail returns the sail that is near to the client.
+func (c *Client) getNearSail() []PositionWithID {
+	var result []PositionWithID
+
+	for _, athlete := range c.Hub.Athletes {
+		if c.UserID == athlete.UserID {
+			continue
+		}
+
+		if utils.CalcDistanceAtoBEarth(c.Position.Lat, c.Position.Lng, athlete.Position.Lat, athlete.Position.Lng) < nearRange {
+			result = append(
+				result,
+				PositionWithID{
+					UserID: athlete.UserID,
+					Lat:    athlete.Position.Lat,
+					Lng:    athlete.Position.Lng,
+				},
+			)
+		}
+	}
+
+	return result
 }
