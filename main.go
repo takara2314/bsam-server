@@ -16,6 +16,7 @@ func main() {
 	if os.Getenv("GIN_MODE") == "release" {
 		corsConfig := cors.DefaultConfig()
 		corsConfig.AllowOrigins = []string{
+			"https://manage.bsam.app",
 			"https://bsam-manage.vercel.app",
 		}
 		router.Use(cors.New(corsConfig))
