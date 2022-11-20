@@ -18,21 +18,14 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 	})
 
 	// authorized and JSON only
-	router.Use(
+	authorized := router.Group("/",
 		middleware.AuthJWT(),
 		middleware.CheckMIME("application/json"),
 	)
 	{
 		// Server Status API
-		router.GET("/status", status.StatusGET)
+		authorized.GET("/status", status.StatusGET)
 	}
-
-	// Server Status API (non-authorized)
-	router.GET("/status-non-auth", status.StatusGET)
-
-	router.GET("/test", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello test world!")
-	})
 
 	// Racing Socket
 	router.GET("/racing/:id", racing.Handler)

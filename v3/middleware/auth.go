@@ -1,8 +1,8 @@
 package middleware
 
 import (
+	"bsam-server/v3/abort"
 	"bsam-server/v3/auth"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,16 +11,14 @@ func AuthJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, valid := getTokenFromAuthHeader(c.GetHeader("Authorization"))
 		if !valid {
-			c.JSON(http.StatusBadRequest, nil)
+			abort.BadRequest(c)
 			return
 		}
 
 		if !auth.VerifyJWT(token) {
-			c.JSON(http.StatusUnauthorized, nil)
+			abort.Unauthorized(c)
 			return
 		}
-
-		c.Next()
 	}
 }
 
