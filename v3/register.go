@@ -30,6 +30,10 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 	// Server Status API (non-authorized)
 	router.GET("/status-non-auth", status.StatusGET)
 
+	router.GET("/test", func(c *gin.Context) {
+		c.String(http.StatusOK, "Hello test world!")
+	})
+
 	// Racing Socket
 	router.GET("/racing/:id", racing.Handler)
 	go racing.AutoRooming()

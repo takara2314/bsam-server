@@ -17,7 +17,10 @@ func AuthJWT() gin.HandlerFunc {
 
 		if !auth.VerifyJWT(token) {
 			c.JSON(http.StatusUnauthorized, nil)
+			return
 		}
+
+		c.Next()
 	}
 }
 

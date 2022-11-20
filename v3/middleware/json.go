@@ -11,7 +11,10 @@ func CheckMIME(mime string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !isThisMIME(c.GetHeader("Content-Type"), mime) {
 			c.JSON(http.StatusBadRequest, nil)
+			return
 		}
+
+		c.Next()
 	}
 }
 
