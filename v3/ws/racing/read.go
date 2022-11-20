@@ -60,7 +60,7 @@ func (c *Client) readPump() {
 			return
 		}
 
-		var msg map[string]interface{}
+		var msg map[string]any
 		if err := json.Unmarshal([]byte(msgRaw), &msg); err != nil {
 			log.Println(err)
 			continue
@@ -101,7 +101,7 @@ func (c *Client) readPump() {
 }
 
 func getUserInfoFromJWT(t string) (string, string, error) {
-	token, err := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(t, func(token *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 

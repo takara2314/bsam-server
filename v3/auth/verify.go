@@ -7,7 +7,7 @@ import (
 )
 
 func VerifyJWT(token string) bool {
-	info, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+	info, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 

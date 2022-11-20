@@ -6,8 +6,8 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func GetPayloadFromJWT(token string) (map[string]interface{}, bool) {
-	info, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+func GetPayloadFromJWT(token string) (map[string]any, bool) {
+	info, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 

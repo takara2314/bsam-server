@@ -11,13 +11,12 @@ func AuthJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token, valid := getTokenFromAuthHeader(c.GetHeader("Authorization"))
 		if !valid {
-			c.Status(http.StatusBadRequest)
-			c.Abort()
+			c.JSON(http.StatusBadRequest, nil)
+			return
 		}
 
 		if !auth.VerifyJWT(token) {
-			c.Status(http.StatusUnauthorized)
-			c.Abort()
+			c.JSON(http.StatusUnauthorized, nil)
 		}
 	}
 }

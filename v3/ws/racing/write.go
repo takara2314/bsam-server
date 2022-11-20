@@ -151,7 +151,7 @@ func (c *Client) writePump() {
 	}
 }
 
-func insertTypeToJSON(msg interface{}, typeStr string) []byte {
+func insertTypeToJSON(msg any, typeStr string) []byte {
 	encoded, _ := json.Marshal(msg)
 
 	text := []byte("\"type\":\"" + typeStr + "\",")

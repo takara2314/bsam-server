@@ -17,11 +17,15 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 		c.String(http.StatusOK, "Hello 3rd version API!")
 	})
 
-	router.Use(middleware.AuthJWT())
 	{
+		router.Use(middleware.AuthJWT())
+
 		// Server Status API
 		router.GET("/status", status.StatusGET)
 	}
+
+	// Server Status API (test)
+	router.GET("/status-test", status.StatusGET)
 
 	// Racing Socket
 	router.GET("/racing/:id", racing.Handler)
