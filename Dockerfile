@@ -5,6 +5,7 @@ WORKDIR /app
 COPY . .
 
 ENV GIN_MODE=release
+ENV MANAGE_SITE=https://manage.bsam.app
 
 RUN go build -o main .
 
