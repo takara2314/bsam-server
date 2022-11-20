@@ -2,6 +2,7 @@ package v3
 
 import (
 	"bsam-server/v3/api/status"
+	"bsam-server/v3/middleware"
 	"bsam-server/v3/ws/racing"
 	"net/http"
 
@@ -16,8 +17,11 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 		c.String(http.StatusOK, "Hello 3rd version API!")
 	})
 
-	// Server Status API
-	router.GET("/status", status.StatusGET)
+	router.Use(middleware.AuthJWT())
+	{
+		// Server Status API
+		router.GET("/status", status.StatusGET)
+	}
 
 	// Racing Socket
 	router.GET("/racing/:id", racing.Handler)
