@@ -17,6 +17,8 @@ var (
 
 type AuthInfo struct {
 	Token  string `json:"token"`
+	UserID string `json:"user_id"`
+	Role   string `json:"role"`
 	MarkNo int    `json:"mark_no"`
 }
 

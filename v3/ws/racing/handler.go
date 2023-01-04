@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shiguredo/websocket"
@@ -20,12 +19,7 @@ var upgrader = websocket.Upgrader{
 
 // Handler is a Gin handler for HTTP.
 func Handler(c *gin.Context) {
-	raceID := c.Param("id")
-
-	nextMarkNo, err := strconv.Atoi(c.Param("next_mark_no"))
-	if err != nil {
-		nextMarkNo = 1
-	}
+	assocID := c.Param("id")
 
 	// Upgrade to WebSocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -34,7 +28,7 @@ func Handler(c *gin.Context) {
 		return
 	}
 
-	client := NewClient(raceID, conn, nextMarkNo)
+	client := NewClient(assocID, conn)
 
 	client.Hub.Register <- client
 

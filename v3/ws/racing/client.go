@@ -69,15 +69,15 @@ type LocationWithDetail struct {
 	CourseLimit   float32 `json:"course_limit"`
 }
 
-func NewClient(raceID string, conn *websocket.Conn, nextMarkNo int) *Client {
+func NewClient(assocID string, conn *websocket.Conn) *Client {
 	return &Client{
 		ID:          utils.RandString(8),
-		Hub:         rooms[raceID],
+		Hub:         rooms[assocID],
 		Conn:        conn,
 		UserID:      "",
 		Role:        "",
 		MarkNo:      -1,
-		NextMarkNo:  nextMarkNo,
+		NextMarkNo:  1,
 		CourseLimit: 0.0,
 		Position:    Position{Lat: 0.0, Lng: 0.0},
 		Send:        make(chan []byte),

@@ -1,28 +1,30 @@
 package racing
 
-import "log"
+import (
+	"bsam-server/v3/auth"
+	"log"
+)
 
 // auth authorizes the client.
 func (c *Client) auth(msg *AuthInfo) {
-	userID, role, err := getUserInfoFromJWT(msg.Token)
-	if err != nil {
+	if ok := auth.VerifyJWT(msg.Token); !ok {
 		log.Println("Unauthorized:", c.ID)
 		c.Hub.Unregister <- c
 		return
 	}
 
-	if role == "mark" && msg.MarkNo == 0 {
-		log.Println("Not select mark no:", c.ID)
+	if msg.Role == "mark" && msg.MarkNo == 0 {
+		log.Println("Not selecting mark no:", c.ID)
 		c.Hub.Unregister <- c
 		return
 	}
 
-	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, userID, role)
+	c.UserID = msg.UserID
+	c.Role = msg.Role
 
-	c.UserID = userID
-	c.Role = role
+	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
 
-	switch role {
+	switch c.Role {
 	case "athlete":
 		c.Hub.Athletes[c.ID] = c
 		c.sendMarkPosMsg()

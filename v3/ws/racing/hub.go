@@ -5,28 +5,28 @@ import (
 )
 
 type Hub struct {
-	RaceID     string
-	Clients    map[string]*Client
-	Athletes   map[string]*Client
-	Marks      map[string]*Client
-	Manages    map[string]*Client
-	MarkNum    int
-	IsStarted  bool
-	Register   chan *Client
-	Unregister chan *Client
+	AssociationID string
+	Clients       map[string]*Client
+	Athletes      map[string]*Client
+	Marks         map[string]*Client
+	Manages       map[string]*Client
+	MarkNum       int
+	IsStarted     bool
+	Register      chan *Client
+	Unregister    chan *Client
 }
 
-func NewHub(raceID string) *Hub {
+func NewHub(assocID string) *Hub {
 	return &Hub{
-		RaceID:     raceID,
-		Clients:    make(map[string]*Client),
-		Athletes:   make(map[string]*Client),
-		Marks:      make(map[string]*Client),
-		Manages:    make(map[string]*Client),
-		MarkNum:    3,
-		IsStarted:  false,
-		Register:   make(chan *Client),
-		Unregister: make(chan *Client),
+		AssociationID: assocID,
+		Clients:       make(map[string]*Client),
+		Athletes:      make(map[string]*Client),
+		Marks:         make(map[string]*Client),
+		Manages:       make(map[string]*Client),
+		MarkNum:       3,
+		IsStarted:     false,
+		Register:      make(chan *Client),
+		Unregister:    make(chan *Client),
 	}
 }
 
