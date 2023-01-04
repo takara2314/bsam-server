@@ -8,14 +8,11 @@ import (
 )
 
 func VerifyJWT(token string) bool {
-	fmt.Println(token)
-
 	info, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
 	if info == nil || err != nil {
-		fmt.Println(err)
 		return false
 	}
 
