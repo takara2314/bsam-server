@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/gorilla/websocket"
+	"github.com/shiguredo/websocket"
 )
 
 var (

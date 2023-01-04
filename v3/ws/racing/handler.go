@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
+	"github.com/shiguredo/websocket"
 )
 
 var upgrader = websocket.Upgrader{

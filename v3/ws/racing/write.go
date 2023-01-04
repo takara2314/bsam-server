@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"github.com/shiguredo/websocket"
 )
 
 type MarkPosMsg struct {
