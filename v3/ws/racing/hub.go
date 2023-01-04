@@ -87,16 +87,15 @@ func (h *Hub) startRace(isStarted bool) {
 	}
 }
 
-// setMarkNo force sets the client's mark no.
-func (h *Hub) setMarkNo(info *SetMarkNoInfo) {
+// setMarkNoForce force sets the client's mark no.
+func (h *Hub) setMarkNoForce(info *SetMarkNoInfo) {
 	id := h.findClientID(info.UserID)
 	if id == "" {
 		return
 	}
 
-	log.Printf("Force Mark Changed: [%d] -> %s -> [%d]\n", info.MarkNo, info.UserID, info.NextMarkNo)
+	log.Printf("Force Mark Changed: %s -> [%d]\n", info.UserID, info.NextMarkNo)
 
-	h.Clients[id].MarkNo = info.MarkNo
 	h.Clients[id].NextMarkNo = info.NextMarkNo
 
 	h.Clients[id].sendSetMarkNoEvent(&SetMarkNoMsg{

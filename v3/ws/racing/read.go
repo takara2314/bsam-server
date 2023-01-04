@@ -96,7 +96,7 @@ func (c *Client) readPump() {
 		case "set_mark_no":
 			var msg SetMarkNoInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
-			c.Hub.setMarkNo(&msg)
+			c.Hub.setMarkNoForce(&msg)
 		}
 	}
 }

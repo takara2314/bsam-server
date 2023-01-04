@@ -56,8 +56,7 @@ func (c *Client) receiveLoc(msg *Location) {
 
 // handlerPassed handles the passed message from the client.
 func (c *Client) handlerPassed(msg *PassedInfo) {
-	log.Printf("Passed: [%d] -> %s -> [%d]\n", msg.MarkNo, c.UserID, msg.NextMarkNo)
+	log.Printf("Passed: %s -> [%d]\n", c.UserID, msg.NextMarkNo)
 
-	c.MarkNo = msg.MarkNo
 	c.NextMarkNo = msg.NextMarkNo
 }

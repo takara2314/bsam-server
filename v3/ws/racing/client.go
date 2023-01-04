@@ -65,7 +65,6 @@ type LocationWithDetail struct {
 	Heading       float64 `json:"heading"`
 	HeadingFixing float64 `json:"heading_fixing"`
 	CompassDeg    float64 `json:"compass_degree"`
-	MarkNo        int     `json:"mark_no"`
 	NextMarkNo    int     `json:"next_mark_no"`
 	CourseLimit   float32 `json:"course_limit"`
 }
