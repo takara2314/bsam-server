@@ -137,18 +137,9 @@ func (c *Client) writePump() {
 		ticker.Stop()
 		tickerMarkPos.Stop()
 		tickerLive.Stop()
-
-		if c.Connecting {
-			c.Hub.Disconnect <- c
-		}
 	}()
 
 	for {
-		// If the client is not connecting, stop the loop
-		if !c.Connecting {
-			return
-		}
-
 		select {
 		case msg, ok := <-c.Send:
 			err := c.sendEvent(msg, ok)

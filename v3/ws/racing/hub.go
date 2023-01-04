@@ -59,8 +59,6 @@ func (h *Hub) disconnectEvent(c *Client) {
 
 	log.Println("Disconnected:", c.ID)
 	c.Conn.Close()
-
-	c.Connecting = false
 }
 
 // unregisterEvent unregisters the client.

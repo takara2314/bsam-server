@@ -35,12 +35,6 @@ type DebugInfo struct {
 }
 
 func (c *Client) readPump() {
-	defer func() {
-		if c.Connecting {
-			c.Hub.Disconnect <- c
-		}
-	}()
-
 	c.Conn.SetReadLimit(maxMessageSize)
 	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.Conn.SetPongHandler(func(string) error {
@@ -49,11 +43,6 @@ func (c *Client) readPump() {
 	})
 
 	for {
-		// If the client is not connecting, stop the loop
-		if !c.Connecting {
-			return
-		}
-
 		_, msgRaw, err := c.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(

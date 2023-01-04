@@ -34,7 +34,6 @@ type Client struct {
 	CourseLimit float32
 	Location    Location
 	Send        chan []byte
-	Connecting  bool
 }
 
 type Position struct {
@@ -81,7 +80,6 @@ func NewClient(assocID string, conn *websocket.Conn) *Client {
 		CourseLimit: 0.0,
 		Location:    Location{},
 		Send:        make(chan []byte),
-		Connecting:  true,
 	}
 }
 
