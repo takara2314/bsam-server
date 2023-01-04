@@ -2,11 +2,14 @@ package racing
 
 import (
 	"bsam-server/v3/auth"
+	"fmt"
 	"log"
 )
 
 // auth authorizes the client.
 func (c *Client) auth(msg *AuthInfo) {
+	fmt.Println(*msg)
+
 	if ok := auth.VerifyJWT(msg.Token); !ok {
 		log.Println("Unauthorized:", c.ID)
 		c.sendFailedAuthMsg()

@@ -77,7 +77,7 @@ func (c *Client) sendStartRaceMsg() {
 }
 
 func (c *Client) sendAuthResultMsgEvent(msg *AuthResultMsg) {
-	c.Send <- insertTypeToJSON(msg, "authorize_result")
+	c.Send <- insertTypeToJSON(msg, "auth_result")
 }
 
 func (c *Client) sendMarkPosMsgEvent(msg *MarkPosMsg) {
