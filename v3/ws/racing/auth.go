@@ -9,6 +9,7 @@ import (
 func (c *Client) auth(msg *AuthInfo) {
 	if ok := auth.VerifyJWT(msg.Token); !ok {
 		log.Println("Unauthorized:", c.ID)
+		c.sendFailedAuthMsg()
 		c.Hub.Unregister <- c
 		return
 	}
@@ -45,6 +46,9 @@ func (c *Client) link(userID string, role string, markNo int) {
 	}
 
 	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
+
+	// Send the authorize result message
+	c.sendNewAuthMsg()
 }
 
 // restore restores the client.
@@ -66,6 +70,39 @@ func (c *Client) restore(oldID string) {
 	delete(c.Hub.Managers, oldID)
 
 	log.Printf("Restored: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
+
+	// Send the authorize result message
+	c.sendRestoreAuthMsg()
+}
+
+// sendFailedAuthMsg sends the failed authorize result message.
+func (c *Client) sendFailedAuthMsg() {
+	c.sendAuthResultMsgEvent(&AuthResultMsg{
+		Authed:   false,
+		LinkType: "failed",
+	})
+}
+
+// sendNewAuthMsg sends the authorize result message for the newbie.
+func (c *Client) sendNewAuthMsg() {
+	c.sendAuthResultMsgEvent(&AuthResultMsg{
+		Authed:   true,
+		UserID:   c.UserID,
+		Role:     c.Role,
+		MarkNo:   c.MarkNo,
+		LinkType: "new",
+	})
+}
+
+// sendRestoreAuthMsg sends the authorize result message for the restored.
+func (c *Client) sendRestoreAuthMsg() {
+	c.sendAuthResultMsgEvent(&AuthResultMsg{
+		Authed:   true,
+		UserID:   c.UserID,
+		Role:     c.Role,
+		MarkNo:   c.MarkNo,
+		LinkType: "restore",
+	})
 }
 
 // sendFirstAnnounce sends the first announce message.

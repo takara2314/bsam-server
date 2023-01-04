@@ -8,6 +8,14 @@ import (
 	"github.com/shiguredo/websocket"
 )
 
+type AuthResultMsg struct {
+	Authed   bool   `json:"authed"`
+	UserID   string `json:"user_id"`
+	Role     string `json:"role"`
+	MarkNo   int    `json:"mark_no"`
+	LinkType string `json:"link_type"`
+}
+
 type MarkPosMsg struct {
 	MarkNum   int        `json:"mark_num"`
 	Positions []Position `json:"positions"`
@@ -66,6 +74,10 @@ func (c *Client) sendStartRaceMsg() {
 	c.sendStartRaceMsgEvent(&StartRaceMsg{
 		IsStarted: c.Hub.IsStarted,
 	})
+}
+
+func (c *Client) sendAuthResultMsgEvent(msg *AuthResultMsg) {
+	c.Send <- insertTypeToJSON(msg, "authorize_result")
 }
 
 func (c *Client) sendMarkPosMsgEvent(msg *MarkPosMsg) {
