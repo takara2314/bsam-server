@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/golang-jwt/jwt"
@@ -12,10 +13,12 @@ func VerifyJWT(token string) bool {
 	})
 
 	if info == nil || err != nil {
+		fmt.Println(err)
 		return false
 	}
 
 	if !info.Valid {
+		fmt.Println("not valid")
 		return false
 	}
 
