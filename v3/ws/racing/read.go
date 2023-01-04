@@ -35,6 +35,10 @@ type SetMarkNoInfo struct {
 	NextMarkNo int    `json:"next_mark_no"`
 }
 
+type DebugInfo struct {
+	Message string `json:"message"`
+}
+
 func (c *Client) readPump() {
 	defer func() {
 		if c.Connecting {
@@ -104,6 +108,11 @@ func (c *Client) readPump() {
 			var msg SetMarkNoInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.Hub.setMarkNoForce(&msg)
+
+		case "debug":
+			var msg DebugInfo
+			json.Unmarshal([]byte(msgRaw), &msg)
+			log.Printf("Debug <%s>: %s\n", c.UserID, msg.Message)
 		}
 	}
 }
