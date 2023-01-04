@@ -8,6 +8,7 @@ var (
 	rooms = make(map[string]*Hub)
 )
 
+// AutoRooming creates a race room automatically.
 func AutoRooming() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
@@ -20,6 +21,7 @@ func AutoRooming() {
 	}
 }
 
+// scale scales race room.
 func scale(races []string) {
 	for _, id := range races {
 		if _, exist := rooms[id]; !exist {

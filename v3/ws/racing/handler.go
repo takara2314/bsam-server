@@ -18,6 +18,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// Handler is a Gin handler for HTTP.
 func Handler(c *gin.Context) {
 	raceID := c.Param("id")
 
@@ -41,16 +42,19 @@ func Handler(c *gin.Context) {
 	go client.writePump()
 }
 
+// receivePos receives the position from the client.
 func (c *Client) receivePos(msg *Position) {
 	c.Position = *msg
 	c.Location = Location{Lat: msg.Lat, Lng: msg.Lng}
 }
 
+// receiveLoc receives the location from the client.
 func (c *Client) receiveLoc(msg *Location) {
 	c.Position = Position{Lat: msg.Lat, Lng: msg.Lng}
 	c.Location = *msg
 }
 
+// handlerPassed handles the passed message from the client.
 func (c *Client) handlerPassed(msg *PassedInfo) {
 	log.Printf("Passed: [%d] -> %s -> [%d]\n", msg.MarkNo, c.UserID, msg.NextMarkNo)
 

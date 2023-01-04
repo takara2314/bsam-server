@@ -41,11 +41,13 @@ func (h *Hub) Run() {
 	}
 }
 
+// registerEvent registers the client.
 func (h *Hub) registerEvent(c *Client) {
 	log.Println("Joined:", c.ID)
 	h.Clients[c.ID] = c
 }
 
+// unregisterEvent unregisters the client.
 func (h *Hub) unregisterEvent(c *Client) {
 	if _, ok := h.Clients[c.ID]; !ok {
 		return
@@ -59,6 +61,7 @@ func (h *Hub) unregisterEvent(c *Client) {
 	delete(h.Manages, c.ID)
 }
 
+// getMarkPositions returns the mark positions.
 func (h *Hub) getMarkPositions() []Position {
 	positions := make([]Position, h.MarkNum)
 
@@ -72,6 +75,7 @@ func (h *Hub) getMarkPositions() []Position {
 	return positions
 }
 
+// startRace sends start message to all clients.
 func (h *Hub) startRace(isStarted bool) {
 	h.IsStarted = isStarted
 
@@ -83,6 +87,7 @@ func (h *Hub) startRace(isStarted bool) {
 	}
 }
 
+// setMarkNo force sets the client's mark no.
 func (h *Hub) setMarkNo(info *SetMarkNoInfo) {
 	id := h.findClientID(info.UserID)
 	if id == "" {
@@ -100,6 +105,7 @@ func (h *Hub) setMarkNo(info *SetMarkNoInfo) {
 	})
 }
 
+// findClientID returns the client id by user id.
 func (h *Hub) findClientID(userID string) string {
 	for _, c := range h.Clients {
 		if c.UserID == userID {

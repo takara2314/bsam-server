@@ -17,7 +17,7 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 		c.String(http.StatusOK, "Hello 3rd version API!")
 	})
 
-	// authorized and JSON only
+	// Authorized and JSON only
 	authorized := router.Group("/",
 		middleware.AuthJWT(),
 		middleware.CheckMIME("application/json"),

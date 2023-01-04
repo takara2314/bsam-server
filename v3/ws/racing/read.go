@@ -66,6 +66,7 @@ func (c *Client) readPump() {
 			continue
 		}
 
+		// Call handler by message type
 		switch msg["type"].(string) {
 		case "auth":
 			var msg AuthInfo
@@ -100,6 +101,7 @@ func (c *Client) readPump() {
 	}
 }
 
+// getUserInfoFromJWT returns user_id and role from JWT token.
 func getUserInfoFromJWT(t string) (string, string, error) {
 	token, err := jwt.Parse(t, func(token *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil

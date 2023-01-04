@@ -31,6 +31,7 @@ type SetMarkNoMsg struct {
 	NextMarkNo int `json:"next_mark_no"`
 }
 
+// sendMarkPosMsg sends mark positions to the client.
 func (c *Client) sendMarkPosMsg() {
 	msg := MarkPosMsg{
 		MarkNum:   len(c.Hub.Marks),
@@ -39,6 +40,7 @@ func (c *Client) sendMarkPosMsg() {
 	c.sendMarkPosMsgEvent(&msg)
 }
 
+// sendNearSailMsg sends near sail positions to the athlete.
 func (c *Client) sendNearSailMsg() {
 	if c.Role != "athlete" {
 		return
@@ -50,6 +52,7 @@ func (c *Client) sendNearSailMsg() {
 	c.sendNearSailMsgEvent(&msg)
 }
 
+// sendLiveMsg sends live positions to the manager.
 func (c *Client) sendLiveMsg() {
 	if c.Role != "manage" {
 		return
@@ -115,7 +118,7 @@ func (c *Client) pingEvent() error {
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	tickerMarkPos := time.NewTicker(markPosPeriod)
-	tickerNearSail := time.NewTicker(markPosPeriod)
+	tickerNearSail := time.NewTicker(nearSailPeriod)
 	tickerLive := time.NewTicker(livePeriod)
 
 	defer func() {
@@ -134,15 +137,19 @@ func (c *Client) writePump() {
 			}
 
 		case <-tickerMarkPos.C:
+			// Send mark positions to the client every 5 seconds
 			go c.sendMarkPosMsg()
 
 		case <-tickerNearSail.C:
+			// Send near sail positions to the athlete every 3 seconds
 			go c.sendNearSailMsg()
 
 		case <-tickerLive.C:
+			// Send live positions to the manager every 1 second
 			go c.sendLiveMsg()
 
 		case <-ticker.C:
+			// Ping every 9 seconds
 			err := c.pingEvent()
 			if err != nil {
 				return
@@ -151,6 +158,7 @@ func (c *Client) writePump() {
 	}
 }
 
+// insertTypeToJSON inserts message type to rhe JSON which is returned.
 func insertTypeToJSON(msg any, typeStr string) []byte {
 	encoded, _ := json.Marshal(msg)
 
@@ -159,6 +167,7 @@ func insertTypeToJSON(msg any, typeStr string) []byte {
 	return append(encoded[:1], append(text, encoded[1:]...)...)
 }
 
+// generateLiveMsg generates live messages.
 func (h *Hub) generateLiveMsg() LiveMsg {
 	athletes := make([]LocationWithDetail, len(h.Athletes))
 	marks := make([]PositionWithID, h.MarkNum)
@@ -180,7 +189,7 @@ func (h *Hub) generateLiveMsg() LiveMsg {
 		cnt++
 	}
 
-	// sort by user id asc
+	// Sort by user id asc
 	sort.Slice(athletes, func(i int, j int) bool {
 		return athletes[i].UserID > athletes[j].UserID
 	})

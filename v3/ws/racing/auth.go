@@ -2,6 +2,7 @@ package racing
 
 import "log"
 
+// auth authorizes the client.
 func (c *Client) auth(msg *AuthInfo) {
 	userID, role, err := getUserInfoFromJWT(msg.Token)
 	if err != nil {
