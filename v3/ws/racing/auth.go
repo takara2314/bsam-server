@@ -2,14 +2,11 @@ package racing
 
 import (
 	"bsam-server/v3/auth"
-	"fmt"
 	"log"
 )
 
 // auth authorizes the client.
 func (c *Client) auth(msg *AuthInfo) {
-	fmt.Println(*msg)
-
 	if ok := auth.VerifyJWT(msg.Token); !ok {
 		log.Println("Unauthorized:", c.ID)
 		c.sendFailedAuthMsg()
@@ -24,7 +21,7 @@ func (c *Client) auth(msg *AuthInfo) {
 	}
 
 	// If the client has not linked yet, link it.
-	if oldID := c.Hub.findClientID(c.UserID); oldID == "" {
+	if oldID := c.Hub.findClientID(msg.UserID); oldID == "" {
 		c.link(msg.UserID, msg.Role, msg.MarkNo)
 	} else {
 		c.restore(oldID)
