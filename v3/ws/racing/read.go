@@ -4,10 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
-	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/shiguredo/websocket"
 )
 
@@ -108,24 +106,4 @@ func (c *Client) readPump() {
 			c.Hub.setMarkNoForce(&msg)
 		}
 	}
-}
-
-// getUserInfoFromJWT returns user_id and role from JWT token.
-func getUserInfoFromJWT(t string) (string, string, error) {
-	token, err := jwt.Parse(t, func(token *jwt.Token) (any, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-
-	if token == nil || err != nil {
-		return "", "", ErrInvalidJWT
-	}
-
-	if !token.Valid {
-		return "", "", ErrInvalidJWT
-	}
-
-	userID := token.Claims.(jwt.MapClaims)["user_id"].(string)
-	role := token.Claims.(jwt.MapClaims)["role"].(string)
-
-	return userID, role, nil
 }
