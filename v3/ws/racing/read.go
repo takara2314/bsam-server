@@ -2,15 +2,10 @@ package racing
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"time"
 
 	"github.com/shiguredo/websocket"
-)
-
-var (
-	ErrInvalidJWT = errors.New("invalid jwt")
 )
 
 type AuthInfo struct {

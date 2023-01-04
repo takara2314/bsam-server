@@ -17,6 +17,7 @@ func main() {
 		corsConfig := cors.DefaultConfig()
 		corsConfig.AllowOrigins = []string{
 			os.Getenv("MANAGE_SITE"),
+			"http://localhost:3000",
 		}
 		router.Use(cors.New(corsConfig))
 	} else {
