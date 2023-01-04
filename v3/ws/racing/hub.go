@@ -53,12 +53,10 @@ func (h *Hub) unregisterEvent(c *Client) {
 		return
 	}
 
-	log.Println("Left:", c.ID)
+	log.Println("Disconnected:", c.ID)
 	c.Conn.Close()
-	delete(h.Clients, c.ID)
-	delete(h.Athletes, c.ID)
-	delete(h.Marks, c.ID)
-	delete(h.Manages, c.ID)
+
+	c.Connecting = false
 }
 
 // getMarkPositions returns the mark positions.
@@ -69,7 +67,10 @@ func (h *Hub) getMarkPositions() []Position {
 		if c.MarkNo > h.MarkNum {
 			panic("invalid mark no")
 		}
-		positions[c.MarkNo-1] = c.Position
+		positions[c.MarkNo-1] = Position{
+			Lat: c.Location.Lat,
+			Lng: c.Location.Lng,
+		}
 	}
 
 	return positions

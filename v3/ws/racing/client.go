@@ -32,9 +32,9 @@ type Client struct {
 	MarkNo      int
 	NextMarkNo  int
 	CourseLimit float32
-	Position    Position
 	Location    Location
 	Send        chan []byte
+	Connecting  bool
 }
 
 type Position struct {
@@ -79,8 +79,9 @@ func NewClient(assocID string, conn *websocket.Conn) *Client {
 		MarkNo:      -1,
 		NextMarkNo:  1,
 		CourseLimit: 0.0,
-		Position:    Position{Lat: 0.0, Lng: 0.0},
+		Location:    Location{},
 		Send:        make(chan []byte),
+		Connecting:  true,
 	}
 }
 
@@ -93,13 +94,13 @@ func (c *Client) getNearSail() []PositionWithID {
 			continue
 		}
 
-		if utils.CalcDistanceAtoBEarth(c.Position.Lat, c.Position.Lng, athlete.Position.Lat, athlete.Position.Lng) < nearRange {
+		if utils.CalcDistanceAtoBEarth(c.Location.Lat, c.Location.Lng, athlete.Location.Lat, athlete.Location.Lng) < nearRange {
 			result = append(
 				result,
 				PositionWithID{
 					UserID: athlete.UserID,
-					Lat:    athlete.Position.Lat,
-					Lng:    athlete.Position.Lng,
+					Lat:    athlete.Location.Lat,
+					Lng:    athlete.Location.Lng,
 				},
 			)
 		}

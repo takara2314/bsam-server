@@ -39,7 +39,9 @@ type SetMarkNoInfo struct {
 
 func (c *Client) readPump() {
 	defer func() {
-		c.Hub.Unregister <- c
+		if c.Connecting {
+			c.Hub.Unregister <- c
+		}
 	}()
 
 	c.Conn.SetReadLimit(maxMessageSize)
@@ -50,6 +52,11 @@ func (c *Client) readPump() {
 	})
 
 	for {
+		// If the client is not connecting, stop the loop
+		if !c.Connecting {
+			return
+		}
+
 		_, msgRaw, err := c.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(

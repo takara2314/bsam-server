@@ -19,19 +19,61 @@ func (c *Client) auth(msg *AuthInfo) {
 		return
 	}
 
-	c.UserID = msg.UserID
-	c.Role = msg.Role
+	// If the client has not linked yet, link it.
+	if oldID := c.Hub.findClientID(c.UserID); oldID == "" {
+		c.link(msg.UserID, msg.Role, msg.MarkNo)
+	} else {
+		c.restore(oldID)
+	}
 
-	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
+	c.sendFirstAnnounce()
+}
+
+// link links the client.
+func (c *Client) link(userID string, role string, markNo int) {
+	c.UserID = userID
+	c.Role = role
 
 	switch c.Role {
 	case "athlete":
 		c.Hub.Athletes[c.ID] = c
+	case "mark":
+		c.MarkNo = markNo
+		c.Hub.Marks[c.ID] = c
+	case "manage":
+		c.Hub.Manages[c.ID] = c
+	}
+
+	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
+}
+
+// restore restores the client.
+func (c *Client) restore(oldID string) {
+	oldClient := c.Hub.Clients[oldID]
+
+	// Switch data from old to new
+	c.UserID = oldClient.UserID
+	c.Role = oldClient.Role
+	c.MarkNo = oldClient.MarkNo
+	c.NextMarkNo = oldClient.NextMarkNo
+	c.CourseLimit = oldClient.CourseLimit
+	c.Location = oldClient.Location
+
+	// Delete the old client instance
+	delete(c.Hub.Clients, oldID)
+	delete(c.Hub.Athletes, oldID)
+	delete(c.Hub.Marks, oldID)
+	delete(c.Hub.Manages, oldID)
+
+	log.Printf("Restored: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
+}
+
+// sendFirstAnnounce sends the first announce message.
+func (c *Client) sendFirstAnnounce() {
+	switch c.Role {
+	case "athlete":
 		c.sendMarkPosMsg()
 		c.sendStartRaceMsg()
-	case "mark":
-		c.MarkNo = msg.MarkNo
-		c.Hub.Marks[c.ID] = c
 	case "manage":
 		c.sendLiveMsg()
 		c.sendStartRaceMsg()

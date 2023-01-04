@@ -125,10 +125,18 @@ func (c *Client) writePump() {
 		ticker.Stop()
 		tickerMarkPos.Stop()
 		tickerLive.Stop()
-		c.Hub.Unregister <- c
+
+		if c.Connecting {
+			c.Hub.Unregister <- c
+		}
 	}()
 
 	for {
+		// If the client is not connecting, stop the loop
+		if !c.Connecting {
+			return
+		}
+
 		select {
 		case msg, ok := <-c.Send:
 			err := c.sendEvent(msg, ok)
@@ -196,8 +204,8 @@ func (h *Hub) generateLiveMsg() LiveMsg {
 	for _, c := range h.Marks {
 		marks[c.MarkNo-1] = PositionWithID{
 			UserID: c.UserID,
-			Lat:    c.Position.Lat,
-			Lng:    c.Position.Lng,
+			Lat:    c.Location.Lat,
+			Lng:    c.Location.Lng,
 		}
 	}
 
