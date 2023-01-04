@@ -64,10 +64,7 @@ func (c *Client) restore(oldID string) {
 	c.Location = oldClient.Location
 
 	// Delete the old client instance
-	delete(c.Hub.Clients, oldID)
-	delete(c.Hub.Athletes, oldID)
-	delete(c.Hub.Marks, oldID)
-	delete(c.Hub.Managers, oldID)
+	c.Hub.Unregister <- oldClient
 
 	log.Printf("Restored: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
 

@@ -139,7 +139,7 @@ func (c *Client) writePump() {
 		tickerLive.Stop()
 
 		if c.Connecting {
-			c.Hub.Unregister <- c
+			c.Hub.Disconnect <- c
 		}
 	}()
 

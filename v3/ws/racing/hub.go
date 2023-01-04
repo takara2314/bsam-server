@@ -13,6 +13,7 @@ type Hub struct {
 	MarkNum       int
 	IsStarted     bool
 	Register      chan *Client
+	Disconnect    chan *Client
 	Unregister    chan *Client
 }
 
@@ -26,6 +27,7 @@ func NewHub(assocID string) *Hub {
 		MarkNum:       3,
 		IsStarted:     false,
 		Register:      make(chan *Client),
+		Disconnect:    make(chan *Client),
 		Unregister:    make(chan *Client),
 	}
 }
@@ -35,6 +37,8 @@ func (h *Hub) Run() {
 		select {
 		case client := <-h.Register:
 			h.registerEvent(client)
+		case client := <-h.Disconnect:
+			h.disconnectEvent(client)
 		case client := <-h.Unregister:
 			h.unregisterEvent(client)
 		}
@@ -48,7 +52,7 @@ func (h *Hub) registerEvent(c *Client) {
 }
 
 // unregisterEvent unregisters the client.
-func (h *Hub) unregisterEvent(c *Client) {
+func (h *Hub) disconnectEvent(c *Client) {
 	if _, ok := h.Clients[c.ID]; !ok {
 		return
 	}
@@ -57,6 +61,21 @@ func (h *Hub) unregisterEvent(c *Client) {
 	c.Conn.Close()
 
 	c.Connecting = false
+}
+
+// unregisterEvent unregisters the client.
+func (h *Hub) unregisterEvent(c *Client) {
+	if _, ok := h.Clients[c.ID]; !ok {
+		return
+	}
+
+	log.Println("Unregistered:", c.ID)
+	c.Conn.Close()
+
+	delete(c.Hub.Clients, c.ID)
+	delete(c.Hub.Athletes, c.ID)
+	delete(c.Hub.Marks, c.ID)
+	delete(c.Hub.Managers, c.ID)
 }
 
 // getMarkPositions returns the mark positions.

@@ -37,7 +37,7 @@ type DebugInfo struct {
 func (c *Client) readPump() {
 	defer func() {
 		if c.Connecting {
-			c.Hub.Unregister <- c
+			c.Hub.Disconnect <- c
 		}
 	}()
 
