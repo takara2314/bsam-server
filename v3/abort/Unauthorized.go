@@ -7,6 +7,5 @@ import (
 )
 
 func Unauthorized(c *gin.Context) {
-	c.JSON(http.StatusUnauthorized, make(map[string]any))
-	c.Abort()
+	c.AbortWithStatusJSON(http.StatusUnauthorized, make(gin.H))
 }

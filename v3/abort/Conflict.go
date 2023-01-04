@@ -7,6 +7,5 @@ import (
 )
 
 func Conflict(c *gin.Context) {
-	c.JSON(http.StatusConflict, make(map[string]any))
-	c.Abort()
+	c.AbortWithStatusJSON(http.StatusConflict, make(gin.H))
 }

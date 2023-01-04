@@ -9,7 +9,14 @@ import (
 
 func AuthJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token, valid := getTokenFromAuthHeader(c.GetHeader("Authorization"))
+		value := c.GetHeader("Authorization")
+
+		if value == "" {
+			abort.Unauthorized(c)
+			return
+		}
+
+		token, valid := getTokenFromAuthHeader(value)
 		if !valid {
 			abort.BadRequest(c)
 			return

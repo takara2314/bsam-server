@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"bsam-server/v3/abort"
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,9 @@ import (
 func CheckMIME(mime string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !isThisMIME(c.GetHeader("Content-Type"), mime) {
-			abort.BadRequest(c)
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "Content-Type '" + mime + "' required.",
+			})
 			return
 		}
 	}

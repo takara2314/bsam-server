@@ -7,6 +7,5 @@ import (
 )
 
 func NotFound(c *gin.Context) {
-	c.JSON(http.StatusNotFound, make(map[string]any))
-	c.Abort()
+	c.AbortWithStatusJSON(http.StatusNotFound, make(gin.H))
 }

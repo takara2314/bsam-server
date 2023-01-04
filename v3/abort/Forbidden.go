@@ -7,6 +7,5 @@ import (
 )
 
 func Forbidden(c *gin.Context) {
-	c.JSON(http.StatusForbidden, make(map[string]any))
-	c.Abort()
+	c.AbortWithStatusJSON(http.StatusForbidden, make(gin.H))
 }
