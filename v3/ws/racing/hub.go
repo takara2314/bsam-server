@@ -9,7 +9,7 @@ type Hub struct {
 	Clients       map[string]*Client
 	Athletes      map[string]*Client
 	Marks         map[string]*Client
-	Manages       map[string]*Client
+	Managers      map[string]*Client
 	MarkNum       int
 	IsStarted     bool
 	Register      chan *Client
@@ -22,7 +22,7 @@ func NewHub(assocID string) *Hub {
 		Clients:       make(map[string]*Client),
 		Athletes:      make(map[string]*Client),
 		Marks:         make(map[string]*Client),
-		Manages:       make(map[string]*Client),
+		Managers:      make(map[string]*Client),
 		MarkNum:       3,
 		IsStarted:     false,
 		Register:      make(chan *Client),
@@ -83,7 +83,7 @@ func (h *Hub) startRace(isStarted bool) {
 	for _, c := range h.Athletes {
 		c.sendStartRaceMsg()
 	}
-	for _, c := range h.Manages {
+	for _, c := range h.Managers {
 		c.sendStartRaceMsg()
 	}
 }

@@ -54,7 +54,7 @@ func (c *Client) sendNearSailMsg() {
 
 // sendLiveMsg sends live positions to the manager.
 func (c *Client) sendLiveMsg() {
-	if c.Role != "manage" {
+	if c.Role != "manager" {
 		return
 	}
 

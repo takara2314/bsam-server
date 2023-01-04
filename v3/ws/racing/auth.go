@@ -40,8 +40,8 @@ func (c *Client) link(userID string, role string, markNo int) {
 	case "mark":
 		c.MarkNo = markNo
 		c.Hub.Marks[c.ID] = c
-	case "manage":
-		c.Hub.Manages[c.ID] = c
+	case "manager":
+		c.Hub.Managers[c.ID] = c
 	}
 
 	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
@@ -63,7 +63,7 @@ func (c *Client) restore(oldID string) {
 	delete(c.Hub.Clients, oldID)
 	delete(c.Hub.Athletes, oldID)
 	delete(c.Hub.Marks, oldID)
-	delete(c.Hub.Manages, oldID)
+	delete(c.Hub.Managers, oldID)
 
 	log.Printf("Restored: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
 }
@@ -74,7 +74,7 @@ func (c *Client) sendFirstAnnounce() {
 	case "athlete":
 		c.sendMarkPosMsg()
 		c.sendStartRaceMsg()
-	case "manage":
+	case "manager":
 		c.sendLiveMsg()
 		c.sendStartRaceMsg()
 	}
