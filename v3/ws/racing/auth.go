@@ -35,15 +35,12 @@ func (c *Client) link(userID string, role string, markNo int) {
 	c.UserID = userID
 	c.Role = role
 
-	switch c.Role {
-	case "athlete":
-		c.Hub.Athletes[c.ID] = c
-	case "mark":
+	if c.Role == "mark" {
 		c.MarkNo = markNo
-		c.Hub.Marks[c.ID] = c
-	case "manager":
-		c.Hub.Managers[c.ID] = c
 	}
+
+	// Register the client to the role group
+	c.registerRoleGroup()
 
 	log.Printf("Linked: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
 
@@ -66,10 +63,25 @@ func (c *Client) restore(oldID string) {
 	// Delete the old client instance
 	c.Hub.Unregister <- oldClient
 
+	// Register the new client instance to the role group
+	c.registerRoleGroup()
+
 	log.Printf("Restored: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
 
 	// Send the authorize result message
 	c.sendRestoreAuthMsg()
+}
+
+// registerRoleGroup registers the client to the role group.
+func (c *Client) registerRoleGroup() {
+	switch c.Role {
+	case "athlete":
+		c.Hub.Athletes[c.ID] = c
+	case "mark":
+		c.Hub.Marks[c.ID] = c
+	case "manager":
+		c.Hub.Managers[c.ID] = c
+	}
 }
 
 // sendFailedAuthMsg sends the failed authorize result message.
