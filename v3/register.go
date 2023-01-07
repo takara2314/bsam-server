@@ -21,10 +21,9 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 	// Associations API
 	router.GET("/associations/:id", associations.AssociationGET)
 
-	// Authorized and JSON only
+	// Authorized only
 	authorized := router.Group("/",
 		middleware.AuthJWT(),
-		middleware.CheckMIME("application/json"),
 	)
 	{
 		// Associations API
@@ -33,6 +32,13 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 		// Server Status API
 		authorized.GET("/status", status.StatusGET)
 	}
+
+	// // Authorized and JSON only
+	// authorizedJSON := router.Group("/",
+	// 	middleware.AuthJWT(),
+	// 	middleware.CheckMIME("application/json"),
+	// )
+	// { }
 
 	// Racing Socket
 	router.GET("/racing/:id", racing.Handler)
