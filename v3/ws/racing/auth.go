@@ -7,6 +7,13 @@ import (
 
 // auth authorizes the client.
 func (c *Client) auth(msg *AuthInfo) {
+	// If the client is a guest, not need to verify the token
+	if msg.Role == "guest" {
+		c.link(msg.UserID, msg.Role, msg.MarkNo)
+		c.sendFirstAnnounce()
+		return
+	}
+
 	if ok := auth.VerifyJWT(msg.Token); !ok {
 		log.Println("Unauthorized:", c.ID)
 		c.sendFailedAuthMsg()

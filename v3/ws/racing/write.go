@@ -43,6 +43,10 @@ type SetMarkNoMsg struct {
 
 // sendMarkPosMsg sends mark positions to the client.
 func (c *Client) sendMarkPosMsg() {
+	if c.Role == "" {
+		return
+	}
+
 	msg := MarkPosMsg{
 		MarkNum:   len(c.Hub.Marks),
 		Positions: c.Hub.getMarkPositions(),
@@ -62,9 +66,9 @@ func (c *Client) sendNearSailMsg() {
 	c.sendNearSailMsgEvent(&msg)
 }
 
-// sendLiveMsg sends live positions to the manager.
+// sendLiveMsg sends live positions to the manager and the guest.
 func (c *Client) sendLiveMsg() {
-	if c.Role != "manager" {
+	if !(c.Role == "manager" || c.Role == "guest") {
 		return
 	}
 
@@ -72,7 +76,12 @@ func (c *Client) sendLiveMsg() {
 	c.sendLiveMsgEvent(&msg)
 }
 
+// sendStartRaceMsg sends what started or not to the client.
 func (c *Client) sendStartRaceMsg() {
+	if c.Role == "" {
+		return
+	}
+
 	c.sendStartRaceMsgEvent(&StartRaceMsg{
 		IsStarted: c.Hub.IsStarted,
 		StartAt:   c.Hub.StartAt.UnixNano(),
@@ -160,7 +169,7 @@ func (c *Client) writePump() {
 			go c.sendNearSailMsg()
 
 		case <-tickerLive.C:
-			// Send live positions to the manager every 1 second
+			// Send live positions to the manager and guest every 1 second
 			go c.sendLiveMsg()
 
 		case <-ticker.C:
