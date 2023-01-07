@@ -1,6 +1,7 @@
 package racing
 
 import (
+	"bsam-server/v3/abort"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,6 +21,12 @@ var upgrader = websocket.Upgrader{
 // Handler is a Gin handler for HTTP.
 func Handler(c *gin.Context) {
 	assocID := c.Param("id")
+
+	// if the room does not exist, return 404
+	if _, ok := rooms[assocID]; !ok {
+		abort.NotFound(c)
+		return
+	}
 
 	// Upgrade to WebSocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
