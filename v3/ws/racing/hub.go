@@ -29,6 +29,8 @@ func NewHub(assocID string) *Hub {
 		Managers:      make(map[string]*Client),
 		MarkNum:       3,
 		IsStarted:     false,
+		StartAt:       time.Unix(0, 0),
+		EndAt:         time.Unix(0, 0),
 		Register:      make(chan *Client),
 		Disconnect:    make(chan *Client),
 		Unregister:    make(chan *Client),
