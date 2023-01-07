@@ -1,6 +1,7 @@
 package racing
 
 import (
+	"bsam-server/utils"
 	"bsam-server/v3/auth"
 	"log"
 )
@@ -9,7 +10,7 @@ import (
 func (c *Client) auth(msg *AuthInfo) {
 	// If the client is a guest, not need to verify the token
 	if msg.Role == "guest" {
-		c.link(msg.UserID, msg.Role, msg.MarkNo)
+		c.link(utils.RandString(8), "guest", 0)
 		c.sendFirstAnnounce()
 		return
 	}
