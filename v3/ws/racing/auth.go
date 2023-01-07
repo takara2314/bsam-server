@@ -130,5 +130,8 @@ func (c *Client) sendFirstAnnounce() {
 	case "manager":
 		c.sendLiveMsg()
 		c.sendStartRaceMsg()
+	case "guest":
+		c.sendLiveMsg()
+		c.sendStartRaceMsg()
 	}
 }
