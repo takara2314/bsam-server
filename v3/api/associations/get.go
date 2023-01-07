@@ -47,7 +47,7 @@ func AssociationGET(c *gin.Context) {
 
 	docID, exist := findAssociationID(id)
 
-	if exist {
+	if !exist {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"message": "This association is not found",
 		})
