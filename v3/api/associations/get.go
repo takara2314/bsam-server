@@ -68,9 +68,9 @@ func getAssociation(docID string) models.Association {
 func findAssociationID(id string) (string, bool) {
 	assocs := getAssociations()
 
-	for _, assoc := range assocs {
+	for docID, assoc := range assocs {
 		if assoc.ID == id {
-			return assoc.ID, true
+			return docID, true
 		}
 	}
 

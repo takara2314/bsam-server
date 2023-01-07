@@ -28,7 +28,7 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 	)
 	{
 		// Associations API
-		router.GET("/associations", associations.AssociationGETAll)
+		authorized.GET("/associations", associations.AssociationGETAll)
 
 		// Server Status API
 		authorized.GET("/status", status.StatusGET)
