@@ -1,6 +1,7 @@
 package v3
 
 import (
+	"bsam-server/v3/api/associations"
 	"bsam-server/v3/api/status"
 	"bsam-server/v3/middleware"
 	"bsam-server/v3/ws/racing"
@@ -17,12 +18,18 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 		c.String(http.StatusOK, "Hello 3rd version API!")
 	})
 
+	// Associations API
+	router.GET("/associations/:id", associations.AssociationGET)
+
 	// Authorized and JSON only
 	authorized := router.Group("/",
 		middleware.AuthJWT(),
 		middleware.CheckMIME("application/json"),
 	)
 	{
+		// Associations API
+		router.GET("/associations", associations.AssociationGETAll)
+
 		// Server Status API
 		authorized.GET("/status", status.StatusGET)
 	}

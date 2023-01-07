@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.8.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/shiguredo/websocket v1.6.0
+	golang.org/x/exp v0.0.0-20230105202349-8879d0199aa3
 )
 
 require (
