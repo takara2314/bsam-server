@@ -31,7 +31,9 @@ type LiveMsg struct {
 }
 
 type StartRaceMsg struct {
-	IsStarted bool `json:"started"`
+	IsStarted bool  `json:"started"`
+	StartAt   int64 `json:"start_at"`
+	EndAt     int64 `json:"end_at"`
 }
 
 type SetMarkNoMsg struct {
@@ -73,6 +75,8 @@ func (c *Client) sendLiveMsg() {
 func (c *Client) sendStartRaceMsg() {
 	c.sendStartRaceMsgEvent(&StartRaceMsg{
 		IsStarted: c.Hub.IsStarted,
+		StartAt:   c.Hub.StartAt.UnixNano(),
+		EndAt:     c.Hub.EndAt.UnixNano(),
 	})
 }
 

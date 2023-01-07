@@ -2,6 +2,7 @@ package racing
 
 import (
 	"log"
+	"time"
 )
 
 type Hub struct {
@@ -12,6 +13,8 @@ type Hub struct {
 	Managers      map[string]*Client
 	MarkNum       int
 	IsStarted     bool
+	StartAt       time.Time
+	EndAt         time.Time
 	Register      chan *Client
 	Disconnect    chan *Client
 	Unregister    chan *Client
@@ -96,6 +99,12 @@ func (h *Hub) getMarkPositions() []Position {
 // startRace sends start message to all clients.
 func (h *Hub) startRace(isStarted bool) {
 	h.IsStarted = isStarted
+
+	if h.IsStarted {
+		h.StartAt = time.Now()
+	} else {
+		h.EndAt = time.Now()
+	}
 
 	for _, c := range h.Athletes {
 		c.sendStartRaceMsg()
