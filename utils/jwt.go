@@ -12,7 +12,7 @@ var (
 )
 
 func GetUserIDFromJWT(t string) (string, error) {
-	token, err := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(t, func(token *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
