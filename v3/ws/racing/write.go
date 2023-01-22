@@ -36,8 +36,7 @@ type StartRaceMsg struct {
 	EndAt     int64 `json:"end_at"`
 }
 
-type SetMarkNoMsg struct {
-	MarkNo     int `json:"mark_no"`
+type SetNextMarkNoMsg struct {
 	NextMarkNo int `json:"next_mark_no"`
 }
 
@@ -109,8 +108,8 @@ func (c *Client) sendStartRaceMsgEvent(msg *StartRaceMsg) {
 	c.Send <- insertTypeToJSON(msg, "start_race")
 }
 
-func (c *Client) sendSetMarkNoEvent(msg *SetMarkNoMsg) {
-	c.Send <- insertTypeToJSON(msg, "set_mark_no")
+func (c *Client) sendSetNextMarkNoEvent(msg *SetNextMarkNoMsg) {
+	c.Send <- insertTypeToJSON(msg, "set_next_mark_no")
 }
 
 func (c *Client) sendEvent(msg []byte, ok bool) error {

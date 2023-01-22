@@ -16,8 +16,8 @@ type AuthInfo struct {
 }
 
 type PassedInfo struct {
-	MarkNo     int `json:"mark_no"`
-	NextMarkNo int `json:"next_mark_no"`
+	PassedMarkNo int `json:"passed_mark_no"`
+	NextMarkNo   int `json:"next_mark_no"`
 }
 
 type StartInfo struct {
@@ -93,10 +93,10 @@ func (c *Client) readPump() {
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.Hub.startRace(msg.IsStarted)
 
-		case "set_mark_no":
+		case "set_next_mark_no":
 			var msg SetMarkNoInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
-			c.Hub.setMarkNoForce(&msg)
+			c.Hub.setNextMarkNoForce(&msg)
 
 		case "debug":
 			var msg DebugInfo
