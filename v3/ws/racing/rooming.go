@@ -33,5 +33,5 @@ func scale() {
 
 // getAssociations returns association IDs.
 func getAssociationIDs() []string {
-	return []string{"hogehoge", "piyopiyo"}
+	return []string{"sailing-ise", "hogehoge", "piyopiyo"}
 }
