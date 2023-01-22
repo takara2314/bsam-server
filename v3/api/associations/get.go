@@ -12,6 +12,15 @@ import (
 var (
 	fetchSample = map[string]models.Association{
 		"abcdefgh-1234-5678-90ab-cdefghijklmn": {
+			ID:       "sailing-ise",
+			Name:     "セーリング伊勢",
+			TokenIAT: time.Now(),
+			TokenEXP: time.Now().Add(time.Hour * 24),
+			Lat:      35.353535,
+			Lng:      120.120120,
+			RaceName: "視覚障がい者セーリング大会2023",
+		},
+		"bacdefgh-1234-5678-90ab-cdefghijklmn": {
 			ID:       "hogehoge",
 			Name:     "ホゲホゲマリンビレッジ",
 			TokenIAT: time.Now(),
