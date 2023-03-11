@@ -108,10 +108,7 @@ func (h *Hub) startRace(isStarted bool) {
 		h.EndAt = time.Now()
 	}
 
-	for _, c := range h.Athletes {
-		c.sendStartRaceMsg()
-	}
-	for _, c := range h.Managers {
+	for _, c := range h.Clients {
 		c.sendStartRaceMsg()
 	}
 }
