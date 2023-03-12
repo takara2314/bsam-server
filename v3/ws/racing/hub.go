@@ -110,6 +110,12 @@ func (h *Hub) startRace(isStarted bool) {
 		h.EndAt = time.Now()
 	}
 
+	fmt.Println("<クライアント一覧>")
+	for _, c := range h.Clients {
+		fmt.Println(c.ID, c.UserID, c.Role)
+	}
+	fmt.Println("以上")
+
 	for _, c := range h.Clients {
 		c.sendStartRaceMsg()
 	}

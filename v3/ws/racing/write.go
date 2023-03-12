@@ -79,6 +79,7 @@ func (c *Client) sendLiveMsg() {
 // sendStartRaceMsg sends what started or not to the client.
 func (c *Client) sendStartRaceMsg() {
 	if c.Role == "" {
+		fmt.Printf("bye: %s (%s)\n", c.UserID, c.Role)
 		return
 	}
 
