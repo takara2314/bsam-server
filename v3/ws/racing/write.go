@@ -2,6 +2,7 @@ package racing
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 	"time"
 
@@ -80,6 +81,9 @@ func (c *Client) sendStartRaceMsg() {
 	if c.Role == "" {
 		return
 	}
+
+	fmt.Printf("スタートメッセを送ります！: %s (%s)\n", c.UserID, c.Role)
+	fmt.Println(c.Hub.IsStarted, "です！")
 
 	c.sendStartRaceMsgEvent(&StartRaceMsg{
 		IsStarted: c.Hub.IsStarted,
