@@ -156,6 +156,7 @@ func (c *Client) writePump() {
 		case msg, ok := <-c.Send:
 			err := c.sendEvent(msg, ok)
 			if err != nil {
+				c.Hub.Disconnect <- c
 				return
 			}
 

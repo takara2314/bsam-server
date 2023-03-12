@@ -56,7 +56,7 @@ func (h *Hub) registerEvent(c *Client) {
 	h.Clients[c.ID] = c
 }
 
-// unregisterEvent unregisters the client.
+// disconnectEvent disconnects the client.
 func (h *Hub) disconnectEvent(c *Client) {
 	if _, ok := h.Clients[c.ID]; !ok {
 		return
@@ -64,6 +64,10 @@ func (h *Hub) disconnectEvent(c *Client) {
 
 	log.Println("Disconnected:", c.ID)
 	c.Conn.Close()
+
+	if c.Role == "" || c.Role == "guest" {
+		delete(c.Hub.Clients, c.ID)
+	}
 }
 
 // unregisterEvent unregisters the client.

@@ -91,7 +91,7 @@ func (c *Client) readPump() {
 		case "start":
 			var msg StartInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
-			c.Hub.startRace(msg.IsStarted)
+			go c.Hub.startRace(msg.IsStarted)
 
 		case "set_next_mark_no":
 			var msg SetMarkNoInfo
