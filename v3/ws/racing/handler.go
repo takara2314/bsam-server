@@ -59,3 +59,8 @@ func (c *Client) handlerPassed(msg *PassedInfo) {
 
 	c.NextMarkNo = msg.NextMarkNo
 }
+
+// receiveBattery receives the battery level from the client.
+func (c *Client) receiveBattery(msg *BatteryInfo) {
+	c.BatteryLevel = msg.Level
+}

@@ -30,6 +30,10 @@ type SetMarkNoInfo struct {
 	NextMarkNo int    `json:"next_mark_no"`
 }
 
+type BatteryInfo struct {
+	Level int `json:"level"`
+}
+
 type DebugInfo struct {
 	Message string `json:"message"`
 }
@@ -97,6 +101,11 @@ func (c *Client) readPump() {
 			var msg SetMarkNoInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.Hub.setNextMarkNoForce(&msg)
+
+		case "battery":
+			var msg BatteryInfo
+			json.Unmarshal([]byte(msgRaw), &msg)
+			c.receiveBattery(&msg)
 
 		case "debug":
 			var msg DebugInfo

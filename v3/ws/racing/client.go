@@ -24,16 +24,17 @@ var (
 )
 
 type Client struct {
-	ID          string
-	Hub         *Hub
-	Conn        *websocket.Conn
-	UserID      string
-	Role        string
-	MarkNo      int
-	NextMarkNo  int
-	CourseLimit float32
-	Location    Location
-	Send        chan []byte
+	ID           string
+	Hub          *Hub
+	Conn         *websocket.Conn
+	UserID       string
+	Role         string
+	MarkNo       int
+	NextMarkNo   int
+	CourseLimit  float32
+	Location     Location
+	BatteryLevel int
+	Send         chan []byte
 }
 
 type Position struct {
@@ -70,16 +71,17 @@ type LocationWithDetail struct {
 
 func NewClient(assocID string, conn *websocket.Conn) *Client {
 	return &Client{
-		ID:          utils.RandString(8),
-		Hub:         rooms[assocID],
-		Conn:        conn,
-		UserID:      "",
-		Role:        "",
-		MarkNo:      -1,
-		NextMarkNo:  1,
-		CourseLimit: 0.0,
-		Location:    Location{},
-		Send:        make(chan []byte),
+		ID:           utils.RandString(8),
+		Hub:          rooms[assocID],
+		Conn:         conn,
+		UserID:       "",
+		Role:         "",
+		MarkNo:       -1,
+		NextMarkNo:   1,
+		CourseLimit:  0.0,
+		Location:     Location{},
+		BatteryLevel: -1,
+		Send:         make(chan []byte),
 	}
 }
 
