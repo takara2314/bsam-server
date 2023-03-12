@@ -2,7 +2,6 @@ package racing
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -92,16 +91,7 @@ func (c *Client) readPump() {
 		case "start":
 			var msg StartInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
-
-			fmt.Println("<クライアント一覧>")
-			for _, c := range c.Hub.Clients {
-				fmt.Println(c.ID, c.UserID, c.Role)
-			}
-			fmt.Println("以上")
-
-			fmt.Println("レースのスタート状態を次にします:", msg.IsStarted)
-
-			c.Hub.startRace(msg.IsStarted)
+			go c.Hub.startRace(msg.IsStarted)
 
 		case "set_next_mark_no":
 			var msg SetMarkNoInfo

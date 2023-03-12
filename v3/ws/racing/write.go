@@ -2,7 +2,6 @@ package racing
 
 import (
 	"encoding/json"
-	"fmt"
 	"sort"
 	"time"
 
@@ -79,12 +78,8 @@ func (c *Client) sendLiveMsg() {
 // sendStartRaceMsg sends what started or not to the client.
 func (c *Client) sendStartRaceMsg() {
 	if c.Role == "" {
-		fmt.Printf("bye: %s (%s)\n", c.UserID, c.Role)
 		return
 	}
-
-	fmt.Printf("スタートメッセを送ります！: %s (%s)\n", c.UserID, c.Role)
-	fmt.Println(c.Hub.IsStarted, "です！")
 
 	c.sendStartRaceMsgEvent(&StartRaceMsg{
 		IsStarted: c.Hub.IsStarted,
@@ -161,6 +156,7 @@ func (c *Client) writePump() {
 		case msg, ok := <-c.Send:
 			err := c.sendEvent(msg, ok)
 			if err != nil {
+				c.Hub.Disconnect <- c
 				return
 			}
 
