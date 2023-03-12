@@ -1,7 +1,6 @@
 package racing
 
 import (
-	"fmt"
 	"log"
 	"time"
 )
@@ -102,19 +101,12 @@ func (h *Hub) getMarkPositions() []Position {
 // startRace sends start message to all clients.
 func (h *Hub) startRace(isStarted bool) {
 	h.IsStarted = isStarted
-	fmt.Println("レースのスタート状態:", h.IsStarted)
 
 	if h.IsStarted {
 		h.StartAt = time.Now()
 	} else {
 		h.EndAt = time.Now()
 	}
-
-	fmt.Println("<クライアント一覧>")
-	for _, c := range h.Clients {
-		fmt.Println(c.ID, c.UserID, c.Role)
-	}
-	fmt.Println("以上")
 
 	for _, c := range h.Clients {
 		c.sendStartRaceMsg()
