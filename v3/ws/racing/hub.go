@@ -1,7 +1,6 @@
 package racing
 
 import (
-	"fmt"
 	"log"
 	"time"
 )
@@ -128,7 +127,6 @@ func (h *Hub) startRace(isStarted bool) {
 
 // setNextMarkNoForce force sets the client's next mark no.
 func (h *Hub) setNextMarkNoForce(info *SetMarkNoInfo) {
-	fmt.Println("debug 届きました！", info.UserID, info.NextMarkNo)
 	id := h.findClientID(info.UserID)
 	if id == "" {
 		log.Printf("Force Next Mark Failed: Not Found (%s)\n", info.UserID)
