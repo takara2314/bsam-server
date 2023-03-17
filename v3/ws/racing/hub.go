@@ -121,7 +121,7 @@ func (h *Hub) startRace(isStarted bool) {
 	}
 
 	for _, c := range h.Clients {
-		c.sendStartRaceMsg()
+		go c.sendStartRaceMsg()
 	}
 }
 
