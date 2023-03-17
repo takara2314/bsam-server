@@ -176,6 +176,7 @@ func (c *Client) writePump() {
 			// Ping every 9 seconds
 			err := c.pingEvent()
 			if err != nil {
+				c.Hub.Disconnect <- c
 				return
 			}
 		}
