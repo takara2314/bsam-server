@@ -29,7 +29,7 @@ func (c *Client) auth(msg *AuthInfo) {
 	}
 
 	// If the client has not linked yet, link it.
-	if oldID := c.Hub.findClientID(msg.UserID); oldID == "" {
+	if oldID := c.Hub.findDisconnectedID(msg.UserID); oldID == "" {
 		c.link(msg.UserID, msg.Role, msg.MarkNo)
 	} else {
 		c.restore(oldID)
@@ -58,7 +58,7 @@ func (c *Client) link(userID string, role string, markNo int) {
 
 // restore restores the client.
 func (c *Client) restore(oldID string) {
-	oldClient := c.Hub.Clients[oldID]
+	oldClient := c.Hub.Disconnectors[oldID]
 
 	// Switch data from old to new
 	c.UserID = oldClient.UserID
