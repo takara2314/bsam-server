@@ -114,11 +114,12 @@ func (c *Client) sendNewAuthMsg() {
 // sendRestoreAuthMsg sends the authorize result message for the restored.
 func (c *Client) sendRestoreAuthMsg() {
 	c.sendAuthResultMsgEvent(&AuthResultMsg{
-		Authed:   true,
-		UserID:   c.UserID,
-		Role:     c.Role,
-		MarkNo:   c.MarkNo,
-		LinkType: "restore",
+		Authed:     true,
+		UserID:     c.UserID,
+		Role:       c.Role,
+		MarkNo:     c.MarkNo,
+		NextMarkNo: c.NextMarkNo,
+		LinkType:   "restore",
 	})
 }
 

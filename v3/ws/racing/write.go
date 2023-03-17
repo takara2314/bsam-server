@@ -9,11 +9,12 @@ import (
 )
 
 type AuthResultMsg struct {
-	Authed   bool   `json:"authed"`
-	UserID   string `json:"user_id"`
-	Role     string `json:"role"`
-	MarkNo   int    `json:"mark_no"`
-	LinkType string `json:"link_type"`
+	Authed     bool   `json:"authed"`
+	UserID     string `json:"user_id"`
+	Role       string `json:"role"`
+	MarkNo     int    `json:"mark_no"`
+	NextMarkNo int    `json:"next_mark_no"`
+	LinkType   string `json:"link_type"`
 }
 
 type MarkPosMsg struct {
