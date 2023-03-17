@@ -2,6 +2,7 @@ package racing
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -98,6 +99,7 @@ func (c *Client) readPump() {
 			c.Hub.startRace(msg.IsStarted)
 
 		case "set_next_mark_no":
+			fmt.Println("set_next_mark_no きました！")
 			var msg SetMarkNoInfo
 			json.Unmarshal([]byte(msgRaw), &msg)
 			c.Hub.setNextMarkNoForce(&msg)
