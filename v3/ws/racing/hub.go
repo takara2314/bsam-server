@@ -11,6 +11,7 @@ type Hub struct {
 	Athletes      map[string]*Client
 	Marks         map[string]*Client
 	Managers      map[string]*Client
+	Disconnectors map[string]*Client
 	MarkNum       int
 	IsStarted     bool
 	StartAt       time.Time
@@ -27,6 +28,7 @@ func NewHub(assocID string) *Hub {
 		Athletes:      make(map[string]*Client),
 		Marks:         make(map[string]*Client),
 		Managers:      make(map[string]*Client),
+		Disconnectors: make(map[string]*Client),
 		MarkNum:       3,
 		IsStarted:     false,
 		StartAt:       time.Unix(0, 0),
@@ -65,9 +67,14 @@ func (h *Hub) disconnectEvent(c *Client) {
 	log.Println("Disconnected:", c.ID)
 	c.Conn.Close()
 
-	if c.Role == "" || c.Role == "guest" {
-		delete(c.Hub.Clients, c.ID)
-	}
+	// Register the client to the disconnector group
+	h.Disconnectors[c.ID] = c
+
+	// Unregister the client from the role group
+	delete(c.Hub.Clients, c.ID)
+	delete(c.Hub.Athletes, c.ID)
+	delete(c.Hub.Marks, c.ID)
+	delete(c.Hub.Managers, c.ID)
 }
 
 // unregisterEvent unregisters the client.
@@ -83,6 +90,7 @@ func (h *Hub) unregisterEvent(c *Client) {
 	delete(c.Hub.Athletes, c.ID)
 	delete(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
+	delete(c.Hub.Disconnectors, c.ID)
 }
 
 // getMarkPositions returns the mark positions.
@@ -136,6 +144,17 @@ func (h *Hub) setNextMarkNoForce(info *SetMarkNoInfo) {
 // findClientID returns the client id by user id.
 func (h *Hub) findClientID(userID string) string {
 	for _, c := range h.Clients {
+		if c.UserID == userID {
+			return c.ID
+		}
+	}
+
+	return ""
+}
+
+// findDisconnectedID returns the disconnected client id by user id.
+func (h *Hub) findDisconnectedID(userID string) string {
+	for _, c := range h.Disconnectors {
 		if c.UserID == userID {
 			return c.ID
 		}
