@@ -129,6 +129,7 @@ func (h *Hub) startRace(isStarted bool) {
 func (h *Hub) setNextMarkNoForce(info *SetMarkNoInfo) {
 	id := h.findClientID(info.UserID)
 	if id == "" {
+		log.Printf("Force Next Mark Failed: Not Found (%s)\n", info.UserID)
 		return
 	}
 
