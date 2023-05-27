@@ -43,5 +43,4 @@ jobs:
             --region $GCP_REGION \
             --platform managed \
             --allow-unauthenticated \
-            --quiet \
-            --set-env-vars ENV=PRODUCTION
+            --quiet
