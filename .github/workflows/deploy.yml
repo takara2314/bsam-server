@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - v3-develop
+      - v4-develop
 
 env:
   SERVICE_NAME: ${{ secrets.SERVICE_NAME }}

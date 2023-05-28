@@ -2,6 +2,7 @@ package main
 
 import (
 	v3 "bsam-server/v3"
+	v4 "bsam-server/v4"
 	"fmt"
 	"os"
 
@@ -25,6 +26,7 @@ func main() {
 	}
 
 	v3.Register(router)
+	v4.Register(router)
 
 	fmt.Printf("Server is running on port %s\n", os.Getenv("PORT"))
 	router.Run(":" + os.Getenv("PORT"))
