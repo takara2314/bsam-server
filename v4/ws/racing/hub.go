@@ -2,6 +2,7 @@ package racing
 
 import (
 	"log"
+	"sort"
 	"time"
 )
 
@@ -93,21 +94,50 @@ func (h *Hub) unregisterEvent(c *Client) {
 	delete(c.Hub.Disconnectors, c.ID)
 }
 
-// getMarkPositions returns the mark positions.
-func (h *Hub) getMarkPositions() []Position {
-	positions := make([]Position, h.MarkNum)
+// getAthleteInfos returns the athlete infos.
+func (h *Hub) getAthleteInfos() []LocationWithDetail {
+	athletes := make([]LocationWithDetail, len(h.Athletes))
+
+	cnt := 0
+	for _, c := range h.Athletes {
+		athletes[cnt] = LocationWithDetail{
+			UserID:        c.UserID,
+			Lat:           c.Location.Lat,
+			Lng:           c.Location.Lng,
+			Acc:           c.Location.Acc,
+			Heading:       c.Location.Heading,
+			HeadingFixing: c.Location.HeadingFixing,
+			CompassDeg:    c.Location.CompassDeg,
+			NextMarkNo:    c.NextMarkNo,
+			CourseLimit:   c.CourseLimit,
+		}
+		cnt++
+	}
+
+	// Sort by user id asc
+	sort.Slice(athletes, func(i int, j int) bool {
+		return athletes[i].UserID > athletes[j].UserID
+	})
+
+	return athletes
+}
+
+// getMarkInfos returns the mark infos.
+func (h *Hub) getMarkInfos() []PositionWithID {
+	marks := make([]PositionWithID, h.MarkNum)
 
 	for _, c := range h.Marks {
 		if c.MarkNo > h.MarkNum {
 			panic("invalid mark no")
 		}
-		positions[c.MarkNo-1] = Position{
-			Lat: c.Location.Lat,
-			Lng: c.Location.Lng,
+		marks[c.MarkNo-1] = PositionWithID{
+			UserID: c.UserID,
+			Lat:    c.Location.Lat,
+			Lng:    c.Location.Lng,
 		}
 	}
 
-	return positions
+	return marks
 }
 
 // startRace sends start message to all clients.

@@ -2,7 +2,6 @@ package racing
 
 import (
 	"encoding/json"
-	"sort"
 	"time"
 
 	"github.com/shiguredo/websocket"
@@ -18,8 +17,8 @@ type AuthResultMsg struct {
 }
 
 type MarkPosMsg struct {
-	MarkNum   int        `json:"mark_num"`
-	Positions []Position `json:"positions"`
+	MarkNum int              `json:"mark_num"`
+	Marks   []PositionWithID `json:"marks"`
 }
 
 type NearSailMsg struct {
@@ -48,8 +47,8 @@ func (c *Client) sendMarkPosMsg() {
 	}
 
 	msg := MarkPosMsg{
-		MarkNum:   len(c.Hub.Marks),
-		Positions: c.Hub.getMarkPositions(),
+		MarkNum: len(c.Hub.Marks),
+		Marks:   c.Hub.getMarkInfos(),
 	}
 	c.sendMarkPosMsgEvent(&msg)
 }
@@ -195,40 +194,8 @@ func insertTypeToJSON(msg any, typeStr string) []byte {
 
 // generateLiveMsg generates live messages.
 func (h *Hub) generateLiveMsg() LiveMsg {
-	athletes := make([]LocationWithDetail, len(h.Athletes))
-	marks := make([]PositionWithID, h.MarkNum)
-
-	cnt := 0
-	for _, c := range h.Athletes {
-		athletes[cnt] = LocationWithDetail{
-			UserID:        c.UserID,
-			Lat:           c.Location.Lat,
-			Lng:           c.Location.Lng,
-			Acc:           c.Location.Acc,
-			Heading:       c.Location.Heading,
-			HeadingFixing: c.Location.HeadingFixing,
-			CompassDeg:    c.Location.CompassDeg,
-			NextMarkNo:    c.NextMarkNo,
-			CourseLimit:   c.CourseLimit,
-		}
-		cnt++
-	}
-
-	// Sort by user id asc
-	sort.Slice(athletes, func(i int, j int) bool {
-		return athletes[i].UserID > athletes[j].UserID
-	})
-
-	for _, c := range h.Marks {
-		marks[c.MarkNo-1] = PositionWithID{
-			UserID: c.UserID,
-			Lat:    c.Location.Lat,
-			Lng:    c.Location.Lng,
-		}
-	}
-
 	return LiveMsg{
-		Athletes: athletes,
-		Marks:    marks,
+		Athletes: h.getAthleteInfos(),
+		Marks:    h.getMarkInfos(),
 	}
 }
