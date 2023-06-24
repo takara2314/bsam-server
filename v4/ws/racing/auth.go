@@ -4,6 +4,8 @@ import (
 	"bsam-server/utils"
 	"bsam-server/v4/auth"
 	"log"
+
+	"golang.org/x/exp/slices"
 )
 
 // auth authorizes the client.
@@ -17,6 +19,13 @@ func (c *Client) auth(msg *AuthInfo) {
 
 	if ok := auth.VerifyJWT(msg.Token); !ok {
 		log.Println("Unauthorized:", c.ID)
+		c.sendFailedAuthMsg()
+		c.Hub.Unregister <- c
+		return
+	}
+
+	if ok := c.isValidRole(); !ok {
+		log.Println("Invalid role:", c.ID)
 		c.sendFailedAuthMsg()
 		c.Hub.Unregister <- c
 		return
@@ -136,4 +145,12 @@ func (c *Client) sendFirstAnnounce() {
 		c.sendLiveMsg()
 		c.sendStartRaceMsg()
 	}
+}
+
+func (c *Client) isValidRole() bool {
+	if ok := slices.Contains([]string{"athlete", "mark", "manager"}, c.Role); !ok {
+		return false
+	}
+
+	return true
 }
