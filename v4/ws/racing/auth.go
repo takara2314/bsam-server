@@ -24,7 +24,7 @@ func (c *Client) auth(msg *AuthInfo) {
 		return
 	}
 
-	if ok := c.isValidRole(); !ok {
+	if isValidRole(msg.Role) {
 		log.Println("Invalid role:", c.ID)
 		c.sendFailedAuthMsg()
 		c.Hub.Unregister <- c
@@ -147,8 +147,8 @@ func (c *Client) sendFirstAnnounce() {
 	}
 }
 
-func (c *Client) isValidRole() bool {
-	if ok := slices.Contains([]string{"athlete", "mark", "manager"}, c.Role); !ok {
+func isValidRole(role string) bool {
+	if !slices.Contains([]string{"athlete", "mark", "manager"}, role) {
 		return false
 	}
 
