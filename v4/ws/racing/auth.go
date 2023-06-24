@@ -24,7 +24,7 @@ func (c *Client) auth(msg *AuthInfo) {
 		return
 	}
 
-	if isValidRole(msg.Role) {
+	if !isValidRole(msg.Role) {
 		log.Println("Invalid role:", c.ID)
 		c.sendFailedAuthMsg()
 		c.Hub.Unregister <- c
