@@ -129,6 +129,7 @@ func (h *Hub) getMarkInfos() []Mark {
 		}
 		marks[c.MarkNo-1] = Mark{
 			UserID:       c.UserID,
+			MarkNo:       c.MarkNo,
 			BatteryLevel: c.BatteryLevel,
 			Position: Position{
 				Lat: c.Location.Lat,

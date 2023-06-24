@@ -63,6 +63,7 @@ type Athlete struct {
 
 type Mark struct {
 	UserID       string   `json:"user_id"`
+	MarkNo       int      `json:"mark_no"`
 	BatteryLevel int      `json:"battery_level"`
 	Position     Position `json:"position"`
 }
