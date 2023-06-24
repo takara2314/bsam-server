@@ -31,6 +31,7 @@ type Client struct {
 	Role         string
 	MarkNo       int
 	NextMarkNo   int
+	CompassDeg   float64
 	CourseLimit  float32
 	Location     Location
 	BatteryLevel int
@@ -40,6 +41,7 @@ type Client struct {
 type Position struct {
 	Lat float64 `json:"latitude"`
 	Lng float64 `json:"longitude"`
+	Acc float64 `json:"accuracy"`
 }
 
 type Location struct {
@@ -48,25 +50,21 @@ type Location struct {
 	Acc           float64 `json:"accuracy"`
 	Heading       float64 `json:"heading"`
 	HeadingFixing float64 `json:"heading_fixing"`
-	CompassDeg    float64 `json:"compass_degree"`
 }
 
-type PositionWithID struct {
-	UserID string  `json:"user_id"`
-	Lat    float64 `json:"latitude"`
-	Lng    float64 `json:"longitude"`
+type Athlete struct {
+	UserID       string   `json:"user_id"`
+	NextMarkNo   int      `json:"next_mark_no"`
+	CourseLimit  float32  `json:"course_limit"`
+	BatteryLevel int      `json:"battery_level"`
+	CompassDeg   float64  `json:"compass_degree"`
+	Location     Location `json:"location"`
 }
 
-type LocationWithDetail struct {
-	UserID        string  `json:"user_id"`
-	Lat           float64 `json:"latitude"`
-	Lng           float64 `json:"longitude"`
-	Acc           float64 `json:"accuracy"`
-	Heading       float64 `json:"heading"`
-	HeadingFixing float64 `json:"heading_fixing"`
-	CompassDeg    float64 `json:"compass_degree"`
-	NextMarkNo    int     `json:"next_mark_no"`
-	CourseLimit   float32 `json:"course_limit"`
+type Mark struct {
+	UserID       string   `json:"user_id"`
+	BatteryLevel int      `json:"battery_level"`
+	Position     Position `json:"position"`
 }
 
 func NewClient(assocID string, conn *websocket.Conn) *Client {
@@ -86,8 +84,8 @@ func NewClient(assocID string, conn *websocket.Conn) *Client {
 }
 
 // getNearSail returns the sail that is near to the client.
-func (c *Client) getNearSail() []PositionWithID {
-	var result []PositionWithID
+func (c *Client) getNearSail() []Athlete {
+	var result []Athlete
 
 	for _, athlete := range c.Hub.Athletes {
 		if c.UserID == athlete.UserID {
@@ -97,10 +95,13 @@ func (c *Client) getNearSail() []PositionWithID {
 		if utils.CalcDistanceAtoBEarth(c.Location.Lat, c.Location.Lng, athlete.Location.Lat, athlete.Location.Lng) < nearRange {
 			result = append(
 				result,
-				PositionWithID{
-					UserID: athlete.UserID,
-					Lat:    athlete.Location.Lat,
-					Lng:    athlete.Location.Lng,
+				Athlete{
+					UserID:       athlete.UserID,
+					NextMarkNo:   athlete.NextMarkNo,
+					CourseLimit:  athlete.CourseLimit,
+					BatteryLevel: athlete.BatteryLevel,
+					CompassDeg:   athlete.CompassDeg,
+					Location:     athlete.Location,
 				},
 			)
 		}

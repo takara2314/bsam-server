@@ -95,21 +95,18 @@ func (h *Hub) unregisterEvent(c *Client) {
 }
 
 // getAthleteInfos returns the athlete infos.
-func (h *Hub) getAthleteInfos() []LocationWithDetail {
-	athletes := make([]LocationWithDetail, len(h.Athletes))
+func (h *Hub) getAthleteInfos() []Athlete {
+	athletes := make([]Athlete, len(h.Athletes))
 
 	cnt := 0
 	for _, c := range h.Athletes {
-		athletes[cnt] = LocationWithDetail{
-			UserID:        c.UserID,
-			Lat:           c.Location.Lat,
-			Lng:           c.Location.Lng,
-			Acc:           c.Location.Acc,
-			Heading:       c.Location.Heading,
-			HeadingFixing: c.Location.HeadingFixing,
-			CompassDeg:    c.Location.CompassDeg,
-			NextMarkNo:    c.NextMarkNo,
-			CourseLimit:   c.CourseLimit,
+		athletes[cnt] = Athlete{
+			UserID:       c.UserID,
+			NextMarkNo:   c.NextMarkNo,
+			CourseLimit:  c.CourseLimit,
+			BatteryLevel: c.BatteryLevel,
+			CompassDeg:   c.CompassDeg,
+			Location:     c.Location,
 		}
 		cnt++
 	}
@@ -123,17 +120,21 @@ func (h *Hub) getAthleteInfos() []LocationWithDetail {
 }
 
 // getMarkInfos returns the mark infos.
-func (h *Hub) getMarkInfos() []PositionWithID {
-	marks := make([]PositionWithID, h.MarkNum)
+func (h *Hub) getMarkInfos() []Mark {
+	marks := make([]Mark, h.MarkNum)
 
 	for _, c := range h.Marks {
 		if c.MarkNo > h.MarkNum {
 			panic("invalid mark no")
 		}
-		marks[c.MarkNo-1] = PositionWithID{
-			UserID: c.UserID,
-			Lat:    c.Location.Lat,
-			Lng:    c.Location.Lng,
+		marks[c.MarkNo-1] = Mark{
+			UserID:       c.UserID,
+			BatteryLevel: c.BatteryLevel,
+			Position: Position{
+				Lat: c.Location.Lat,
+				Lng: c.Location.Lng,
+				Acc: c.Location.Acc,
+			},
 		}
 	}
 

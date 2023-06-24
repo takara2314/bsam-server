@@ -17,17 +17,17 @@ type AuthResultMsg struct {
 }
 
 type MarkPosMsg struct {
-	MarkNum int              `json:"mark_num"`
-	Marks   []PositionWithID `json:"marks"`
+	MarkNum int    `json:"mark_num"`
+	Marks   []Mark `json:"marks"`
 }
 
 type NearSailMsg struct {
-	Neighbors []PositionWithID `json:"neighbors"`
+	Neighbors []Athlete `json:"neighbors"`
 }
 
 type LiveMsg struct {
-	Athletes []LocationWithDetail `json:"athletes"`
-	Marks    []PositionWithID     `json:"marks"`
+	Athletes []Athlete `json:"athletes"`
+	Marks    []Mark    `json:"marks"`
 }
 
 type StartRaceMsg struct {
