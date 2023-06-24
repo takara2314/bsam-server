@@ -2,6 +2,7 @@ package main
 
 import (
 	v3 "bsam-server/v3"
+	v4 "bsam-server/v4"
 	"fmt"
 	"os"
 
@@ -16,9 +17,8 @@ func main() {
 	if os.Getenv("GIN_MODE") == "release" {
 		corsConfig := cors.DefaultConfig()
 		corsConfig.AllowOrigins = []string{
-			os.Getenv("MANAGE_SITE"),
-			"http://localhost:2314",
-			"http://localhost:3000",
+			os.Getenv("RACE_MONITOR_SITE_URL"),
+			os.Getenv("TEST_SITE_URL"),
 		}
 		router.Use(cors.New(corsConfig))
 	} else {
@@ -26,6 +26,7 @@ func main() {
 	}
 
 	v3.Register(router)
+	v4.Register(router)
 
 	fmt.Printf("Server is running on port %s\n", os.Getenv("PORT"))
 	router.Run(":" + os.Getenv("PORT"))
