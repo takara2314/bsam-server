@@ -139,6 +139,10 @@ func (h *Hub) getMarkInfos() []Mark {
 		}
 	}
 
+	for i := range marks {
+		marks[i].MarkNo = i + 1
+	}
+
 	return marks
 }
 

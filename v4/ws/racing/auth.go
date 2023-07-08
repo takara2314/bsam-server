@@ -76,6 +76,7 @@ func (c *Client) restore(oldID string) {
 	c.NextMarkNo = oldClient.NextMarkNo
 	c.CourseLimit = oldClient.CourseLimit
 	c.Location = oldClient.Location
+	c.BatteryLevel = oldClient.BatteryLevel
 
 	// Delete the old client instance
 	c.Hub.Unregister <- oldClient
