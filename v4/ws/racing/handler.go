@@ -1,6 +1,7 @@
 package racing
 
 import (
+	"bsam-server/utils"
 	"bsam-server/v4/abort"
 	"fmt"
 	"log"
@@ -55,6 +56,7 @@ func (c *Client) receivePos(msg *Position) {
 // receiveLoc receives the location from the client.
 func (c *Client) receiveLoc(msg *Location) {
 	c.Location = *msg
+	c.CompassDeg = c.calcCompassDeg()
 }
 
 // handlerPassed handles the passed message from the client.
@@ -67,4 +69,28 @@ func (c *Client) handlerPassed(msg *PassedInfo) {
 // receiveBattery receives the battery level from the client.
 func (c *Client) receiveBattery(msg *BatteryInfo) {
 	c.BatteryLevel = msg.Level
+}
+
+func (c *Client) calcCompassDeg() float64 {
+	if c.NextMarkNo == 0 {
+		return 0.0
+	}
+
+	marks := c.Hub.getMarkInfos()
+
+	lat1 := c.Location.Lat
+	lng1 := c.Location.Lng
+	lat2 := marks[c.NextMarkNo-1].Position.Lat
+	lng2 := marks[c.NextMarkNo-1].Position.Lng
+
+	bearingDeg := utils.CalcBearingBetweenEarth(lat1, lng1, lat2, lng2)
+	diff := bearingDeg - c.Location.Heading
+
+	if diff > 180.0 {
+		diff -= 360.0
+	} else if diff < -180.0 {
+		diff = 360 - diff
+	}
+
+	return diff
 }
