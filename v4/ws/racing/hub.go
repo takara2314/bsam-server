@@ -95,11 +95,11 @@ func (h *Hub) unregisterEvent(c *Client) {
 }
 
 // deleteMarks deletes the marks of the client.
-func deleteMarks(marks map[string]*Client, id string) {
-	for _, c := range marks {
-		if c.UserID == id {
-			c.Conn = nil
-			c.UserID = ""
+func deleteMarks(marks map[string]*Client, idDeleted string) {
+	for id, c := range marks {
+		if c.UserID == idDeleted {
+			marks[id].Conn = nil
+			marks[id].UserID = ""
 		}
 	}
 }
