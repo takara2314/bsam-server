@@ -3,6 +3,8 @@ package racing
 import (
 	"log"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -61,10 +63,6 @@ func (h *Hub) registerEvent(c *Client) {
 
 // disconnectEvent disconnects the client.
 func (h *Hub) disconnectEvent(c *Client) {
-	if _, ok := h.Clients[c.ID]; !ok {
-		return
-	}
-
 	log.Println("Disconnected:", c.ID)
 	c.Conn.Close()
 
@@ -74,16 +72,12 @@ func (h *Hub) disconnectEvent(c *Client) {
 	// Unregister the client from the role group
 	delete(c.Hub.Clients, c.ID)
 	delete(c.Hub.Athletes, c.ID)
-	delete(c.Hub.Marks, c.ID)
+	metamorphoseMarks(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
 }
 
 // unregisterEvent unregisters the client.
 func (h *Hub) unregisterEvent(c *Client) {
-	if _, ok := h.Clients[c.ID]; !ok {
-		return
-	}
-
 	log.Println("Unregistered:", c.ID)
 	c.Conn.Close()
 
@@ -92,6 +86,21 @@ func (h *Hub) unregisterEvent(c *Client) {
 	delete(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
 	delete(c.Hub.Disconnectors, c.ID)
+}
+
+// metamorphoseMarks metamorphoses to non connect-related-info holding marks.
+func metamorphoseMarks(marks map[string]*Client, idDeleted string) {
+	for id, c := range marks {
+		if c.ID == idDeleted {
+			marks[id] = &Client{
+				Hub:          c.Hub,
+				Role:         c.Role,
+				MarkNo:       c.MarkNo,
+				Location:     c.Location,
+				BatteryLevel: c.BatteryLevel,
+			}
+		}
+	}
 }
 
 // getAthleteInfos returns the athlete infos.
@@ -113,10 +122,19 @@ func (h *Hub) getAthleteInfos() []Athlete {
 
 	// Sort by user id asc
 	sort.Slice(athletes, func(i int, j int) bool {
-		return athletes[i].UserID > athletes[j].UserID
+		return getAthleteNo(athletes[i].UserID) < getAthleteNo(athletes[j].UserID)
 	})
 
 	return athletes
+}
+
+func getAthleteNo(userID string) int {
+	no, err := strconv.Atoi(strings.ReplaceAll(userID, "athlete", ""))
+	if err != nil {
+		return 0
+	}
+
+	return no
 }
 
 // getMarkInfos returns the mark infos.
@@ -137,6 +155,10 @@ func (h *Hub) getMarkInfos() []Mark {
 				Acc: c.Location.Acc,
 			},
 		}
+	}
+
+	for i := range marks {
+		marks[i].MarkNo = i + 1
 	}
 
 	return marks

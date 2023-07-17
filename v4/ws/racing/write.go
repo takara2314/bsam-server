@@ -2,6 +2,7 @@ package racing
 
 import (
 	"encoding/json"
+	"log"
 	"time"
 
 	"github.com/shiguredo/websocket"
@@ -156,6 +157,7 @@ func (c *Client) writePump() {
 		case msg, ok := <-c.Send:
 			err := c.sendEvent(msg, ok)
 			if err != nil {
+				log.Printf("%s (%s) >> write pump error: %v\n", c.ID, c.UserID, err)
 				c.Hub.Disconnect <- c
 				return
 			}
@@ -176,6 +178,7 @@ func (c *Client) writePump() {
 			// Ping every 9 seconds
 			err := c.pingEvent()
 			if err != nil {
+				log.Printf("%s (%s) >> ping error: %v\n", c.ID, c.UserID, err)
 				c.Hub.Disconnect <- c
 				return
 			}
