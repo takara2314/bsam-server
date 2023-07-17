@@ -74,7 +74,7 @@ func (h *Hub) disconnectEvent(c *Client) {
 	// Unregister the client from the role group
 	delete(c.Hub.Clients, c.ID)
 	delete(c.Hub.Athletes, c.ID)
-	delete(c.Hub.Marks, c.ID)
+	deleteMarks(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
 }
 
@@ -89,9 +89,19 @@ func (h *Hub) unregisterEvent(c *Client) {
 
 	delete(c.Hub.Clients, c.ID)
 	delete(c.Hub.Athletes, c.ID)
-	delete(c.Hub.Marks, c.ID)
+	deleteMarks(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
 	delete(c.Hub.Disconnectors, c.ID)
+}
+
+// deleteMarks deletes the marks of the client.
+func deleteMarks(marks map[string]*Client, id string) {
+	for _, c := range marks {
+		if c.UserID == id {
+			c.Conn = nil
+			c.UserID = ""
+		}
+	}
 }
 
 // getAthleteInfos returns the athlete infos.

@@ -149,9 +149,5 @@ func (c *Client) sendFirstAnnounce() {
 }
 
 func isValidRole(role string) bool {
-	if !slices.Contains([]string{"athlete", "mark", "manager"}, role) {
-		return false
-	}
-
-	return true
+	return slices.Contains([]string{"athlete", "mark", "manager"}, role)
 }
