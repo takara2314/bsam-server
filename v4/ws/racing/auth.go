@@ -41,7 +41,7 @@ func (c *Client) auth(msg *AuthInfo) {
 	if oldID := c.Hub.findDisconnectedID(msg.UserID); oldID == "" {
 		c.link(msg.UserID, msg.Role, msg.MarkNo)
 	} else {
-		c.restore(oldID)
+		c.restore(oldID, msg.MarkNo)
 	}
 
 	c.sendFirstAnnounce()
@@ -66,17 +66,20 @@ func (c *Client) link(userID string, role string, markNo int) {
 }
 
 // restore restores the client.
-func (c *Client) restore(oldID string) {
+func (c *Client) restore(oldID string, markNo int) {
 	oldClient := c.Hub.Disconnectors[oldID]
 
 	// Switch data from old to new
 	c.UserID = oldClient.UserID
 	c.Role = oldClient.Role
-	c.MarkNo = oldClient.MarkNo
 	c.NextMarkNo = oldClient.NextMarkNo
 	c.CourseLimit = oldClient.CourseLimit
 	c.Location = oldClient.Location
 	c.BatteryLevel = oldClient.BatteryLevel
+
+	if c.Role == "mark" {
+		c.MarkNo = markNo
+	}
 
 	// Delete the old client instance
 	c.Hub.Unregister <- oldClient

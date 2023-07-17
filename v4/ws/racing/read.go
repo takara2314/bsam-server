@@ -54,7 +54,7 @@ func (c *Client) readPump() {
 				websocket.CloseGoingAway,
 				websocket.CloseAbnormalClosure,
 			) {
-				log.Println("UnexpectedCloseError:", err)
+				log.Printf("%s (%s) >> unexpected close error: %v", c.ID, c.UserID, err)
 			}
 			return
 		}

@@ -1,6 +1,7 @@
 package racing
 
 import (
+	"fmt"
 	"log"
 	"sort"
 	"time"
@@ -61,10 +62,6 @@ func (h *Hub) registerEvent(c *Client) {
 
 // disconnectEvent disconnects the client.
 func (h *Hub) disconnectEvent(c *Client) {
-	if _, ok := h.Clients[c.ID]; !ok {
-		return
-	}
-
 	log.Println("Disconnected:", c.ID)
 	c.Conn.Close()
 
@@ -74,33 +71,33 @@ func (h *Hub) disconnectEvent(c *Client) {
 	// Unregister the client from the role group
 	delete(c.Hub.Clients, c.ID)
 	delete(c.Hub.Athletes, c.ID)
-	suspendMarks(c.Hub.Marks, c.ID)
+	metamorphoseMarks(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
 }
 
 // unregisterEvent unregisters the client.
 func (h *Hub) unregisterEvent(c *Client) {
-	if _, ok := h.Clients[c.ID]; !ok {
-		return
-	}
-
 	log.Println("Unregistered:", c.ID)
 	c.Conn.Close()
 
 	delete(c.Hub.Clients, c.ID)
 	delete(c.Hub.Athletes, c.ID)
-	suspendMarks(c.Hub.Marks, c.ID)
+	delete(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
 	delete(c.Hub.Disconnectors, c.ID)
 }
 
-// suspendMarks suspends the marks.
-func suspendMarks(marks map[string]*Client, id string) {
+// metamorphoseMarks metamorphoses to only location-data-holding marks.
+func metamorphoseMarks(marks map[string]*Client, id string) {
 	for _, c := range marks {
 		if c.ID == id {
-			c.ID = ""
-			c.Conn = nil
-			c.UserID = ""
+			c = &Client{
+				Hub:          c.Hub,
+				Role:         c.Role,
+				MarkNo:       c.MarkNo,
+				Location:     c.Location,
+				BatteryLevel: c.BatteryLevel,
+			}
 		}
 	}
 }
@@ -203,6 +200,7 @@ func (h *Hub) findClientID(userID string) string {
 // findDisconnectedID returns the disconnected client id by user id.
 func (h *Hub) findDisconnectedID(userID string) string {
 	for _, c := range h.Disconnectors {
+		fmt.Println("findDisconnectedID >>", c.UserID, ":", userID)
 		if c.UserID == userID {
 			return c.ID
 		}
