@@ -1,7 +1,6 @@
 package racing
 
 import (
-	"fmt"
 	"log"
 	"sort"
 	"time"
@@ -87,11 +86,11 @@ func (h *Hub) unregisterEvent(c *Client) {
 	delete(c.Hub.Disconnectors, c.ID)
 }
 
-// metamorphoseMarks metamorphoses to only location-data-holding marks.
-func metamorphoseMarks(marks map[string]*Client, id string) {
-	for _, c := range marks {
-		if c.ID == id {
-			c = &Client{
+// metamorphoseMarks metamorphoses to non connect-related-info holding marks.
+func metamorphoseMarks(marks map[string]*Client, idDeleted string) {
+	for id, c := range marks {
+		if c.ID == idDeleted {
+			marks[id] = &Client{
 				Hub:          c.Hub,
 				Role:         c.Role,
 				MarkNo:       c.MarkNo,
@@ -200,7 +199,6 @@ func (h *Hub) findClientID(userID string) string {
 // findDisconnectedID returns the disconnected client id by user id.
 func (h *Hub) findDisconnectedID(userID string) string {
 	for _, c := range h.Disconnectors {
-		fmt.Println("findDisconnectedID >>", c.UserID, ":", userID)
 		if c.UserID == userID {
 			return c.ID
 		}
