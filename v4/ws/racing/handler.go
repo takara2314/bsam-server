@@ -72,7 +72,7 @@ func (c *Client) receiveBattery(msg *BatteryInfo) {
 }
 
 func (c *Client) calcCompassDeg() float64 {
-	if c.NextMarkNo == 0 {
+	if c.NextMarkNo == 0 || c.Location.Acc == 0.0 {
 		return 0.0
 	}
 
@@ -89,7 +89,7 @@ func (c *Client) calcCompassDeg() float64 {
 	if diff > 180.0 {
 		diff -= 360.0
 	} else if diff < -180.0 {
-		diff = 360 - diff
+		diff += 360
 	}
 
 	return diff
