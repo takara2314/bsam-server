@@ -45,7 +45,11 @@ func Handler(c *gin.Context) {
 
 // receivePos receives the position from the client.
 func (c *Client) receivePos(msg *Position) {
-	c.Location = Location{Lat: msg.Lat, Lng: msg.Lng}
+	c.Location = Location{
+		Lat: msg.Lat,
+		Lng: msg.Lng,
+		Acc: msg.Acc,
+	}
 }
 
 // receiveLoc receives the location from the client.
