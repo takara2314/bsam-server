@@ -74,7 +74,7 @@ func (h *Hub) disconnectEvent(c *Client) {
 	// Unregister the client from the role group
 	delete(c.Hub.Clients, c.ID)
 	delete(c.Hub.Athletes, c.ID)
-	deleteMarks(c.Hub.Marks, c.ID)
+	suspendMarks(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
 }
 
@@ -89,17 +89,18 @@ func (h *Hub) unregisterEvent(c *Client) {
 
 	delete(c.Hub.Clients, c.ID)
 	delete(c.Hub.Athletes, c.ID)
-	deleteMarks(c.Hub.Marks, c.ID)
+	suspendMarks(c.Hub.Marks, c.ID)
 	delete(c.Hub.Managers, c.ID)
 	delete(c.Hub.Disconnectors, c.ID)
 }
 
-// deleteMarks deletes the marks of the client.
-func deleteMarks(marks map[string]*Client, idDeleted string) {
-	for id, c := range marks {
-		if c.UserID == idDeleted {
-			marks[id].Conn = nil
-			marks[id].UserID = ""
+// suspendMarks suspends the marks.
+func suspendMarks(marks map[string]*Client, id string) {
+	for _, c := range marks {
+		if c.ID == id {
+			c.ID = ""
+			c.Conn = nil
+			c.UserID = ""
 		}
 	}
 }
