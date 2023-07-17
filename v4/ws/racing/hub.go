@@ -3,6 +3,8 @@ package racing
 import (
 	"log"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -120,10 +122,19 @@ func (h *Hub) getAthleteInfos() []Athlete {
 
 	// Sort by user id asc
 	sort.Slice(athletes, func(i int, j int) bool {
-		return athletes[i].UserID > athletes[j].UserID
+		return getAthleteNo(athletes[i].UserID) < getAthleteNo(athletes[j].UserID)
 	})
 
 	return athletes
+}
+
+func getAthleteNo(userID string) int {
+	no, err := strconv.Atoi(strings.ReplaceAll(userID, "athlete", ""))
+	if err != nil {
+		return 0
+	}
+
+	return no
 }
 
 // getMarkInfos returns the mark infos.
