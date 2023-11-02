@@ -18,7 +18,7 @@ var (
 			TokenEXP: time.Now().Add(time.Hour * 24),
 			Lat:      35.353535,
 			Lng:      120.120120,
-			RaceName: "視覚障がい者セーリング大会2023",
+			RaceName: "全国ハンザクラスブラインドセーリング大会",
 		},
 		"bacdefgh-1234-5678-90ab-cdefghijklmn": {
 			ID:       "hogehoge",
