@@ -20,8 +20,8 @@ func RebootPOST(c *gin.Context) {
 
 	c.String(
 		http.StatusOK,
-		"occur panic. will soon reboot",
+		"run os exit. will soon reboot",
 	)
 
-	panic("reboot")
+	os.Exit(0)
 }
