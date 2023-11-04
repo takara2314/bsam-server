@@ -105,19 +105,22 @@ func metamorphoseMarks(marks map[string]*Client, idDeleted string) {
 
 // getAthleteInfos returns the athlete infos.
 func (h *Hub) getAthleteInfos() []Athlete {
-	athletes := make([]Athlete, len(h.Athletes))
+	athletes := []Athlete{}
+	existingUserIDs := map[string]bool{}
 
-	cnt := 0
 	for _, c := range h.Athletes {
-		athletes[cnt] = Athlete{
-			UserID:       c.UserID,
-			NextMarkNo:   c.NextMarkNo,
-			CourseLimit:  c.CourseLimit,
-			BatteryLevel: c.BatteryLevel,
-			CompassDeg:   c.CompassDeg,
-			Location:     c.Location,
+		// まだそのUserIDが挿入されていない場合のみ挿入
+		if !existingUserIDs[c.UserID] {
+			athletes = append(athletes, Athlete{
+				UserID:       c.UserID,
+				NextMarkNo:   c.NextMarkNo,
+				CourseLimit:  c.CourseLimit,
+				BatteryLevel: c.BatteryLevel,
+				CompassDeg:   c.CompassDeg,
+				Location:     c.Location,
+			})
+			existingUserIDs[c.UserID] = true
 		}
-		cnt++
 	}
 
 	// Sort by user id asc
