@@ -2,6 +2,7 @@ package v4
 
 import (
 	"bsam-server/v4/api/associations"
+	"bsam-server/v4/api/reboot"
 	"bsam-server/v4/api/status"
 	"bsam-server/v4/middleware"
 	"bsam-server/v4/ws/racing"
@@ -31,6 +32,9 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 
 		// Server Status API
 		authorized.GET("/status", status.StatusGET)
+
+		// Server Reboot API
+		authorized.POST("/reboot", reboot.RebootPOST)
 	}
 
 	// // Authorized and JSON only
