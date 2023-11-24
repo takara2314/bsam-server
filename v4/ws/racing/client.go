@@ -110,3 +110,17 @@ func (c *Client) getNearSail() []Athlete {
 
 	return result
 }
+
+func (c *Client) getRoleID() int {
+	switch c.Role {
+	case "athlete":
+		return 0
+	case "mark":
+		return 1
+	case "manager":
+		return 2
+	case "guest":
+		return 3
+	}
+	return -1
+}
