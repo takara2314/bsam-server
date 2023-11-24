@@ -1,7 +1,6 @@
 package main
 
 import (
-	v3 "bsam-server/v3"
 	v4 "bsam-server/v4"
 	"fmt"
 	"os"
@@ -25,7 +24,6 @@ func main() {
 		router.Use(cors.Default())
 	}
 
-	v3.Register(router)
 	v4.Register(router)
 
 	fmt.Printf("Server is running on port %s\n", os.Getenv("PORT"))
