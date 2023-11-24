@@ -22,6 +22,7 @@ type Hub struct {
 	Register      chan *Client
 	Disconnect    chan *Client
 	Unregister    chan *Client
+	Logger        *BigQueryLogger
 }
 
 func NewHub(assocID string) *Hub {
@@ -39,6 +40,7 @@ func NewHub(assocID string) *Hub {
 		Register:      make(chan *Client),
 		Disconnect:    make(chan *Client),
 		Unregister:    make(chan *Client),
+		Logger:        NewBigQueryLogger(),
 	}
 }
 

@@ -51,12 +51,14 @@ func (c *Client) receivePos(msg *Position) {
 		Lng: msg.Lng,
 		Acc: msg.Acc,
 	}
+	go c.Hub.Logger.logLocation(c)
 }
 
 // receiveLoc receives the location from the client.
 func (c *Client) receiveLoc(msg *Location) {
 	c.Location = *msg
 	c.CompassDeg = c.calcCompassDeg()
+	go c.Hub.Logger.logLocation(c)
 }
 
 // handlerPassed handles the passed message from the client.
