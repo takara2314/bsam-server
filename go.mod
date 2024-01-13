@@ -8,7 +8,7 @@ require (
 	github.com/gin-contrib/cors v1.5.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/shiguredo/websocket v1.6.1
+	github.com/gorilla/websocket v1.5.1
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 	google.golang.org/api v0.156.0
 )

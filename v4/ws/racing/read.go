@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/shiguredo/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type AuthInfo struct {
