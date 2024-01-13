@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/shiguredo/websocket"
+	"github.com/gorilla/websocket"
 )
 
 const (
