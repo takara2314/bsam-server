@@ -115,17 +115,26 @@ func (c *Client) sendSetNextMarkNoEvent(msg *SetNextMarkNoMsg) {
 
 func (c *Client) sendEvent(msg []byte, ok bool) error {
 	if !ok {
-		c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+		err := c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+		if err != nil {
+			return err
+		}
 		return ErrClosedChannel
 	}
 
-	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	if err != nil {
+		return err
+	}
 
 	w, err := c.Conn.NextWriter(websocket.TextMessage)
 	if err != nil {
 		return err
 	}
-	w.Write(msg)
+	_, err = w.Write(msg)
+	if err != nil {
+		return err
+	}
 
 	err = w.Close()
 	if err != nil {
@@ -136,7 +145,11 @@ func (c *Client) sendEvent(msg []byte, ok bool) error {
 }
 
 func (c *Client) pingEvent() error {
-	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	if err != nil {
+		return err
+	}
+
 	return c.Conn.WriteMessage(websocket.PingMessage, nil)
 }
 

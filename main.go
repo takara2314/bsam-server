@@ -27,5 +27,8 @@ func main() {
 	v4.Register(router)
 
 	fmt.Printf("Server is running on port %s\n", os.Getenv("PORT"))
-	router.Run(":" + os.Getenv("PORT"))
+	err := router.Run(":" + os.Getenv("PORT"))
+	if err != nil {
+		panic(err)
+	}
 }

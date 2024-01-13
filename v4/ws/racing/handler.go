@@ -51,6 +51,7 @@ func (c *Client) receivePos(msg *Position) {
 		Lng: msg.Lng,
 		Acc: msg.Acc,
 	}
+	//nolint:errcheck
 	go c.Hub.Logger.logLocation(c)
 }
 
@@ -58,6 +59,7 @@ func (c *Client) receivePos(msg *Position) {
 func (c *Client) receiveLoc(msg *Location) {
 	c.Location = *msg
 	c.CompassDeg = c.calcCompassDeg()
+	//nolint:errcheck
 	go c.Hub.Logger.logLocation(c)
 }
 

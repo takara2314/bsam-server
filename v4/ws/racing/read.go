@@ -40,10 +40,13 @@ type DebugInfo struct {
 
 func (c *Client) readPump() {
 	c.Conn.SetReadLimit(maxMessageSize)
-	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	err := c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	if err != nil {
+		return
+	}
+
 	c.Conn.SetPongHandler(func(string) error {
-		c.Conn.SetReadDeadline(time.Now().Add(pongWait))
-		return nil
+		return c.Conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
 
 	for {
@@ -74,42 +77,74 @@ func (c *Client) readPump() {
 		switch msg["type"].(string) {
 		case "auth":
 			var msg AuthInfo
-			json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal([]byte(msgRaw), &msg)
+			if err != nil {
+				log.Printf("Error <%s>: %s\n", c.UserID, err)
+				continue
+			}
 			c.auth(&msg)
 
 		case "position":
 			var msg Position
-			json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal([]byte(msgRaw), &msg)
+			if err != nil {
+				log.Printf("Error <%s>: %s\n", c.UserID, err)
+				continue
+			}
 			c.receivePos(&msg)
 
 		case "location":
 			var msg Location
-			json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal([]byte(msgRaw), &msg)
+			if err != nil {
+				log.Printf("Error <%s>: %s\n", c.UserID, err)
+				continue
+			}
 			c.receiveLoc(&msg)
 
 		case "passed":
 			var msg PassedInfo
-			json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal([]byte(msgRaw), &msg)
+			if err != nil {
+				log.Printf("Error <%s>: %s\n", c.UserID, err)
+				continue
+			}
 			c.handlerPassed(&msg)
 
 		case "start":
 			var msg StartInfo
-			json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal([]byte(msgRaw), &msg)
+			if err != nil {
+				log.Printf("Error <%s>: %s\n", c.UserID, err)
+				continue
+			}
 			c.Hub.startRace(msg.IsStarted)
 
 		case "set_next_mark_no":
 			var msg SetMarkNoInfo
-			json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal([]byte(msgRaw), &msg)
+			if err != nil {
+				log.Printf("Error <%s>: %s\n", c.UserID, err)
+				continue
+			}
 			c.Hub.setNextMarkNoForce(&msg)
 
 		case "battery":
 			var msg BatteryInfo
-			json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal([]byte(msgRaw), &msg)
+			if err != nil {
+				log.Printf("Error <%s>: %s\n", c.UserID, err)
+				continue
+			}
 			c.receiveBattery(&msg)
 
 		case "debug":
 			var msg DebugInfo
-			json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal([]byte(msgRaw), &msg)
+			if err != nil {
+				log.Printf("Error <%s>: %s\n", c.UserID, err)
+				continue
+			}
 			log.Printf("Debug <%s>: %s\n", c.UserID, msg.Message)
 		}
 	}
