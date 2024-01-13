@@ -50,7 +50,11 @@ func main() {
 	defer client.Close()
 
 	for _, datasetID := range datasetIDs {
-		createDataset(client, ctx, datasetID, region)
+		err := createDataset(client, ctx, datasetID, region)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 
 		for _, table := range tables {
 			err := createTable(client, ctx, datasetID, table, region)
