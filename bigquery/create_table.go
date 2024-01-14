@@ -8,7 +8,7 @@ import (
 	"cloud.google.com/go/bigquery"
 )
 
-func createTable(ctx context.Context, client *bigquery.Client, datasetID string, table *Table, region string) error {
+func createTable(ctx context.Context, client *bigquery.Client, datasetID string, table *Table) error {
 	metaData := &bigquery.TableMetadata{
 		Schema: table.Schemes,
 	}

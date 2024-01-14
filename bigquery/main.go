@@ -58,7 +58,7 @@ func main() {
 		}
 
 		for _, table := range tables {
-			err := createTable(ctx, client, datasetID, table, region)
+			err := createTable(ctx, client, datasetID, table)
 			if err != nil {
 				log.Println(err)
 				continue
