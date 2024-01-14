@@ -1,3 +1,4 @@
+//nolint:gomnd,gosmopolitan
 package associations
 
 import (
