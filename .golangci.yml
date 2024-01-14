@@ -30,6 +30,9 @@ linters:
     - varnamelen
     - wrapcheck
     - nlreturn
+    - gofumpt
+    # Self-defined (temporarily disabled)
+    - gci
 
 linters-settings:
   tagliatelle:
