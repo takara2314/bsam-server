@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+//nolint:gochecknoglobals
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  2048,
 	WriteBufferSize: 2048,

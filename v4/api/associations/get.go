@@ -11,6 +11,7 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+//nolint:gochecknoglobals
 var fetchSample = map[string]models.Association{
 	"abcdefgh-1234-5678-90ab-cdefghijklmn": {
 		ID:       "sailing-ise",
