@@ -8,11 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func StatusGET(c *gin.Context) {
+const OneKB = 1024
+const OneMB = OneKB * OneKB
+
+func GET(c *gin.Context) {
 	var m runtime.MemStats
+
 	runtime.ReadMemStats(&m)
 
-	alloc := float64(m.Alloc) / (1024 * 1024)
+	alloc := float64(m.Alloc) / OneMB
 
 	c.String(
 		http.StatusOK,

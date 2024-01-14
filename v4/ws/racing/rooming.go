@@ -4,13 +4,12 @@ import (
 	"time"
 )
 
-var (
-	rooms = make(map[string]*Hub)
-)
+//nolint:gochecknoglobals
+var rooms = make(map[string]*Hub)
 
 // AutoRooming creates a race room automatically.
 func AutoRooming() {
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(AutoRoomingInterval)
 	defer ticker.Stop()
 
 	for {

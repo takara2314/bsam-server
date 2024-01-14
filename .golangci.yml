@@ -27,6 +27,15 @@ linters:
     - goimports
     # Self-defined
     - depguard
+    - varnamelen
+    - wrapcheck
+    - nlreturn
+    - gofumpt
+    - whitespace
+    - exhaustruct
+    - godox
+    # Self-defined (temporarily disabled)
+    - gci
 
 linters-settings:
   tagliatelle:

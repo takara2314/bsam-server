@@ -7,9 +7,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var (
-	ErrInvalidJWT = errors.New("invalid jwt")
-)
+var ErrInvalidJWT = errors.New("invalid jwt")
 
 func GetUserIDFromJWT(t string) (string, error) {
 	token, err := jwt.Parse(t, func(token *jwt.Token) (any, error) {
@@ -24,5 +22,15 @@ func GetUserIDFromJWT(t string) (string, error) {
 		return "", ErrInvalidJWT
 	}
 
-	return token.Claims.(jwt.MapClaims)["user_id"].(string), nil
+	payload, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", ErrInvalidJWT
+	}
+
+	userID, ok := payload["user_id"].(string)
+	if !ok {
+		return "", ErrInvalidJWT
+	}
+
+	return userID, nil
 }

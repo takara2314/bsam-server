@@ -19,5 +19,10 @@ func GetPayloadFromJWT(token string) (map[string]any, bool) {
 		return nil, false
 	}
 
-	return info.Claims.(jwt.MapClaims), true
+	payload, ok := info.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, false
+	}
+
+	return payload, true
 }

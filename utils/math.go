@@ -1,3 +1,4 @@
+//nolint:gomnd
 package utils
 
 import "math"
@@ -7,6 +8,7 @@ func MaxInt(x int, y int) int {
 	if x > y {
 		return x
 	}
+
 	return y
 }
 
@@ -15,6 +17,7 @@ func MinInt(x int, y int) int {
 	if x > y {
 		return y
 	}
+
 	return x
 }
 
@@ -23,6 +26,7 @@ func MaxFloat32(x float32, y float32) float32 {
 	if x > y {
 		return x
 	}
+
 	return y
 }
 
@@ -31,6 +35,7 @@ func MinFloat32(x float32, y float32) float32 {
 	if x > y {
 		return y
 	}
+
 	return x
 }
 

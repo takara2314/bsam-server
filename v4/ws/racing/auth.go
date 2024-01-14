@@ -1,9 +1,10 @@
 package racing
 
 import (
+	"log"
+
 	"bsam-server/utils"
 	"bsam-server/v4/auth"
-	"log"
 
 	"golang.org/x/exp/slices"
 )
@@ -11,9 +12,14 @@ import (
 // auth authorizes the client.
 func (c *Client) auth(msg *AuthInfo) {
 	// If the client is a guest, not need to verify the token
-	if msg.Role == "guest" {
-		c.link(utils.RandString(8), "guest", 0)
+	if msg.Role == GuestRole {
+		c.link(
+			utils.RandString(GuestUserIDLength),
+			GuestRole,
+			0,
+		)
 		c.sendFirstAnnounce()
+
 		return
 	}
 
@@ -21,6 +27,7 @@ func (c *Client) auth(msg *AuthInfo) {
 		log.Println("Unauthorized:", c.ID)
 		c.sendFailedAuthMsg()
 		c.Hub.Unregister <- c
+
 		return
 	}
 
@@ -28,12 +35,14 @@ func (c *Client) auth(msg *AuthInfo) {
 		log.Println("Invalid role:", c.ID)
 		c.sendFailedAuthMsg()
 		c.Hub.Unregister <- c
+
 		return
 	}
 
-	if msg.Role == "mark" && msg.MarkNo == 0 {
+	if msg.Role == MarkRole && msg.MarkNo == 0 {
 		log.Println("Not selecting mark no:", c.ID)
 		c.Hub.Unregister <- c
+
 		return
 	}
 
@@ -52,7 +61,7 @@ func (c *Client) link(userID string, role string, markNo int) {
 	c.UserID = userID
 	c.Role = role
 
-	if c.Role == "mark" {
+	if c.Role == MarkRole {
 		c.MarkNo = markNo
 	}
 
@@ -77,7 +86,7 @@ func (c *Client) restore(oldID string, markNo int) {
 	c.Location = oldClient.Location
 	c.BatteryLevel = oldClient.BatteryLevel
 
-	if c.Role == "mark" {
+	if c.Role == MarkRole {
 		c.MarkNo = markNo
 	}
 
@@ -96,11 +105,11 @@ func (c *Client) restore(oldID string, markNo int) {
 // registerRoleGroup registers the client to the role group.
 func (c *Client) registerRoleGroup() {
 	switch c.Role {
-	case "athlete":
+	case AthleteRole:
 		c.Hub.Athletes[c.ID] = c
-	case "mark":
+	case MarkRole:
 		c.Hub.Marks[c.ID] = c
-	case "manager":
+	case ManagerRole:
 		c.Hub.Managers[c.ID] = c
 	}
 }
@@ -139,18 +148,22 @@ func (c *Client) sendRestoreAuthMsg() {
 // sendFirstAnnounce sends the first announce message.
 func (c *Client) sendFirstAnnounce() {
 	switch c.Role {
-	case "athlete":
+	case AthleteRole:
 		c.sendMarkPosMsg()
 		c.sendStartRaceMsg()
-	case "manager":
+	case ManagerRole:
 		c.sendLiveMsg()
 		c.sendStartRaceMsg()
-	case "guest":
+	case GuestRole:
 		c.sendLiveMsg()
 		c.sendStartRaceMsg()
 	}
 }
 
 func isValidRole(role string) bool {
-	return slices.Contains([]string{"athlete", "mark", "manager"}, role)
+	return slices.Contains([]string{
+		AthleteRole,
+		MarkRole,
+		ManagerRole,
+	}, role)
 }

@@ -1,19 +1,20 @@
 package racing
 
 import (
-	"bsam-server/utils"
-	"bsam-server/v4/abort"
-	"fmt"
 	"log"
 	"net/http"
+
+	"bsam-server/utils"
+	"bsam-server/v4/abort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
+//nolint:gochecknoglobals
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  2048,
-	WriteBufferSize: 2048,
+	ReadBufferSize:  ReadBufferByte,
+	WriteBufferSize: WriteBufferByte,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -32,7 +33,7 @@ func Handler(c *gin.Context) {
 	// Upgrade to WebSocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Upgrader error:", err)
 		return
 	}
 
@@ -75,6 +76,7 @@ func (c *Client) receiveBattery(msg *BatteryInfo) {
 	c.BatteryLevel = msg.Level
 }
 
+//nolint:gomnd
 func (c *Client) calcCompassDeg() float64 {
 	if c.NextMarkNo == 0 || c.Location.Acc == 0.0 {
 		return 0.0

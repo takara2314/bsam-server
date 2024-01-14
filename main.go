@@ -1,9 +1,10 @@
 package main
 
 import (
-	v4 "bsam-server/v4"
-	"fmt"
+	"log"
 	"os"
+
+	v4 "bsam-server/v4"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,8 @@ func main() {
 
 	v4.Register(router)
 
-	fmt.Printf("Server is running on port %s\n", os.Getenv("PORT"))
+	log.Printf("Server is running on port %s\n", os.Getenv("PORT"))
+
 	err := router.Run(":" + os.Getenv("PORT"))
 	if err != nil {
 		panic(err)

@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const BearerTokenPrefixSize = 7
+
 func AuthJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		value := c.GetHeader("Authorization")
@@ -34,7 +36,7 @@ func getTokenFromAuthHeader(value string) (string, bool) {
 		return "", false
 	}
 
-	if len(value) < 8 {
+	if len(value) <= BearerTokenPrefixSize {
 		return "", false
 	}
 

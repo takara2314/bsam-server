@@ -1,27 +1,42 @@
 package racing
 
 import (
-	"bsam-server/utils"
 	"errors"
 	"time"
+
+	"bsam-server/utils"
 
 	"github.com/gorilla/websocket"
 )
 
+//nolint:gomnd
 const (
-	writeWait      = 10 * time.Second
-	pongWait       = 10 * time.Second
-	pingPeriod     = (pongWait * 9) / 10
-	markPosPeriod  = 5 * time.Second
-	nearSailPeriod = 3 * time.Second
-	livePeriod     = 1 * time.Second
-	maxMessageSize = 1024
-	nearRange      = 5.0
+	AutoRoomingInterval = 30 * time.Second
+	ReadBufferByte      = 2048
+	WriteBufferByte     = 2048
+	WriteWait           = 10 * time.Second
+	PongWait            = 10 * time.Second
+	PingPeriod          = (PongWait * 9) / 10
+	MarkNum             = 3
+	MarkPosPeriod       = 5 * time.Second
+	NearSailPeriod      = 3 * time.Second
+	LivePeriod          = 1 * time.Second
+	MaxMessageByte      = 1024
+	NearRangeMeter      = 5.0
+	ClientIDLength      = 8
+	GuestUserIDLength   = 8
+	AthleteRoleID       = 0
+	MarkRoleID          = 1
+	ManagerRoleID       = 2
+	GuestRoleID         = 3
+	UnknownRoleID       = -1
+	AthleteRole         = "athlete"
+	MarkRole            = "mark"
+	ManagerRole         = "manager"
+	GuestRole           = "guest"
 )
 
-var (
-	ErrClosedChannel = errors.New("closed channel")
-)
+var ErrClosedChannel = errors.New("closed channel")
 
 type Client struct {
 	ID           string
@@ -70,7 +85,7 @@ type Mark struct {
 
 func NewClient(assocID string, conn *websocket.Conn) *Client {
 	return &Client{
-		ID:           utils.RandString(8),
+		ID:           utils.RandString(ClientIDLength),
 		Hub:          rooms[assocID],
 		Conn:         conn,
 		UserID:       "",
@@ -93,7 +108,14 @@ func (c *Client) getNearSail() []Athlete {
 			continue
 		}
 
-		if utils.CalcDistanceAtoBEarth(c.Location.Lat, c.Location.Lng, athlete.Location.Lat, athlete.Location.Lng) < nearRange {
+		distance := utils.CalcDistanceAtoBEarth(
+			c.Location.Lat,
+			c.Location.Lng,
+			athlete.Location.Lat,
+			athlete.Location.Lng,
+		)
+
+		if distance < NearRangeMeter {
 			result = append(
 				result,
 				Athlete{
@@ -113,14 +135,15 @@ func (c *Client) getNearSail() []Athlete {
 
 func (c *Client) getRoleID() int {
 	switch c.Role {
-	case "athlete":
-		return 0
-	case "mark":
-		return 1
-	case "manager":
-		return 2
-	case "guest":
-		return 3
+	case AthleteRole:
+		return AthleteRoleID
+	case MarkRole:
+		return MarkRoleID
+	case ManagerRole:
+		return ManagerRoleID
+	case GuestRole:
+		return GuestRoleID
+	default:
+		return UnknownRoleID
 	}
-	return -1
 }

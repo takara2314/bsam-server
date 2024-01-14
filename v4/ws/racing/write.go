@@ -56,7 +56,7 @@ func (c *Client) sendMarkPosMsg() {
 
 // sendNearSailMsg sends near sail positions to the athlete.
 func (c *Client) sendNearSailMsg() {
-	if c.Role != "athlete" {
+	if c.Role != AthleteRole {
 		return
 	}
 
@@ -68,7 +68,7 @@ func (c *Client) sendNearSailMsg() {
 
 // sendLiveMsg sends live positions to the manager and the guest.
 func (c *Client) sendLiveMsg() {
-	if !(c.Role == "manager" || c.Role == "guest") {
+	if !(c.Role == ManagerRole || c.Role == GuestRole) {
 		return
 	}
 
@@ -119,10 +119,11 @@ func (c *Client) sendEvent(msg []byte, ok bool) error {
 		if err != nil {
 			return err
 		}
+
 		return ErrClosedChannel
 	}
 
-	err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.Conn.SetWriteDeadline(time.Now().Add(WriteWait))
 	if err != nil {
 		return err
 	}
@@ -131,6 +132,7 @@ func (c *Client) sendEvent(msg []byte, ok bool) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = w.Write(msg)
 	if err != nil {
 		return err
@@ -145,7 +147,7 @@ func (c *Client) sendEvent(msg []byte, ok bool) error {
 }
 
 func (c *Client) pingEvent() error {
-	err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.Conn.SetWriteDeadline(time.Now().Add(WriteWait))
 	if err != nil {
 		return err
 	}
@@ -154,10 +156,10 @@ func (c *Client) pingEvent() error {
 }
 
 func (c *Client) writePump() {
-	ticker := time.NewTicker(pingPeriod)
-	tickerMarkPos := time.NewTicker(markPosPeriod)
-	tickerNearSail := time.NewTicker(nearSailPeriod)
-	tickerLive := time.NewTicker(livePeriod)
+	ticker := time.NewTicker(PingPeriod)
+	tickerMarkPos := time.NewTicker(MarkPosPeriod)
+	tickerNearSail := time.NewTicker(NearSailPeriod)
+	tickerLive := time.NewTicker(LivePeriod)
 
 	defer func() {
 		ticker.Stop()
@@ -172,6 +174,7 @@ func (c *Client) writePump() {
 			if err != nil {
 				log.Printf("%s (%s) >> write pump error: %v\n", c.ID, c.UserID, err)
 				c.Hub.Disconnect <- c
+
 				return
 			}
 
@@ -193,6 +196,7 @@ func (c *Client) writePump() {
 			if err != nil {
 				log.Printf("%s (%s) >> ping error: %v\n", c.ID, c.UserID, err)
 				c.Hub.Disconnect <- c
+
 				return
 			}
 		}
@@ -201,7 +205,11 @@ func (c *Client) writePump() {
 
 // insertTypeToJSON inserts message type to rhe JSON which is returned.
 func insertTypeToJSON(msg any, typeStr string) []byte {
-	encoded, _ := json.Marshal(msg)
+	encoded, err := json.Marshal(msg)
+	if err != nil {
+		log.Println("insertTypeToJSON err:", err)
+		return nil
+	}
 
 	text := []byte("\"type\":\"" + typeStr + "\",")
 
