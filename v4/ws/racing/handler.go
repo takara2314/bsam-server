@@ -13,8 +13,8 @@ import (
 
 //nolint:gochecknoglobals
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  ReadBufferSize,
-	WriteBufferSize: WriteBufferSize,
+	ReadBufferSize:  ReadBufferByte,
+	WriteBufferSize: WriteBufferByte,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},

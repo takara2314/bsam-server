@@ -42,15 +42,15 @@ type DebugInfo struct {
 //
 //nolint:funlen,gocognit,cyclop
 func (c *Client) readPump() {
-	c.Conn.SetReadLimit(maxMessageSize)
+	c.Conn.SetReadLimit(MaxMessageByte)
 
-	err := c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	err := c.Conn.SetReadDeadline(time.Now().Add(PongWait))
 	if err != nil {
 		return
 	}
 
 	c.Conn.SetPongHandler(func(string) error {
-		return c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+		return c.Conn.SetReadDeadline(time.Now().Add(PongWait))
 	})
 
 	for {

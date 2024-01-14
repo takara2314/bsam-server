@@ -123,7 +123,7 @@ func (c *Client) sendEvent(msg []byte, ok bool) error {
 		return ErrClosedChannel
 	}
 
-	err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.Conn.SetWriteDeadline(time.Now().Add(WriteWait))
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func (c *Client) sendEvent(msg []byte, ok bool) error {
 }
 
 func (c *Client) pingEvent() error {
-	err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	err := c.Conn.SetWriteDeadline(time.Now().Add(WriteWait))
 	if err != nil {
 		return err
 	}
@@ -156,10 +156,10 @@ func (c *Client) pingEvent() error {
 }
 
 func (c *Client) writePump() {
-	ticker := time.NewTicker(pingPeriod)
-	tickerMarkPos := time.NewTicker(markPosPeriod)
-	tickerNearSail := time.NewTicker(nearSailPeriod)
-	tickerLive := time.NewTicker(livePeriod)
+	ticker := time.NewTicker(PingPeriod)
+	tickerMarkPos := time.NewTicker(MarkPosPeriod)
+	tickerNearSail := time.NewTicker(NearSailPeriod)
+	tickerLive := time.NewTicker(LivePeriod)
 
 	defer func() {
 		ticker.Stop()

@@ -12,17 +12,17 @@ import (
 //nolint:gomnd
 const (
 	AutoRoomingInterval = 30 * time.Second
-	ReadBufferSize      = 2048
-	WriteBufferSize     = 2048
-	writeWait           = 10 * time.Second
-	pongWait            = 10 * time.Second
-	pingPeriod          = (pongWait * 9) / 10
+	ReadBufferByte      = 2048
+	WriteBufferByte     = 2048
+	WriteWait           = 10 * time.Second
+	PongWait            = 10 * time.Second
+	PingPeriod          = (PongWait * 9) / 10
 	MarkNum             = 3
-	markPosPeriod       = 5 * time.Second
-	nearSailPeriod      = 3 * time.Second
-	livePeriod          = 1 * time.Second
-	maxMessageSize      = 1024
-	nearRange           = 5.0
+	MarkPosPeriod       = 5 * time.Second
+	NearSailPeriod      = 3 * time.Second
+	LivePeriod          = 1 * time.Second
+	MaxMessageByte      = 1024
+	NearRangeMeter      = 5.0
 	ClientIDLength      = 8
 	GuestUserIDLength   = 8
 	AthleteRoleID       = 0
@@ -111,7 +111,7 @@ func (c *Client) getNearSail() []Athlete {
 			athlete.Location.Lng,
 		)
 
-		if distance < nearRange {
+		if distance < NearRangeMeter {
 			result = append(
 				result,
 				Athlete{
