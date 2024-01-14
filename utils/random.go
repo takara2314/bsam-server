@@ -10,6 +10,7 @@ var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ12
 func RandString(n int) string {
 	strSlice := make([]rune, n)
 	for i := range strSlice {
+		//nolint:gosec
 		strSlice[i] = letterRunes[rand.Intn(len(letterRunes))]
 	}
 
