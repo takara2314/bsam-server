@@ -16,7 +16,6 @@ const (
 
 type BigQueryLogger struct {
 	Client *bigquery.Client
-	Ctx    context.Context
 }
 
 type LocationLogsDAO struct {
@@ -51,7 +50,6 @@ func NewBigQueryLogger() *BigQueryLogger {
 
 	return &BigQueryLogger{
 		Client: client,
-		Ctx:    ctx,
 	}
 }
 
@@ -81,7 +79,7 @@ func (l *BigQueryLogger) logLocation(c *Client) error {
 	}
 
 	inserter := tableRef.Inserter()
-	if err := inserter.Put(l.Ctx, data); err != nil {
+	if err := inserter.Put(context.Background(), data); err != nil {
 		return err
 	}
 
