@@ -15,6 +15,7 @@ func (c *Client) auth(msg *AuthInfo) {
 	if msg.Role == "guest" {
 		c.link(utils.RandString(8), "guest", 0)
 		c.sendFirstAnnounce()
+
 		return
 	}
 
@@ -22,6 +23,7 @@ func (c *Client) auth(msg *AuthInfo) {
 		log.Println("Unauthorized:", c.ID)
 		c.sendFailedAuthMsg()
 		c.Hub.Unregister <- c
+
 		return
 	}
 
@@ -29,12 +31,14 @@ func (c *Client) auth(msg *AuthInfo) {
 		log.Println("Invalid role:", c.ID)
 		c.sendFailedAuthMsg()
 		c.Hub.Unregister <- c
+
 		return
 	}
 
 	if msg.Role == "mark" && msg.MarkNo == 0 {
 		log.Println("Not selecting mark no:", c.ID)
 		c.Hub.Unregister <- c
+
 		return
 	}
 
