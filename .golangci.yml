@@ -33,6 +33,7 @@ linters:
     - gofumpt
     - whitespace
     - exhaustruct
+    - godox
     # Self-defined (temporarily disabled)
     - gci
 
