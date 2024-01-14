@@ -73,13 +73,19 @@ func (c *Client) readPump() {
 			continue
 		}
 
+		msgType, ok := msg["type"].(string)
+		if !ok {
+			log.Printf("%s (%s) >> message type assertion failed\n", c.ID, c.UserID)
+			continue
+		}
+
 		// If unauthenticated or the guest, only accept auth message
-		if (c.Role == "" || c.Role == "guest") && msg["type"].(string) != "auth" {
+		if (c.Role == "" || c.Role == "guest") && msgType != "auth" {
 			continue
 		}
 
 		// Call handler by message type
-		switch msg["type"].(string) {
+		switch msgType {
 		case "auth":
 			var msg AuthInfo
 

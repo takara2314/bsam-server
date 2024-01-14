@@ -22,5 +22,15 @@ func GetUserIDFromJWT(t string) (string, error) {
 		return "", ErrInvalidJWT
 	}
 
-	return token.Claims.(jwt.MapClaims)["user_id"].(string), nil
+	payload, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", ErrInvalidJWT
+	}
+
+	userID, ok := payload["user_id"].(string)
+	if !ok {
+		return "", ErrInvalidJWT
+	}
+
+	return userID, nil
 }
