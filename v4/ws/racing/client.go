@@ -92,7 +92,14 @@ func (c *Client) getNearSail() []Athlete {
 			continue
 		}
 
-		if utils.CalcDistanceAtoBEarth(c.Location.Lat, c.Location.Lng, athlete.Location.Lat, athlete.Location.Lng) < nearRange {
+		distance := utils.CalcDistanceAtoBEarth(
+			c.Location.Lat,
+			c.Location.Lng,
+			athlete.Location.Lat,
+			athlete.Location.Lng,
+		)
+
+		if distance < nearRange {
 			result = append(
 				result,
 				Athlete{
