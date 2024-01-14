@@ -9,15 +9,27 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+//nolint:gomnd
 const (
-	writeWait      = 10 * time.Second
-	pongWait       = 10 * time.Second
-	pingPeriod     = (pongWait * 9) / 10
-	markPosPeriod  = 5 * time.Second
-	nearSailPeriod = 3 * time.Second
-	livePeriod     = 1 * time.Second
-	maxMessageSize = 1024
-	nearRange      = 5.0
+	AutoRoomingInterval = 30 * time.Second
+	ReadBufferSize      = 2048
+	WriteBufferSize     = 2048
+	writeWait           = 10 * time.Second
+	pongWait            = 10 * time.Second
+	pingPeriod          = (pongWait * 9) / 10
+	MarkNum             = 3
+	markPosPeriod       = 5 * time.Second
+	nearSailPeriod      = 3 * time.Second
+	livePeriod          = 1 * time.Second
+	maxMessageSize      = 1024
+	nearRange           = 5.0
+	ClientIDLength      = 8
+	GuestUserIDLength   = 8
+	AthleteRoleID       = 0
+	MarkRoleID          = 1
+	ManagerRoleID       = 2
+	GuestRoleID         = 3
+	UnknownRoleID       = -1
 )
 
 var ErrClosedChannel = errors.New("closed channel")
@@ -69,7 +81,7 @@ type Mark struct {
 
 func NewClient(assocID string, conn *websocket.Conn) *Client {
 	return &Client{
-		ID:           utils.RandString(8),
+		ID:           utils.RandString(ClientIDLength),
 		Hub:          rooms[assocID],
 		Conn:         conn,
 		UserID:       "",
@@ -120,18 +132,18 @@ func (c *Client) getNearSail() []Athlete {
 func (c *Client) getRoleID() int {
 	switch c.Role {
 	case "athlete":
-		return 0
+		return AthleteRoleID
 
 	case "mark":
-		return 1
+		return MarkRoleID
 
 	case "manager":
-		return 2
+		return ManagerRoleID
 
 	case "guest":
-		return 3
+		return GuestRoleID
 
 	default:
-		return -1
+		return UnknownRoleID
 	}
 }

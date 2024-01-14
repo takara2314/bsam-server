@@ -33,7 +33,7 @@ func NewHub(assocID string) *Hub {
 		Marks:         make(map[string]*Client),
 		Managers:      make(map[string]*Client),
 		Disconnectors: make(map[string]*Client),
-		MarkNum:       3,
+		MarkNum:       MarkNum,
 		IsStarted:     false,
 		StartAt:       time.Unix(0, 0),
 		EndAt:         time.Unix(0, 0),

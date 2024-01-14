@@ -13,7 +13,7 @@ import (
 func (c *Client) auth(msg *AuthInfo) {
 	// If the client is a guest, not need to verify the token
 	if msg.Role == "guest" {
-		c.link(utils.RandString(8), "guest", 0)
+		c.link(utils.RandString(GuestUserIDLength), "guest", 0)
 		c.sendFirstAnnounce()
 
 		return

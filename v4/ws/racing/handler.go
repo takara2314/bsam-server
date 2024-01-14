@@ -13,8 +13,8 @@ import (
 
 //nolint:gochecknoglobals
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  2048,
-	WriteBufferSize: 2048,
+	ReadBufferSize:  ReadBufferSize,
+	WriteBufferSize: WriteBufferSize,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -76,6 +76,7 @@ func (c *Client) receiveBattery(msg *BatteryInfo) {
 	c.BatteryLevel = msg.Level
 }
 
+//nolint:gomnd
 func (c *Client) calcCompassDeg() float64 {
 	if c.NextMarkNo == 0 || c.Location.Acc == 0.0 {
 		return 0.0
