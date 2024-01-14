@@ -27,6 +27,8 @@ linters:
     - goimports
     # Self-defined
     - depguard
+    - varnamelen
+    - wrapcheck
 
 linters-settings:
   tagliatelle:
