@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+//nolint:gochecknoglobals
 var rooms = make(map[string]*Hub)
 
 // AutoRooming creates a race room automatically.

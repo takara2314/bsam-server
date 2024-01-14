@@ -1,5 +1,6 @@
 // main.go | for temporary
 
+//nolint:gochecknoglobals
 package main
 
 import (
