@@ -39,6 +39,7 @@ type DebugInfo struct {
 }
 
 // TODO: 関数を細かく分ける
+//
 //nolint:funlen
 func (c *Client) readPump() {
 	c.Conn.SetReadLimit(maxMessageSize)
