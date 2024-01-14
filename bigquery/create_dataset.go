@@ -8,7 +8,7 @@ import (
 	"cloud.google.com/go/bigquery"
 )
 
-func createDataset(client *bigquery.Client, ctx context.Context, datasetID string, region string) error {
+func createDataset(ctx context.Context, client *bigquery.Client, datasetID string, region string) error {
 	meta := &bigquery.DatasetMetadata{
 		Location: region,
 	}
