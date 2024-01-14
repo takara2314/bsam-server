@@ -7,12 +7,12 @@ import "errors"
 //	{"a", "b", "c"} -> "a, b, c"
 func StringSliceToString(s []string) string {
 	str := ""
-	s_len := len(s)
+	sLength := len(s)
 
 	for i, item := range s {
 		str += item
 
-		if s_len-1 != i {
+		if sLength-1 != i {
 			str += ", "
 		}
 	}
@@ -27,15 +27,15 @@ func StringSliceToString(s []string) string {
 //	-> "a = d, b = e, c = f"
 func CreateStrSliceEqualStrSlice(a []string, b []string) (string, error) {
 	str := ""
-	a_len := len(a)
+	aLength := len(a)
 
-	if a_len != len(b) {
+	if aLength != len(b) {
 		return "", errors.New("slice a's length and slice b's length are not the same")
 	}
 
-	for i := 0; i < a_len; i++ {
+	for i := 0; i < aLength; i++ {
 		str += a[i] + " = " + b[i]
-		if a_len-1 != i {
+		if aLength-1 != i {
 			str += ", "
 		}
 	}
