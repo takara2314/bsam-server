@@ -3,7 +3,8 @@ package utils
 import "errors"
 
 // StringSliceToString converts string slice to one string
-//   {"a", "b", "c"} -> "a, b, c"
+//
+//	{"a", "b", "c"} -> "a, b, c"
 func StringSliceToString(s []string) string {
 	str := ""
 	s_len := len(s)
@@ -20,9 +21,10 @@ func StringSliceToString(s []string) string {
 }
 
 // CreateStrSliceEqualStrSlice creates the string written A element equal B element.
-//   a = {"a", "b", "c"}
-//   b = {"d", "e", "f"}
-//   -> "a = d, b = e, c = f"
+//
+//	a = {"a", "b", "c"}
+//	b = {"d", "e", "f"}
+//	-> "a = d, b = e, c = f"
 func CreateStrSliceEqualStrSlice(a []string, b []string) (string, error) {
 	str := ""
 	a_len := len(a)

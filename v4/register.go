@@ -1,12 +1,13 @@
 package v4
 
 import (
+	"net/http"
+
 	"bsam-server/v4/api/associations"
 	"bsam-server/v4/api/reboot"
 	"bsam-server/v4/api/status"
 	"bsam-server/v4/middleware"
 	"bsam-server/v4/ws/racing"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )

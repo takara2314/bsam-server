@@ -1,11 +1,12 @@
 package racing
 
 import (
-	"bsam-server/utils"
-	"bsam-server/v4/abort"
 	"fmt"
 	"log"
 	"net/http"
+
+	"bsam-server/utils"
+	"bsam-server/v4/abort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

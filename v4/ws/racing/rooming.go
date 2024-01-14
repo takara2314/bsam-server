@@ -4,9 +4,7 @@ import (
 	"time"
 )
 
-var (
-	rooms = make(map[string]*Hub)
-)
+var rooms = make(map[string]*Hub)
 
 // AutoRooming creates a race room automatically.
 func AutoRooming() {

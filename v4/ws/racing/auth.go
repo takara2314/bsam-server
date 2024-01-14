@@ -1,9 +1,10 @@
 package racing
 
 import (
+	"log"
+
 	"bsam-server/utils"
 	"bsam-server/v4/auth"
-	"log"
 
 	"golang.org/x/exp/slices"
 )

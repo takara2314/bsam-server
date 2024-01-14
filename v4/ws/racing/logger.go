@@ -42,7 +42,6 @@ func NewBigQueryLogger() *BigQueryLogger {
 		if err != nil {
 			panic(err)
 		}
-
 	} else {
 		client, err = bigquery.NewClient(ctx, gcpProjectID)
 		if err != nil {

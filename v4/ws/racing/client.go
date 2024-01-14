@@ -1,9 +1,10 @@
 package racing
 
 import (
-	"bsam-server/utils"
 	"errors"
 	"time"
+
+	"bsam-server/utils"
 
 	"github.com/gorilla/websocket"
 )
@@ -19,9 +20,7 @@ const (
 	nearRange      = 5.0
 )
 
-var (
-	ErrClosedChannel = errors.New("closed channel")
-)
+var ErrClosedChannel = errors.New("closed channel")
 
 type Client struct {
 	ID           string

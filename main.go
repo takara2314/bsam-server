@@ -1,9 +1,10 @@
 package main
 
 import (
-	v4 "bsam-server/v4"
 	"fmt"
 	"os"
+
+	v4 "bsam-server/v4"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
