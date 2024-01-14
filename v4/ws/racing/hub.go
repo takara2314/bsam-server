@@ -150,6 +150,7 @@ func (h *Hub) getMarkInfos() []Mark {
 		if c.MarkNo > h.MarkNum {
 			panic("invalid mark no")
 		}
+
 		marks[c.MarkNo-1] = Mark{
 			UserID:       c.UserID,
 			MarkNo:       c.MarkNo,

@@ -119,6 +119,7 @@ func (c *Client) sendEvent(msg []byte, ok bool) error {
 		if err != nil {
 			return err
 		}
+
 		return ErrClosedChannel
 	}
 
@@ -131,6 +132,7 @@ func (c *Client) sendEvent(msg []byte, ok bool) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = w.Write(msg)
 	if err != nil {
 		return err

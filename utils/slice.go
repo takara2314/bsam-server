@@ -7,6 +7,7 @@ func StrSliceAdd(s []string, newStr string) []string {
 			return s
 		}
 	}
+
 	return append(s, newStr)
 }
 

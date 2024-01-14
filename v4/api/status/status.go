@@ -10,6 +10,7 @@ import (
 
 func StatusGET(c *gin.Context) {
 	var m runtime.MemStats
+
 	runtime.ReadMemStats(&m)
 
 	alloc := float64(m.Alloc) / (1024 * 1024)

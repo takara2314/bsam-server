@@ -32,17 +32,20 @@ type LocationLogsDAO struct {
 
 func NewBigQueryLogger() *BigQueryLogger {
 	ctx := context.Background()
+
 	var client *bigquery.Client
 
 	if _, err := os.Stat("./bsam-app-d23e7e5025e7.json"); !os.IsNotExist(err) {
 		// 認証ファイルがあるときは認証ファイルを使用 (GCP環境ではないとき)
 		auth := option.WithCredentialsFile("./bsam-app-d23e7e5025e7.json")
 		client, err = bigquery.NewClient(ctx, gcpProjectID, auth)
+
 		if err != nil {
 			panic(err)
 		}
 	} else {
 		client, err = bigquery.NewClient(ctx, gcpProjectID)
+
 		if err != nil {
 			panic(err)
 		}

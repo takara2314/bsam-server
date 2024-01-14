@@ -12,8 +12,10 @@ func createDataset(ctx context.Context, client *bigquery.Client, datasetID strin
 	meta := &bigquery.DatasetMetadata{
 		Location: region,
 	}
+
 	if err := client.Dataset(datasetID).Create(ctx, meta); err != nil {
 		return err
 	}
+
 	return nil
 }

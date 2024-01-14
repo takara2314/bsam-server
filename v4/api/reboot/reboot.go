@@ -15,6 +15,7 @@ func RebootPOST(c *gin.Context) {
 			http.StatusUnauthorized,
 			"Unauthorized",
 		)
+
 		return
 	}
 

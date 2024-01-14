@@ -13,6 +13,7 @@ func CheckMIME(mime string) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": "Content-Type '" + mime + "' required.",
 			})
+
 			return
 		}
 	}

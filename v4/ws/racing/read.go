@@ -42,6 +42,7 @@ type DebugInfo struct {
 //nolint:funlen
 func (c *Client) readPump() {
 	c.Conn.SetReadLimit(maxMessageSize)
+
 	err := c.Conn.SetReadDeadline(time.Now().Add(pongWait))
 	if err != nil {
 		return
@@ -79,74 +80,90 @@ func (c *Client) readPump() {
 		switch msg["type"].(string) {
 		case "auth":
 			var msg AuthInfo
+
 			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
 			}
+
 			c.auth(&msg)
 
 		case "position":
 			var msg Position
+
 			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
 			}
+
 			c.receivePos(&msg)
 
 		case "location":
 			var msg Location
+
 			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
 			}
+
 			c.receiveLoc(&msg)
 
 		case "passed":
 			var msg PassedInfo
+
 			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
 			}
+
 			c.handlerPassed(&msg)
 
 		case "start":
 			var msg StartInfo
+
 			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
 			}
+
 			c.Hub.startRace(msg.IsStarted)
 
 		case "set_next_mark_no":
 			var msg SetMarkNoInfo
+
 			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
 			}
+
 			c.Hub.setNextMarkNoForce(&msg)
 
 		case "battery":
 			var msg BatteryInfo
+
 			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
 			}
+
 			c.receiveBattery(&msg)
 
 		case "debug":
 			var msg DebugInfo
+
 			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
 			}
+
 			log.Printf("Debug <%s>: %s\n", c.UserID, msg.Message)
 		}
 	}
