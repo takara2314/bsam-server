@@ -114,12 +114,17 @@ func (c *Client) getRoleID() int {
 	switch c.Role {
 	case "athlete":
 		return 0
+
 	case "mark":
 		return 1
+
 	case "manager":
 		return 2
+
 	case "guest":
 		return 3
+
+	default:
+		return -1
 	}
-	return -1
 }
