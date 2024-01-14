@@ -29,6 +29,7 @@ linters:
     - depguard
     - varnamelen
     - wrapcheck
+    - nlreturn
 
 linters-settings:
   tagliatelle:
