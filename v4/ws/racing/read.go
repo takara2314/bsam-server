@@ -63,7 +63,7 @@ func (c *Client) readPump() {
 		}
 
 		var msg map[string]any
-		if err := json.Unmarshal([]byte(msgRaw), &msg); err != nil {
+		if err := json.Unmarshal(msgRaw, &msg); err != nil {
 			log.Println(err)
 			continue
 		}
@@ -77,7 +77,7 @@ func (c *Client) readPump() {
 		switch msg["type"].(string) {
 		case "auth":
 			var msg AuthInfo
-			err := json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
@@ -86,7 +86,7 @@ func (c *Client) readPump() {
 
 		case "position":
 			var msg Position
-			err := json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
@@ -95,7 +95,7 @@ func (c *Client) readPump() {
 
 		case "location":
 			var msg Location
-			err := json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
@@ -104,7 +104,7 @@ func (c *Client) readPump() {
 
 		case "passed":
 			var msg PassedInfo
-			err := json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
@@ -113,7 +113,7 @@ func (c *Client) readPump() {
 
 		case "start":
 			var msg StartInfo
-			err := json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
@@ -122,7 +122,7 @@ func (c *Client) readPump() {
 
 		case "set_next_mark_no":
 			var msg SetMarkNoInfo
-			err := json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
@@ -131,7 +131,7 @@ func (c *Client) readPump() {
 
 		case "battery":
 			var msg BatteryInfo
-			err := json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
@@ -140,7 +140,7 @@ func (c *Client) readPump() {
 
 		case "debug":
 			var msg DebugInfo
-			err := json.Unmarshal([]byte(msgRaw), &msg)
+			err := json.Unmarshal(msgRaw, &msg)
 			if err != nil {
 				log.Printf("Error <%s>: %s\n", c.UserID, err)
 				continue
