@@ -174,6 +174,7 @@ func (c *Client) writePump() {
 			if err != nil {
 				log.Printf("%s (%s) >> write pump error: %v\n", c.ID, c.UserID, err)
 				c.Hub.Disconnect <- c
+
 				return
 			}
 
@@ -195,6 +196,7 @@ func (c *Client) writePump() {
 			if err != nil {
 				log.Printf("%s (%s) >> ping error: %v\n", c.ID, c.UserID, err)
 				c.Hub.Disconnect <- c
+
 				return
 			}
 		}

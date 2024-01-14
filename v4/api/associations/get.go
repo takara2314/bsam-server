@@ -60,6 +60,7 @@ func AssociationGET(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"message": "This association is not found",
 		})
+
 		return
 	}
 
