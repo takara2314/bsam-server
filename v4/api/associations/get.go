@@ -42,7 +42,7 @@ var fetchSample = map[string]models.Association{
 	},
 }
 
-func AssociationGETAll(c *gin.Context) {
+func GETAll(c *gin.Context) {
 	assocs := getAssociations()
 
 	res := models.AssociationsGETAllRes{
@@ -52,7 +52,7 @@ func AssociationGETAll(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-func AssociationGET(c *gin.Context) {
+func GET(c *gin.Context) {
 	id := c.Param("id")
 
 	docID, exist := findAssociationID(id)

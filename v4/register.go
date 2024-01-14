@@ -21,7 +21,7 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 	})
 
 	// Associations API
-	router.GET("/associations/:id", associations.AssociationGET)
+	router.GET("/associations/:id", associations.GET)
 
 	// Authorized only
 	authorized := router.Group("/",
@@ -29,13 +29,13 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 	)
 	{
 		// Associations API
-		authorized.GET("/associations", associations.AssociationGETAll)
+		authorized.GET("/associations", associations.GETAll)
 
 		// Server Status API
-		authorized.GET("/status", status.StatusGET)
+		authorized.GET("/status", status.GET)
 
 		// Server Reboot API
-		authorized.POST("/reboot", reboot.RebootPOST)
+		authorized.POST("/reboot", reboot.POST)
 	}
 
 	// // Authorized and JSON only

@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func StatusGET(c *gin.Context) {
+func GET(c *gin.Context) {
 	var m runtime.MemStats
 
 	runtime.ReadMemStats(&m)

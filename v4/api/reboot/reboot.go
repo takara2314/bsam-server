@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RebootPOST(c *gin.Context) {
+func POST(c *gin.Context) {
 	secret := c.Query("secret")
 
 	if secret != os.Getenv("JWT_SECRET") {
