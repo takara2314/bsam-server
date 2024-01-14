@@ -4,7 +4,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"cloud.google.com/go/bigquery"
 	"google.golang.org/api/option"
@@ -52,14 +52,14 @@ func main() {
 	for _, datasetID := range datasetIDs {
 		err := createDataset(client, ctx, datasetID, region)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			continue
 		}
 
 		for _, table := range tables {
 			err := createTable(client, ctx, datasetID, table, region)
 			if err != nil {
-				fmt.Println(err)
+				log.Println(err)
 				continue
 			}
 		}
