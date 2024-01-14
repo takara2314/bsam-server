@@ -62,6 +62,7 @@ func (c *Client) readPump() {
 			) {
 				log.Printf("%s (%s) >> unexpected close error: %v", c.ID, c.UserID, err)
 			}
+
 			return
 		}
 
