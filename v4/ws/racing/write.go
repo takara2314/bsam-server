@@ -56,7 +56,7 @@ func (c *Client) sendMarkPosMsg() {
 
 // sendNearSailMsg sends near sail positions to the athlete.
 func (c *Client) sendNearSailMsg() {
-	if c.Role != "athlete" {
+	if c.Role != AthleteRole {
 		return
 	}
 
@@ -68,7 +68,7 @@ func (c *Client) sendNearSailMsg() {
 
 // sendLiveMsg sends live positions to the manager and the guest.
 func (c *Client) sendLiveMsg() {
-	if !(c.Role == "manager" || c.Role == "guest") {
+	if !(c.Role == ManagerRole || c.Role == GuestRole) {
 		return
 	}
 

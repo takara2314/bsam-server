@@ -134,7 +134,9 @@ func (h *Hub) getAthleteInfos() []Athlete {
 }
 
 func getAthleteNo(userID string) int {
-	no, err := strconv.Atoi(strings.ReplaceAll(userID, "athlete", ""))
+	no, err := strconv.Atoi(
+		strings.ReplaceAll(userID, AthleteRole, ""),
+	)
 	if err != nil {
 		return 0
 	}

@@ -30,6 +30,10 @@ const (
 	ManagerRoleID       = 2
 	GuestRoleID         = 3
 	UnknownRoleID       = -1
+	AthleteRole         = "athlete"
+	MarkRole            = "mark"
+	ManagerRole         = "manager"
+	GuestRole           = "guest"
 )
 
 var ErrClosedChannel = errors.New("closed channel")
@@ -131,18 +135,14 @@ func (c *Client) getNearSail() []Athlete {
 
 func (c *Client) getRoleID() int {
 	switch c.Role {
-	case "athlete":
+	case AthleteRole:
 		return AthleteRoleID
-
-	case "mark":
+	case MarkRole:
 		return MarkRoleID
-
-	case "manager":
+	case ManagerRole:
 		return ManagerRoleID
-
-	case "guest":
+	case GuestRole:
 		return GuestRoleID
-
 	default:
 		return UnknownRoleID
 	}

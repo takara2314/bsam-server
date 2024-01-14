@@ -80,7 +80,7 @@ func (c *Client) readPump() {
 		}
 
 		// If unauthenticated or the guest, only accept auth message
-		if (c.Role == "" || c.Role == "guest") && msgType != "auth" {
+		if (c.Role == "" || c.Role == GuestRole) && msgType != "auth" {
 			continue
 		}
 
