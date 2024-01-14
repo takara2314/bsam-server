@@ -1,7 +1,6 @@
 package racing
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -33,7 +32,7 @@ func Handler(c *gin.Context) {
 	// Upgrade to WebSocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Upgrader error:", err)
 		return
 	}
 
