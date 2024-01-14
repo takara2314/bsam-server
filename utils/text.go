@@ -2,6 +2,8 @@ package utils
 
 import "errors"
 
+var ErrNotSameLengthSlice = errors.New("slice a's length and slice b's length are not the same")
+
 // StringSliceToString converts string slice to one string
 //
 //	{"a", "b", "c"} -> "a, b, c"
@@ -28,9 +30,10 @@ func StringSliceToString(s []string) string {
 func CreateStrSliceEqualStrSlice(a []string, b []string) (string, error) {
 	str := ""
 	aLength := len(a)
+	bLength := len(b)
 
-	if aLength != len(b) {
-		return "", errors.New("slice a's length and slice b's length are not the same")
+	if aLength != bLength {
+		return "", ErrNotSameLengthSlice
 	}
 
 	for i := 0; i < aLength; i++ {
