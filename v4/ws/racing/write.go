@@ -205,7 +205,11 @@ func (c *Client) writePump() {
 
 // insertTypeToJSON inserts message type to rhe JSON which is returned.
 func insertTypeToJSON(msg any, typeStr string) []byte {
-	encoded, _ := json.Marshal(msg)
+	encoded, err := json.Marshal(msg)
+	if err != nil {
+		log.Println("insertTypeToJSON err:", err)
+		return nil
+	}
 
 	text := []byte("\"type\":\"" + typeStr + "\",")
 
