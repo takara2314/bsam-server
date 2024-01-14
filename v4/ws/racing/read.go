@@ -38,6 +38,8 @@ type DebugInfo struct {
 	Message string `json:"message"`
 }
 
+// TODO: 関数を細かく分ける
+//nolint:funlen
 func (c *Client) readPump() {
 	c.Conn.SetReadLimit(maxMessageSize)
 	err := c.Conn.SetReadDeadline(time.Now().Add(pongWait))
