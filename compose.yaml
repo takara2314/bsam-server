@@ -7,12 +7,12 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ./:/internal/api
+      - ./:/app
     environment:
-      - ENVIRONMENT=development
+      ENVIRONMENT: development
+      FIRESTORE_EMULATOR_HOST: firebase:8000
     depends_on:
-      firestore:
-        condition: service_healthy
+      - firebase
 
   game:
     build:
@@ -22,23 +22,20 @@ services:
     ports:
       - 8081:8080
     volumes:
-      - ./:/internal/game
+      - ./:/app
     environment:
-      - ENVIRONMENT=development
+      ENVIRONMENT: development
+      FIRESTORE_EMULATOR_HOST: firebase:8000
     depends_on:
-      firestore:
-        condition: service_healthy
+      - firebase
 
-  firestore:
-    image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
+  firebase:
+    build:
+      context: .
+      dockerfile: ./cmd/firebase/Dockerfile
     ports:
-      - 8200:8200
-    command: gcloud beta emulators firestore start --host-port=0.0.0.0:8200
-    environment:
-      - FIRESTORE_EMULATOR_HOST=0.0.0.0:8200
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8200"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      - 4000:4000
+      - 8000:8000
+    volumes:
+      - ./cmd/firebase/.firebaserc:/firebase/.firebaserc
+      - ./cmd/firebase/firebase.json:/firebase/firebase.json

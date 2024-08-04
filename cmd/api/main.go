@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/takara2314/bsam-server/internal/api/common"
 	"github.com/takara2314/bsam-server/internal/api/presentation"
 	"github.com/takara2314/bsam-server/pkg/infrastructure"
@@ -18,7 +17,7 @@ func main() {
 
 	logging.InitSlog()
 
-	common.FirestoreClient, err = infrastructure.InitFirestore(
+	common.FirestoreClient, err = infrastructure.NewFirestore(
 		ctx,
 		"bsam-app",
 	)
@@ -26,11 +25,17 @@ func main() {
 		panic(err)
 	}
 
-	if os.Getenv("ENVIRONMENT") == "production" {
-		gin.SetMode(gin.ReleaseMode)
+	// TODO: 後で消す
+	_, _, err = common.FirestoreClient.Collection("users").Add(ctx, map[string]interface{}{
+		"first": "Ada",
+		"last":  "Lovelace",
+		"born":  1815,
+	})
+	if err != nil {
+		panic(err)
 	}
 
-	router := gin.New()
+	router := presentation.NewGin()
 	presentation.RegisterRouter(router)
 
 	slog.Info(
