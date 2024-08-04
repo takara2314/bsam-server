@@ -7,7 +7,8 @@ import (
 )
 
 type Variables struct {
-	JWTSecretKey string `env:"JWT_SECRET_KEY,required"`
+	JWTSecretKey         string `env:"JWT_SECRET_KEY,required"`
+	GoogleCloudProjectID string `env:"GOOGLE_CLOUD_PROJECT_ID,required"`
 }
 
 func LoadVariables(fileLoadingForced bool) (*Variables, error) {

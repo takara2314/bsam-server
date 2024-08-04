@@ -1,22 +1,42 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/internal/game/presentation"
+	"github.com/takara2314/bsam-server/pkg/environment"
+	"github.com/takara2314/bsam-server/pkg/infrastructure/repository"
 	"github.com/takara2314/bsam-server/pkg/logging"
 )
 
 func main() {
+	var err error
+	ctx := context.Background()
+
 	logging.InitSlog()
 
-	if os.Getenv("ENVIRONMENT") == "production" {
-		gin.SetMode(gin.ReleaseMode)
+	common.Env, err = environment.LoadVariables(false)
+	if err != nil {
+		slog.Error(
+			"failed to load env",
+			"error", err,
+		)
+		panic(err)
 	}
 
-	router := gin.New()
+	common.FirestoreClient, err = repository.NewFirestore(
+		ctx,
+		common.Env.GoogleCloudProjectID,
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer common.FirestoreClient.Close()
+
+	router := presentation.NewGin()
 	presentation.RegisterRouter(router)
 
 	slog.Info(

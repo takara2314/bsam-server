@@ -29,7 +29,7 @@ func main() {
 
 	common.FirestoreClient, err = repository.NewFirestore(
 		ctx,
-		"bsam-app",
+		common.Env.GoogleCloudProjectID,
 	)
 	if err != nil {
 		panic(err)

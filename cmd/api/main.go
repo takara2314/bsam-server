@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 
 	"github.com/takara2314/bsam-server/internal/api/common"
 	"github.com/takara2314/bsam-server/internal/api/presentation"
-	"github.com/takara2314/bsam-server/pkg/auth"
-	"github.com/takara2314/bsam-server/pkg/domain"
+	"github.com/takara2314/bsam-server/pkg/environment"
 	"github.com/takara2314/bsam-server/pkg/infrastructure/repository"
 	"github.com/takara2314/bsam-server/pkg/logging"
 )
@@ -20,38 +18,23 @@ func main() {
 
 	logging.InitSlog()
 
+	common.Env, err = environment.LoadVariables(false)
+	if err != nil {
+		slog.Error(
+			"failed to load env",
+			"error", err,
+		)
+		panic(err)
+	}
+
 	common.FirestoreClient, err = repository.NewFirestore(
 		ctx,
-		"bsam-app",
+		common.Env.GoogleCloudProjectID,
 	)
 	if err != nil {
 		panic(err)
 	}
 	defer common.FirestoreClient.Close()
-
-	// TODO: 後で消す
-	err = repository.CreateAssoc(
-		ctx,
-		common.FirestoreClient,
-		"ise",
-		"セーリング伊勢",
-		auth.HashPassword("hoge"),
-		domain.ThreeYearContract,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	user, err := repository.FetchAssocByID(
-		ctx,
-		common.FirestoreClient,
-		"ise",
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(user)
 
 	router := presentation.NewGin()
 	presentation.RegisterRouter(router)
