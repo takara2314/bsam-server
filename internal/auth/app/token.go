@@ -10,7 +10,7 @@ import (
 )
 
 func ParseToken(token string) (string, error) {
-	assocID, err := auth.ParseJWT(token, "secret")
+	assocID, err := auth.ParseJWT(token, common.Env.JWTSecretKey)
 	if err != nil {
 		return "", oops.
 			In("app.ParseToken").
@@ -26,9 +26,13 @@ func CreateToken(assocID string) (string, error) {
 	assoc, err := repository.FetchAssocByID(ctx, common.FirestoreClient, assocID)
 	if err != nil {
 		return "", oops.
-			In("auth.updateJWTExp").
+			In("auth.CreateToken").
 			Wrapf(err, "failed to fetch assoc")
 	}
 
-	return auth.CreateJWT(assocID, assoc.ExpiredAt, "secret"), nil
+	return auth.CreateJWT(
+		assocID,
+		assoc.ExpiredAt,
+		common.Env.JWTSecretKey,
+	), nil
 }

@@ -5,8 +5,9 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/takara2314/bsam-server/internal/api/common"
-	"github.com/takara2314/bsam-server/internal/api/presentation"
+	"github.com/takara2314/bsam-server/internal/auth/common"
+	"github.com/takara2314/bsam-server/internal/auth/presentation"
+	"github.com/takara2314/bsam-server/pkg/environment"
 	"github.com/takara2314/bsam-server/pkg/infrastructure/repository"
 	"github.com/takara2314/bsam-server/pkg/logging"
 )
@@ -16,6 +17,15 @@ func main() {
 	ctx := context.Background()
 
 	logging.InitSlog()
+
+	common.Env, err = environment.LoadVariables(false)
+	if err != nil {
+		slog.Error(
+			"failed to load env",
+			"error", err,
+		)
+		panic(err)
+	}
 
 	common.FirestoreClient, err = repository.NewFirestore(
 		ctx,
