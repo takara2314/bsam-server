@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 
 	"github.com/takara2314/bsam-server/internal/api/common"
 	"github.com/takara2314/bsam-server/internal/api/presentation"
-	"github.com/takara2314/bsam-server/pkg/infrastructure"
+	"github.com/takara2314/bsam-server/pkg/domain"
+	"github.com/takara2314/bsam-server/pkg/infrastructure/repository"
 	"github.com/takara2314/bsam-server/pkg/logging"
 )
 
@@ -17,23 +19,38 @@ func main() {
 
 	logging.InitSlog()
 
-	common.FirestoreClient, err = infrastructure.NewFirestore(
+	common.FirestoreClient, err = repository.NewFirestore(
 		ctx,
 		"bsam-app",
 	)
 	if err != nil {
 		panic(err)
 	}
+	defer common.FirestoreClient.Close()
 
 	// TODO: 後で消す
-	_, _, err = common.FirestoreClient.Collection("users").Add(ctx, map[string]interface{}{
-		"first": "Ada",
-		"last":  "Lovelace",
-		"born":  1815,
-	})
+	err = repository.CreateAssoc(
+		ctx,
+		common.FirestoreClient,
+		"ise",
+		"セーリング伊勢",
+		"hogehoge",
+		domain.ThreeYearContract,
+	)
 	if err != nil {
 		panic(err)
 	}
+
+	user, err := repository.FetchAssocByID(
+		ctx,
+		common.FirestoreClient,
+		"ise",
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(user)
 
 	router := presentation.NewGin()
 	presentation.RegisterRouter(router)
