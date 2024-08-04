@@ -13,8 +13,6 @@ services:
     depends_on:
       firestore:
         condition: service_healthy
-      redis:
-        condition: service_healthy
 
   game:
     build:
@@ -30,8 +28,6 @@ services:
     depends_on:
       firestore:
         condition: service_healthy
-      redis:
-        condition: service_healthy
 
   firestore:
     image: gcr.io/google.com/cloudsdktool/cloud-sdk:emulators
@@ -46,20 +42,3 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-
-  redis:
-    image: redis:7.2-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-volumes:
-  redis_data:
-    driver: local

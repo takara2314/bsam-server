@@ -12,7 +12,6 @@
 [![Docker](https://img.shields.io/badge/Docker-ffffff?style=for-the-badge&labelColor=2496ed&logoColor=ffffff&color=f5f5f5&logo=docker)](https://www.docker.com/ja-jp/)
 [![Cloud Run](https://img.shields.io/badge/Cloud_Run-ffffff?style=for-the-badge&labelColor=4285f4&logoColor=ffffff&color=f5f5f5&logo=googlecloud)](https://cloud.google.com/run)
 [![Cloud Firestore](https://img.shields.io/badge/Cloud_Firestore-ffffff?style=for-the-badge&labelColor=dd2c00&logoColor=ffffff&color=f5f5f5&logo=firebase)](https://firebase.google.com/docs/firestore)
-[![Memorystore for Redis](https://img.shields.io/badge/Memorystore_for_Redis-ffffff?style=for-the-badge&labelColor=ff4438&logoColor=ffffff&color=f5f5f5&logo=googlecloud)](https://cloud.google.com/memorystore)
 [![BigQuery](https://img.shields.io/badge/BigQuery-ffffff?style=for-the-badge&labelColor=669df6&logoColor=ffffff&color=f5f5f5&logo=googlebigquery)](https://cloud.google.com/bigquery)
 
 </section>
