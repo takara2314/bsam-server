@@ -9,7 +9,7 @@ import (
 
 func VerifyPasswordPOST(c *gin.Context, assocID string, password string) {
 	if err := app.VerifyPassword(assocID, password); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "assoc_id or password is incorrect",
 		})
 		return
@@ -17,7 +17,7 @@ func VerifyPasswordPOST(c *gin.Context, assocID string, password string) {
 
 	token, err := app.CreateToken(assocID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to create token",
 		})
 		return

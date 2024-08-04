@@ -14,7 +14,7 @@ type VerifyTokenPOSTRequest struct {
 func VerifyTokenPOST(c *gin.Context) {
 	var req VerifyTokenPOSTRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "token is required",
 		})
 		return

@@ -10,7 +10,7 @@ import (
 func VerifyTokenPOST(c *gin.Context, token string) {
 	assocID, err := app.ParseToken(token)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "token is invalid",
 		})
 		return
@@ -18,7 +18,7 @@ func VerifyTokenPOST(c *gin.Context, token string) {
 
 	newToken, err := app.CreateToken(assocID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to create token",
 		})
 		return

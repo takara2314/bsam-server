@@ -15,7 +15,7 @@ type VerifyPasswordPOSTRequest struct {
 func VerifyPasswordPOST(c *gin.Context) {
 	var req VerifyPasswordPOSTRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "assoc_id and password are required",
 		})
 		return
