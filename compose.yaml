@@ -1,0 +1,20 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./cmd/api/Dockerfile
+      target: development
+    ports:
+      - 8080:8080
+    volumes:
+      - ./:/internal/api
+
+  game:
+    build:
+      context: .
+      dockerfile: ./cmd/game/Dockerfile
+      target: development
+    ports:
+      - 8081:8080
+    volumes:
+      - ./:/internal/game
