@@ -63,3 +63,20 @@ func FetchAssocByID(ctx context.Context, client *firestore.Client, id string) (*
 
 	return &assoc, err
 }
+
+func FetchAssocByIDAndHashedPassword(ctx context.Context, client *firestore.Client, id string, hashedPassword string) (*Assoc, error) {
+	assoc, err := FetchAssocByID(ctx, client, id)
+	if err != nil {
+		return nil, oops.
+			In("repository.FetchAssocByIDAndHashedPassword").
+			Wrapf(err, "not found this assoc id")
+	}
+
+	if assoc.HashedPassword != hashedPassword {
+		return nil, oops.
+			In("repository.FetchAssocByIDAndHashedPassword").
+			Wrapf(nil, "hashed password is not matched")
+	}
+
+	return assoc, err
+}

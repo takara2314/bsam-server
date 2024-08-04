@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/takara2314/bsam-server/internal/auth/presentation/handler"
+	"github.com/takara2314/bsam-server/internal/auth/presentation/handlerValidating"
 )
 
 func NewGin() *gin.Engine {
@@ -21,4 +22,6 @@ func RegisterRouter(router *gin.Engine) {
 	router.Use(cors.Default())
 
 	router.GET("/healthz", handler.HealthzGET)
+	router.POST("/verify/password", handlerValidating.VerifyPasswordPOST)
+	router.POST("/verify/token", handlerValidating.VerifyTokenPOST)
 }

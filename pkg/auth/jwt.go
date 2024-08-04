@@ -10,6 +10,7 @@ import (
 func CreateJWT(assocID string, exp time.Time, secretKey string) string {
 	claims := jwt.MapClaims{
 		"assoc_id": assocID,
+		"iat":      time.Now().Unix(),
 		"exp":      exp.Unix(),
 	}
 
@@ -46,26 +47,3 @@ func ParseJWT(tokenStr string, secretKey string) (string, error) {
 
 	return assocID, nil
 }
-
-// func UpdateJWTExp(
-// 	ctx context.Context,
-// 	firestoreClient *firestore.Client,
-// 	tokenStr string,
-// 	secretKey string,
-// ) (string, error) {
-// 	assocID, err := ParseJWT(tokenStr, secretKey)
-// 	if err != nil {
-// 		return "", oops.
-// 			In("auth.updateJWTExp").
-// 			Wrapf(err, "failed to parse jwt token")
-// 	}
-
-// 	assoc, err := repository.FetchAssocByID(ctx, firestoreClient, assocID)
-// 	if err != nil {
-// 		return "", oops.
-// 			In("auth.updateJWTExp").
-// 			Wrapf(err, "failed to fetch assoc")
-// 	}
-
-// 	return CreateJWT(assocID, assoc.ExpiredAt, secretKey), nil
-// }
