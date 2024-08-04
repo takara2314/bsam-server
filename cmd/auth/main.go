@@ -2,14 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 
 	"github.com/takara2314/bsam-server/internal/api/common"
 	"github.com/takara2314/bsam-server/internal/api/presentation"
-	"github.com/takara2314/bsam-server/pkg/auth"
-	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/infrastructure/repository"
 	"github.com/takara2314/bsam-server/pkg/logging"
 )
@@ -29,35 +26,11 @@ func main() {
 	}
 	defer common.FirestoreClient.Close()
 
-	// TODO: 後で消す
-	err = repository.CreateAssoc(
-		ctx,
-		common.FirestoreClient,
-		"ise",
-		"セーリング伊勢",
-		auth.HashPassword("hoge"),
-		domain.ThreeYearContract,
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	user, err := repository.FetchAssocByID(
-		ctx,
-		common.FirestoreClient,
-		"ise",
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(user)
-
 	router := presentation.NewGin()
 	presentation.RegisterRouter(router)
 
 	slog.Info(
-		"api server started",
+		"auth server started",
 		"is_production", os.Getenv("ENVIRONMENT") == "production",
 	)
 

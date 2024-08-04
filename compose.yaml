@@ -29,6 +29,21 @@ services:
     depends_on:
       - firebase
 
+  auth:
+    build:
+      context: .
+      dockerfile: ./cmd/auth/Dockerfile
+      target: development
+    ports:
+      - 8082:8080
+    volumes:
+      - ./:/app
+    environment:
+      ENVIRONMENT: development
+      FIRESTORE_EMULATOR_HOST: firebase:8000
+    depends_on:
+      - firebase
+
   firebase:
     build:
       context: .

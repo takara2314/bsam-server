@@ -6,11 +6,10 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/samber/oops"
-	"github.com/takara2314/bsam-server/pkg/auth"
 	"github.com/takara2314/bsam-server/pkg/domain"
 )
 
-type User struct {
+type Assoc struct {
 	ID             string    `firestore:"-"`
 	Name           string    `firestore:"name"`
 	HashedPassword string    `firestore:"hashedPassword"`
@@ -24,13 +23,13 @@ func CreateAssoc(
 	client *firestore.Client,
 	id string,
 	name string,
-	password string,
+	hashedPassword string,
 	contractType domain.ContractType,
 ) error {
-	_, err := client.Collection("assocs").Doc(id).Set(ctx, User{
+	_, err := client.Collection("assocs").Doc(id).Set(ctx, Assoc{
 		ID:             id,
 		Name:           name,
-		HashedPassword: auth.HashPassword(password),
+		HashedPassword: hashedPassword,
 		ContractType:   string(contractType),
 		CreatedAt:      time.Now(),
 		ExpiredAt:      time.Now().Add(contractType.Duration()),
@@ -44,7 +43,7 @@ func CreateAssoc(
 	return nil
 }
 
-func FetchAssocByID(ctx context.Context, client *firestore.Client, id string) (*User, error) {
+func FetchAssocByID(ctx context.Context, client *firestore.Client, id string) (*Assoc, error) {
 	doc, err := client.Collection("assocs").Doc(id).Get(ctx)
 	if err != nil {
 		return nil, oops.
@@ -52,15 +51,15 @@ func FetchAssocByID(ctx context.Context, client *firestore.Client, id string) (*
 			Wrapf(err, "failed to fetch assoc")
 	}
 
-	var user User
-	err = doc.DataTo(&user)
+	var assoc Assoc
+	err = doc.DataTo(&assoc)
 	if err != nil {
 		return nil, oops.
 			In("repository.FetchAssocByID").
 			Wrapf(err, "failed to convert data to user")
 	}
 
-	user.ID = doc.Ref.ID
+	assoc.ID = doc.Ref.ID
 
-	return &user, err
+	return &assoc, err
 }
