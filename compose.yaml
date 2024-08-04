@@ -39,9 +39,9 @@ services:
       - 8200:8200
     command: gcloud beta emulators firestore start --host-port=0.0.0.0:8200
     environment:
-      - FIRESTORE_PROJECT_ID=${FIRESTORE_PROJECT_ID:-my-project-id}
+      - FIRESTORE_EMULATOR_HOST=0.0.0.0:8200
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8200"]
+      test: ["CMD", "curl", "-f", "http://localhost:8200"]
       interval: 10s
       timeout: 5s
       retries: 5
