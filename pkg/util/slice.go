@@ -1,4 +1,4 @@
-package utils
+package util
 
 // StrSliceAdd adds new element if this slice does not have it.
 func StrSliceAdd(s []string, newStr string) []string {

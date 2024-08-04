@@ -1,5 +1,5 @@
 //nolint:gomnd
-package utils
+package util
 
 import "math"
 
