@@ -1,7 +1,6 @@
 /.vscode
 .DS_Store
 bsam-app-*.json
-go.work
 
 # Air
 post_cmd.txt
