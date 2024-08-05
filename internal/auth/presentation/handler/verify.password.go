@@ -7,15 +7,20 @@ import (
 	"github.com/takara2314/bsam-server/internal/auth/app"
 )
 
-func VerifyPasswordPOST(c *gin.Context, assocID string, password string) {
-	if err := app.VerifyPassword(assocID, password); err != nil {
+type VerifyPasswordPOSTRequest struct {
+	AssocID  string `json:"assoc_id"`
+	Password string `json:"password"`
+}
+
+func VerifyPasswordPOST(c *gin.Context, req VerifyPasswordPOSTRequest) {
+	if err := app.VerifyPassword(req.AssocID, req.Password); err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "assoc_id or password is incorrect",
 		})
 		return
 	}
 
-	token, err := app.CreateToken(assocID)
+	token, err := app.CreateToken(req.AssocID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to create token",

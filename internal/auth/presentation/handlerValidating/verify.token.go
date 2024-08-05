@@ -7,12 +7,8 @@ import (
 	"github.com/takara2314/bsam-server/internal/auth/presentation/handler"
 )
 
-type VerifyTokenPOSTRequest struct {
-	Token string `json:"token"`
-}
-
 func VerifyTokenPOST(c *gin.Context) {
-	var req VerifyTokenPOSTRequest
+	var req handler.VerifyTokenPOSTRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "token is required",
@@ -20,5 +16,7 @@ func VerifyTokenPOST(c *gin.Context) {
 		return
 	}
 
-	handler.VerifyTokenPOST(c, req.Token)
+	handler.VerifyTokenPOST(c, handler.VerifyTokenPOSTRequest{
+		Token: req.Token,
+	})
 }

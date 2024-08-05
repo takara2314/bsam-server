@@ -7,8 +7,12 @@ import (
 	"github.com/takara2314/bsam-server/internal/auth/app"
 )
 
-func VerifyTokenPOST(c *gin.Context, token string) {
-	assocID, err := app.ParseToken(token)
+type VerifyTokenPOSTRequest struct {
+	Token string `json:"token"`
+}
+
+func VerifyTokenPOST(c *gin.Context, req VerifyTokenPOSTRequest) {
+	assocID, err := app.ParseToken(req.Token)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "token is invalid",

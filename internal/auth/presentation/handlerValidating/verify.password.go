@@ -7,13 +7,8 @@ import (
 	"github.com/takara2314/bsam-server/internal/auth/presentation/handler"
 )
 
-type VerifyPasswordPOSTRequest struct {
-	AssocID  string `json:"assoc_id"`
-	Password string `json:"password"`
-}
-
 func VerifyPasswordPOST(c *gin.Context) {
-	var req VerifyPasswordPOSTRequest
+	var req handler.VerifyPasswordPOSTRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": "assoc_id and password are required",
@@ -21,5 +16,8 @@ func VerifyPasswordPOST(c *gin.Context) {
 		return
 	}
 
-	handler.VerifyPasswordPOST(c, req.AssocID, req.Password)
+	handler.VerifyPasswordPOST(c, handler.VerifyPasswordPOSTRequest{
+		AssocID:  req.AssocID,
+		Password: req.Password,
+	})
 }
