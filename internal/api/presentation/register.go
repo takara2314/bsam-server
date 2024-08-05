@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/takara2314/bsam-server/internal/api/presentation/handler"
+	"github.com/takara2314/bsam-server/internal/api/presentation/handlerValidating"
 	"github.com/takara2314/bsam-server/internal/api/presentation/middleware"
 )
 
@@ -24,4 +25,5 @@ func RegisterRouter(router *gin.Engine) {
 	router.GET("/healthz", handler.HealthzGET)
 
 	router.Use(middleware.AuthToken())
+	router.POST("/geolocation", handlerValidating.GeolocationPOST)
 }

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/takara2314/bsam-server/internal/game/common"
+	"github.com/takara2314/bsam-server/internal/api/common"
 	"github.com/takara2314/bsam-server/pkg/auth"
 )
 
