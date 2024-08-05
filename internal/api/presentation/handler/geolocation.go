@@ -43,8 +43,8 @@ func GeolocationPOST(c *gin.Context, assocID string, req GeolocationPOSTRequest)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message":     "OK",
+	c.JSON(http.StatusCreated, gin.H{
+		"message":     "Created",
 		"geolocation": req,
 	})
 }
