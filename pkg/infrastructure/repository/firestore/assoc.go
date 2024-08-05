@@ -14,7 +14,7 @@ type Assoc struct {
 	HashedPassword string    `firestore:"hashedPassword"`
 	ContractType   string    `firestore:"contractType"`
 	ExpiresAt      time.Time `firestore:"expiresAt"`
-	UpdatedAt      time.Time `firestore:"createdAt"`
+	UpdatedAt      time.Time `firestore:"updatedAt"`
 }
 
 func SetAssoc(
