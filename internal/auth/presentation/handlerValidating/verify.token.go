@@ -16,7 +16,5 @@ func VerifyTokenPOST(c *gin.Context) {
 		return
 	}
 
-	handler.VerifyTokenPOST(c, handler.VerifyTokenPOSTRequest{
-		Token: req.Token,
-	})
+	handler.VerifyTokenPOST(c, req)
 }

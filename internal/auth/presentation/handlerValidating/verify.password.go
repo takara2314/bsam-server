@@ -16,8 +16,5 @@ func VerifyPasswordPOST(c *gin.Context) {
 		return
 	}
 
-	handler.VerifyPasswordPOST(c, handler.VerifyPasswordPOSTRequest{
-		AssocID:  req.AssocID,
-		Password: req.Password,
-	})
+	handler.VerifyPasswordPOST(c, req)
 }
