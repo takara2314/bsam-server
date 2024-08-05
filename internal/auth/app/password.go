@@ -5,13 +5,13 @@ import (
 
 	"github.com/takara2314/bsam-server/internal/auth/common"
 	"github.com/takara2314/bsam-server/pkg/auth"
-	"github.com/takara2314/bsam-server/pkg/infrastructure/repository"
+	"github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 )
 
 func VerifyPassword(assocID string, password string) error {
 	ctx := context.Background()
 
-	_, err := repository.FetchAssocByIDAndHashedPassword(
+	_, err := firestore.FetchAssocByIDAndHashedPassword(
 		ctx,
 		common.FirestoreClient,
 		assocID,

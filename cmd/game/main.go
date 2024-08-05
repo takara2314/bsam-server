@@ -8,7 +8,7 @@ import (
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/internal/game/presentation"
 	"github.com/takara2314/bsam-server/pkg/environment"
-	"github.com/takara2314/bsam-server/pkg/infrastructure/repository"
+	"github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 	"github.com/takara2314/bsam-server/pkg/logging"
 )
 
@@ -27,7 +27,7 @@ func main() {
 		panic(err)
 	}
 
-	common.FirestoreClient, err = repository.NewFirestore(
+	common.FirestoreClient, err = firestore.NewClient(
 		ctx,
 		common.Env.GoogleCloudProjectID,
 	)

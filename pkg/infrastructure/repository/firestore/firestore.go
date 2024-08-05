@@ -1,4 +1,4 @@
-package repository
+package firestore
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/samber/oops"
 )
 
-func NewFirestore(ctx context.Context, projectID string) (*firestore.Client, error) {
+func NewClient(ctx context.Context, projectID string) (*firestore.Client, error) {
 	client, err := firestore.NewClient(ctx, projectID)
 	if err != nil {
 		return nil, oops.
