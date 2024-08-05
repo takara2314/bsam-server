@@ -32,7 +32,7 @@ func CreateToken(assocID string) (string, error) {
 
 	return auth.CreateJWT(
 		assocID,
-		assoc.ExpiredAt,
+		assoc.ExpiresAt,
 		common.Env.JWTSecretKey,
 	), nil
 }

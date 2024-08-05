@@ -6,7 +6,6 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/samber/oops"
-	"github.com/takara2314/bsam-server/pkg/domain"
 )
 
 type Assoc struct {
@@ -14,25 +13,27 @@ type Assoc struct {
 	Name           string    `firestore:"name"`
 	HashedPassword string    `firestore:"hashedPassword"`
 	ContractType   string    `firestore:"contractType"`
-	CreatedAt      time.Time `firestore:"createdAt"`
-	ExpiredAt      time.Time `firestore:"expiredAt"`
+	ExpiresAt      time.Time `firestore:"expiresAt"`
+	UpdatedAt      time.Time `firestore:"createdAt"`
 }
 
-func CreateAssoc(
+func SetAssoc(
 	ctx context.Context,
 	client *firestore.Client,
 	id string,
 	name string,
 	hashedPassword string,
-	contractType domain.ContractType,
+	contractType string,
+	expiresAt time.Time,
+	updatedAt time.Time,
 ) error {
 	_, err := client.Collection("assocs").Doc(id).Set(ctx, Assoc{
 		ID:             id,
 		Name:           name,
 		HashedPassword: hashedPassword,
-		ContractType:   string(contractType),
-		CreatedAt:      time.Now(),
-		ExpiredAt:      time.Now().Add(contractType.Duration()),
+		ContractType:   contractType,
+		ExpiresAt:      expiresAt,
+		UpdatedAt:      updatedAt,
 	})
 	if err != nil {
 		return oops.
