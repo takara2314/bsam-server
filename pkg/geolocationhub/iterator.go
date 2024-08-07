@@ -2,6 +2,7 @@ package geolocationhub
 
 import (
 	"context"
+	"strings"
 
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 	"google.golang.org/grpc/codes"
@@ -35,6 +36,11 @@ func (it *StreamIterator) watchGeolocationCollection(ctx context.Context) {
 
 		for _, change := range snap.Changes {
 			var loc repoFirestore.Geolocation
+
+			if !strings.HasPrefix(change.Doc.Ref.ID, it.hub.AssocID) {
+				continue
+			}
+
 			err = change.Doc.DataTo(&loc)
 			if err != nil {
 				it.err = err
