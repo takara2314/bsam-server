@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/takara2314/bsam-server/internal/game/presentation/handler"
-	"github.com/takara2314/bsam-server/internal/game/presentation/handlerRouting"
+	"github.com/takara2314/bsam-server/internal/game/presentation/handlerValidating"
 )
 
 func NewGin() *gin.Engine {
@@ -23,5 +23,5 @@ func RegisterRouter(router *gin.Engine) {
 
 	router.GET("/healthz", handler.HealthzGET)
 
-	router.GET("/:assocID", handlerRouting.AssocIDWS)
+	router.GET("/:assocID", handlerValidating.AssocIDWS)
 }
