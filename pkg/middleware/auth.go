@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/takara2314/bsam-server/internal/api/common"
 	"github.com/takara2314/bsam-server/pkg/auth"
 )
 
@@ -15,7 +14,7 @@ const (
 	bearerPrefixLength = len(bearerPrefix)
 )
 
-func AuthToken() gin.HandlerFunc {
+func AuthToken(jwtSecretKey string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		value := c.GetHeader("Authorization")
 
@@ -36,7 +35,7 @@ func AuthToken() gin.HandlerFunc {
 
 		assocID, err := auth.ParseJWT(
 			token,
-			common.Env.JWTSecretKey,
+			jwtSecretKey,
 		)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

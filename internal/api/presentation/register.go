@@ -6,9 +6,10 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/takara2314/bsam-server/internal/api/common"
 	"github.com/takara2314/bsam-server/internal/api/presentation/handler"
 	"github.com/takara2314/bsam-server/internal/api/presentation/handlerValidating"
-	"github.com/takara2314/bsam-server/internal/api/presentation/middleware"
+	"github.com/takara2314/bsam-server/pkg/middleware"
 )
 
 func NewGin() *gin.Engine {
@@ -24,6 +25,6 @@ func RegisterRouter(router *gin.Engine) {
 
 	router.GET("/healthz", handler.HealthzGET)
 
-	router.Use(middleware.AuthToken())
+	router.Use(middleware.AuthToken(common.Env.JWTSecretKey))
 	router.POST("/geolocation", handlerValidating.GeolocationPOST)
 }
