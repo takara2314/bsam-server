@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/takara2314/bsam-server/internal/game/presentation/handler"
+	"github.com/takara2314/bsam-server/internal/game/presentation/handlerRouting"
 )
 
 func NewGin() *gin.Engine {
@@ -21,4 +22,6 @@ func RegisterRouter(router *gin.Engine) {
 	router.Use(cors.Default())
 
 	router.GET("/healthz", handler.HealthzGET)
+
+	router.GET("/:assocID", handlerRouting.AssocIDWS)
 }
