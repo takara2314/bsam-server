@@ -12,7 +12,8 @@ services:
       ENVIRONMENT: development
       FIRESTORE_EMULATOR_HOST: firebase:8000
     depends_on:
-      - firebase
+      firebase:
+        condition: service_healthy
 
   game:
     build:
@@ -27,7 +28,8 @@ services:
       ENVIRONMENT: development
       FIRESTORE_EMULATOR_HOST: firebase:8000
     depends_on:
-      - firebase
+      firebase:
+        condition: service_healthy
 
   auth:
     build:
@@ -42,7 +44,8 @@ services:
       ENVIRONMENT: development
       FIRESTORE_EMULATOR_HOST: firebase:8000
     depends_on:
-      - firebase
+      firebase:
+        condition: service_healthy
 
   firebase:
     build:
@@ -54,3 +57,9 @@ services:
     volumes:
       - ./cmd/firebase/.firebaserc:/firebase/.firebaserc
       - ./cmd/firebase/firebase.json:/firebase/firebase.json
+    healthcheck:
+      test: curl http://0.0.0.0:8000 > /dev/null 2>&1
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
