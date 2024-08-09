@@ -9,9 +9,10 @@ type Hub struct {
 	mu      sync.RWMutex
 }
 
-func NewHub(assocID string) *Hub {
+func NewHub(assocID string, handler Handler) *Hub {
 	return &Hub{
 		AssocID: assocID,
 		clients: make(map[string]*Client),
+		handler: handler,
 	}
 }

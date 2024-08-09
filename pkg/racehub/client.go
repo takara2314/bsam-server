@@ -1,6 +1,7 @@
 package racehub
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -24,6 +25,9 @@ type Client struct {
 var Upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 func (h *Hub) Register(conn *websocket.Conn) *Client {

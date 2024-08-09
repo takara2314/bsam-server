@@ -10,11 +10,16 @@ import (
 
 type Handler interface {
 	Auth(c *Client)
+	PostGeolocation(c *Client)
 }
 
 type UnimplementedHandler struct{}
 
 func (UnimplementedHandler) Auth(c *Client) {
+	panic("not implemented")
+}
+
+func (UnimplementedHandler) PostGeolocation(c *Client) {
 	panic("not implemented")
 }
 
@@ -50,7 +55,7 @@ func (c *Client) readPump() {
 		}
 
 		slog.Info(
-			"message received",
+			"payload received",
 			"client", c,
 			"type", msgType,
 			"payload", string(payload),
@@ -66,6 +71,13 @@ func (c *Client) readPump() {
 			continue
 		}
 
+		slog.Info(
+			"payload unmarshaled",
+			"client", c,
+			"type", msgType,
+			"payload", msg,
+		)
+
 		handlerType, ok := msg["type"].(string)
 		if !ok {
 			slog.Warn(
@@ -79,6 +91,8 @@ func (c *Client) readPump() {
 		switch handlerType {
 		case "auth":
 			c.Hub.handler.Auth(c)
+		case "post_geolocation":
+			c.Hub.handler.PostGeolocation(c)
 		default:
 			slog.Warn(
 				"unknown handler type",

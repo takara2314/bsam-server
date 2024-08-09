@@ -9,5 +9,5 @@ import (
 var (
 	FirestoreClient *firestore.Client
 	Env             *environment.Variables
-	Hubs            map[string]*racehub.Hub
+	Hubs            map[string]*racehub.Hub = make(map[string]*racehub.Hub)
 )

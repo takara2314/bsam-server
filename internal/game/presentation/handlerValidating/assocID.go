@@ -2,10 +2,12 @@ package handlerValidating
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/takara2314/bsam-server/internal/game/common"
+	"github.com/takara2314/bsam-server/internal/game/presentation/handler"
 	"github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
@@ -16,6 +18,11 @@ func AssocIDWS(c *gin.Context) {
 
 	hub, err := findOrCreateHub(c, assocID)
 	if err != nil {
+		slog.Warn(
+			"failed to find or create hub",
+			"assoc_id", assocID,
+			"error", err,
+		)
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"error": "assoc_id is not found",
 		})
@@ -24,9 +31,11 @@ func AssocIDWS(c *gin.Context) {
 
 	conn, err := racehub.Upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "failed to upgrade connection",
-		})
+		slog.Warn(
+			"failed to upgrade connection",
+			"assoc_id", assocID,
+			"error", err,
+		)
 		return
 	}
 
@@ -53,5 +62,5 @@ func createNewHub(ctx context.Context, assocID string) (*racehub.Hub, error) {
 		return nil, err
 	}
 
-	return racehub.NewHub(assoc.ID), nil
+	return racehub.NewHub(assoc.ID, &handler.RaceHandler{}), nil
 }

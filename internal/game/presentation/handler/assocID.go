@@ -13,3 +13,7 @@ type RaceHandler struct {
 func (r *RaceHandler) Auth(c *racehub.Client) {
 	fmt.Println("auth")
 }
+
+func (r *RaceHandler) PostGeolocation(c *racehub.Client) {
+	fmt.Println("post geolocation")
+}
