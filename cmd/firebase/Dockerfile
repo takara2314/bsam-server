@@ -7,4 +7,4 @@ RUN npm install -g firebase-tools
 
 EXPOSE 4000
 
-CMD ["firebase", "emulators:start"]
+CMD ["firebase", "emulators:start", "--only", "firestore"]
