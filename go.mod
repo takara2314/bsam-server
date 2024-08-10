@@ -23,8 +23,8 @@ require (
 	cloud.google.com/go/storage v1.42.0 // indirect
 	firebase.google.com/go v3.13.0+incompatible // indirect
 	github.com/apache/arrow/go/v15 v15.0.2 // indirect
-	github.com/bytedance/sonic v1.11.6 // indirect
-	github.com/bytedance/sonic/loader v0.1.1 // indirect
+	github.com/bytedance/sonic v1.12.1 // indirect
+	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/caarlos0/env/v11 v11.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect

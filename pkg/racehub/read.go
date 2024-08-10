@@ -1,10 +1,10 @@
 package racehub
 
 import (
-	"encoding/json"
 	"log/slog"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/gorilla/websocket"
 )
 
@@ -62,7 +62,7 @@ func (c *Client) readPump() {
 		)
 
 		var msg map[string]any
-		if err := json.Unmarshal(payload, &msg); err != nil {
+		if err := sonic.Unmarshal(payload, &msg); err != nil {
 			slog.Error(
 				"failed to unmarshal message",
 				"client", c,
