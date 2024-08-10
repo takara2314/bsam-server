@@ -12,3 +12,13 @@ up-build:
 .PHONY: test
 test:
 	go test -v ./...
+
+# E2Eテストを行います。
+.PHONY: test_e2e
+test_e2e:
+	go test -timeout 10s -v ./e2e/...
+
+# E2Eテストを行います。キャッシュを利用しません。
+.PHONY: test_e2e-no-cache
+test_e2e-no-cache:
+	go test -timeout 10s -count=1 -v ./e2e/...
