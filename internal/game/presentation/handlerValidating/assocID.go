@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/internal/game/presentation/handler"
-	"github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
@@ -57,7 +57,11 @@ func findOrCreateHub(c *gin.Context, assocID string) (*racehub.Hub, error) {
 }
 
 func createNewHub(ctx context.Context, assocID string) (*racehub.Hub, error) {
-	assoc, err := firestore.FetchAssocByID(ctx, common.FirestoreClient, assocID)
+	assoc, err := repoFirestore.FetchAssocByID(
+		ctx,
+		common.FirestoreClient,
+		assocID,
+	)
 	if err != nil {
 		return nil, err
 	}

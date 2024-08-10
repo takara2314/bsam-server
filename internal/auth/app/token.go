@@ -6,7 +6,7 @@ import (
 	"github.com/samber/oops"
 	"github.com/takara2314/bsam-server/internal/auth/common"
 	"github.com/takara2314/bsam-server/pkg/auth"
-	"github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 )
 
 func ParseToken(token string) (string, error) {
@@ -23,7 +23,11 @@ func ParseToken(token string) (string, error) {
 func CreateToken(assocID string) (string, error) {
 	ctx := context.Background()
 
-	assoc, err := firestore.FetchAssocByID(ctx, common.FirestoreClient, assocID)
+	assoc, err := repoFirestore.FetchAssocByID(
+		ctx,
+		common.FirestoreClient,
+		assocID,
+	)
 	if err != nil {
 		return "", oops.
 			In("auth.CreateToken").

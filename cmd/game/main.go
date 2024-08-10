@@ -10,7 +10,7 @@ import (
 	"github.com/takara2314/bsam-server/internal/game/presentation"
 	"github.com/takara2314/bsam-server/pkg/environment"
 	"github.com/takara2314/bsam-server/pkg/geolocationhub"
-	"github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 	"github.com/takara2314/bsam-server/pkg/logging"
 )
 
@@ -29,7 +29,7 @@ func main() {
 		panic(err)
 	}
 
-	common.FirestoreClient, err = firestore.NewClient(
+	common.FirestoreClient, err = repoFirestore.NewClient(
 		ctx,
 		common.Env.GoogleCloudProjectID,
 	)

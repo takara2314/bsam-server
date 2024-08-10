@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/takara2314/bsam-server/internal/api/common"
-	"github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 )
 
 type GeolocationPOSTRequest struct {
@@ -24,7 +24,7 @@ type GeolocationPOSTRequest struct {
 func GeolocationPOST(c *gin.Context, assocID string, req GeolocationPOSTRequest) {
 	geolocationID := assocID + "_" + req.DeviceID
 
-	if err := firestore.SetGeolocation(
+	if err := repoFirestore.SetGeolocation(
 		c,
 		common.FirestoreClient,
 		geolocationID,
