@@ -14,6 +14,8 @@ services:
     depends_on:
       firebase:
         condition: service_healthy
+      insert_test_data:
+        condition: service_completed_successfully
 
   game:
     build:
@@ -30,6 +32,8 @@ services:
     depends_on:
       firebase:
         condition: service_healthy
+      insert_test_data:
+        condition: service_completed_successfully
 
   auth:
     build:
@@ -46,6 +50,8 @@ services:
     depends_on:
       firebase:
         condition: service_healthy
+      insert_test_data:
+        condition: service_completed_successfully
 
   firebase:
     build:
@@ -63,3 +69,14 @@ services:
       retries: 5
       start_period: 20s
       timeout: 5s
+
+  insert_test_data:
+    build:
+      context: .
+      dockerfile: ./cmd/insert_test_data/Dockerfile
+    environment:
+      ENVIRONMENT: development
+      FIRESTORE_EMULATOR_HOST: firebase:8000
+    depends_on:
+      firebase:
+        condition: service_healthy

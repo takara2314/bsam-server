@@ -11,7 +11,7 @@ import (
 
 func TestWSReceivePong(t *testing.T) {
 	var (
-		url        = "ws://localhost:8081/ise"
+		url        = "ws://localhost:8081/nippon"
 		timeoutSec = 1 * time.Second
 	)
 
