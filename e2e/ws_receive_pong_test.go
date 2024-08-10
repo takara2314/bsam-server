@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func TestWSReceivePing(t *testing.T) {
+func TestWSReceivePong(t *testing.T) {
 	var (
 		url        = "ws://localhost:8081/ise"
 		timeoutSec = 1 * time.Second
