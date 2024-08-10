@@ -35,6 +35,7 @@ func (c *Client) LogValue() slog.Value {
 	return slog.GroupValue(
 		slog.String("id", c.ID),
 		slog.String("address", c.Conn.RemoteAddr().String()),
+		slog.String("assoc_id", c.Hub.AssocID),
 	)
 }
 
