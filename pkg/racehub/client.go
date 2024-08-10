@@ -1,6 +1,7 @@
 package racehub
 
 import (
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -28,6 +29,13 @@ var Upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+}
+
+func (c *Client) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("id", c.ID),
+		slog.String("address", c.Conn.RemoteAddr().String()),
+	)
 }
 
 func (h *Hub) Register(conn *websocket.Conn) *Client {
