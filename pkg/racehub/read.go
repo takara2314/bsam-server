@@ -26,8 +26,7 @@ func (UnimplementedHandler) PostGeolocation(c *Client) {
 func (c *Client) readPump() {
 	defer c.Hub.Unregister(c)
 
-	c.Conn.SetReadLimit(maxMessageSizeByte)
-
+	c.Conn.SetReadLimit(maxIngressMessageBytes)
 	if err := c.Conn.SetReadDeadline(time.Now().Add(pongWaitSec)); err != nil {
 		slog.Error(
 			"failed to set read deadline",
@@ -37,21 +36,29 @@ func (c *Client) readPump() {
 		return
 	}
 
-	c.Conn.SetPongHandler(func(string) error {
-		return c.Conn.SetReadDeadline(time.Now().Add(pongWaitSec))
-	})
-
 	for {
 		msgType, payload, err := c.Conn.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			if websocket.IsUnexpectedCloseError(
+				err,
+				websocket.CloseNormalClosure,
+				websocket.CloseGoingAway,
+				websocket.CloseAbnormalClosure,
+				websocket.CloseNoStatusReceived,
+			) {
 				slog.Error(
 					"unexpected close error",
 					"client", c,
 					"error", err,
 				)
+			} else {
+				slog.Info(
+					"client disconnected",
+					"client", c,
+					"reason", err,
+				)
 			}
-			break
+			return
 		}
 
 		slog.Info(
@@ -78,27 +85,31 @@ func (c *Client) readPump() {
 			"payload", msg,
 		)
 
-		handlerType, ok := msg["type"].(string)
-		if !ok {
-			slog.Warn(
-				"invalid message type",
-				"client", c,
-				"message", msg,
-			)
-			continue
-		}
+		c.routeMessage(msg)
+	}
+}
 
-		switch handlerType {
-		case "auth":
-			c.Hub.handler.Auth(c)
-		case "post_geolocation":
-			c.Hub.handler.PostGeolocation(c)
-		default:
-			slog.Warn(
-				"unknown handler type",
-				"client", c,
-				"message", msg,
-			)
-		}
+func (c *Client) routeMessage(msg map[string]any) {
+	handlerType, ok := msg["type"].(string)
+	if !ok {
+		slog.Warn(
+			"invalid message type",
+			"client", c,
+			"message", msg,
+		)
+		return
+	}
+
+	switch handlerType {
+	case "auth":
+		c.Hub.handler.Auth(c)
+	case "post_geolocation":
+		c.Hub.handler.PostGeolocation(c)
+	default:
+		slog.Warn(
+			"unknown handler type",
+			"client", c,
+			"message", msg,
+		)
 	}
 }
