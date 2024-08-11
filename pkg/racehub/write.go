@@ -31,7 +31,7 @@ type AuthResultOutput struct {
 	Message     string `json:"message"`
 }
 
-func (UnimplementedHandler) AuthResult(*Client, *AuthResultOutput) {
+func (UnimplementedAction) AuthResult(*Client, *AuthResultOutput) {
 	panic("not implemented")
 }
 
