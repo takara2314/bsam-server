@@ -37,7 +37,7 @@ func SetAssociation(
 	})
 	if err != nil {
 		return oops.
-			In("repository.SetAssociation").
+			In("firestore.SetAssociation").
 			Wrapf(err, "failed to set association")
 	}
 
@@ -52,7 +52,7 @@ func FetchAssociationByID(
 	doc, err := client.Collection("associations").Doc(id).Get(ctx)
 	if err != nil {
 		return nil, oops.
-			In("repository.FetchAssociationByID").
+			In("firestore.FetchAssociationByID").
 			Wrapf(err, "failed to fetch association")
 	}
 
@@ -60,7 +60,7 @@ func FetchAssociationByID(
 	err = doc.DataTo(&association)
 	if err != nil {
 		return nil, oops.
-			In("repository.FetchAssociationByID").
+			In("firestore.FetchAssociationByID").
 			Wrapf(err, "failed to convert data to user")
 	}
 
@@ -78,13 +78,13 @@ func FetchAssociationByIDAndHashedPassword(
 	association, err := FetchAssociationByID(ctx, client, id)
 	if err != nil {
 		return nil, oops.
-			In("repository.FetchAssociationByIDAndHashedPassword").
+			In("firestore.FetchAssociationByIDAndHashedPassword").
 			Wrapf(err, "not found this association id")
 	}
 
 	if association.HashedPassword != hashedPassword {
 		return nil, oops.
-			In("repository.FetchAssociationByIDAndHashedPassword").
+			In("firestore.FetchAssociationByIDAndHashedPassword").
 			Wrapf(nil, "hashed password is not matched")
 	}
 
