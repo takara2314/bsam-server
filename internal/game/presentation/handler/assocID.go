@@ -76,11 +76,7 @@ func (r *RaceHandler) Auth(
 	}
 
 	// デバイスIDの検証を行い、デバイスID、ロール、自分のマーク番号を登録
-	c.Hub.Mu.Lock()
-	var valid bool
-	c.DeviceID = input.DeviceID
-
-	c.Role, c.MyMarkNo, valid = domain.RetrieveRoleAndMyMarkNo(input.DeviceID)
+	role, myMarkNo, valid := domain.RetrieveRoleAndMyMarkNo(input.DeviceID)
 	if !valid {
 		slog.Warn(
 			"invalid device_id",
@@ -101,6 +97,11 @@ func (r *RaceHandler) Auth(
 		c.Hub.Unregister(c)
 		return
 	}
+
+	c.Hub.Mu.Lock()
+	c.Role = role
+	c.MyMarkNo = myMarkNo
+	c.DeviceID = input.DeviceID
 	c.Hub.Mu.Unlock()
 
 	slog.Info(
