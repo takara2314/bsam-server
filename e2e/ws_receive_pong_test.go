@@ -33,7 +33,10 @@ func TestWSReceivePong(t *testing.T) {
 	defer conn.Close()
 
 	if resp.StatusCode != http.StatusSwitchingProtocols {
-		t.Fatalf("予期しないステータスコード: got %d, want %d", resp.StatusCode, http.StatusSwitchingProtocols)
+		t.Errorf(
+			"予期しないステータスコード: got %d, want %d",
+			resp.StatusCode, http.StatusSwitchingProtocols,
+		)
 	}
 
 	pongReceived := make(chan bool)

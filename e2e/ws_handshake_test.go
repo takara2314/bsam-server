@@ -34,7 +34,10 @@ func TestWSHandshake(t *testing.T) {
 
 	// レスポンスのステータスコードを確認
 	if resp.StatusCode != http.StatusSwitchingProtocols {
-		t.Errorf("予期しないステータスコード: got %d, want %d", resp.StatusCode, http.StatusSwitchingProtocols)
+		t.Errorf(
+			"予期しないステータスコード: got %d, want %d",
+			resp.StatusCode, http.StatusSwitchingProtocols,
+		)
 	}
 
 	// Upgradeヘッダーを確認
