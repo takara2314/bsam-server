@@ -11,7 +11,7 @@ import (
 
 func TestWSHandshake(t *testing.T) {
 	var (
-		url        = "ws://localhost:8081/nippon"
+		url        = "ws://localhost:8081/japan"
 		timeoutSec = 1 * time.Second
 	)
 
