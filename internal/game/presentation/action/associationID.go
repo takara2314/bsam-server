@@ -34,7 +34,7 @@ func (r *RaceAction) MarkGeolocations(
 	c *racehub.Client,
 ) (*racehub.MarkGeolocationsOutput, error) {
 	ctx := context.Background()
-	geoHub := geolocationhub.NewHub(
+	geolocHub := geolocationhub.NewHub(
 		c.Hub.AssociationID,
 		common.FirestoreClient,
 	)
@@ -46,7 +46,7 @@ func (r *RaceAction) MarkGeolocations(
 	for i := range marks {
 		marks[i] = fetchMarkGeolocation(
 			ctx,
-			geoHub,
+			geolocHub,
 			i+1,
 		)
 	}

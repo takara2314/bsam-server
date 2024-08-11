@@ -23,13 +23,13 @@ type GeolocationPOSTRequest struct {
 }
 
 func GeolocationPOST(c *gin.Context, associationID string, req GeolocationPOSTRequest) {
-	geoHub := geolocationhub.NewHub(
+	geolocHub := geolocationhub.NewHub(
 		associationID,
 		common.FirestoreClient,
 	)
 
 	// 位置情報を記録
-	if err := geoHub.StoreGeolocation(
+	if err := geolocHub.StoreGeolocation(
 		c,
 		req.DeviceID,
 		req.Latitude,

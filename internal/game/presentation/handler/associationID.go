@@ -184,14 +184,14 @@ func (r *RaceHandler) PostGeolocation(
 		"input", input,
 	)
 
-	geoHub := geolocationhub.NewHub(
+	geolocHub := geolocationhub.NewHub(
 		c.Hub.AssociationID,
 		common.FirestoreClient,
 	)
 	ctx := context.Background()
 
 	// 位置情報を記録
-	if err := geoHub.StoreGeolocation(
+	if err := geolocHub.StoreGeolocation(
 		ctx,
 		c.DeviceID,
 		input.Latitude,
