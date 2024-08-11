@@ -35,6 +35,24 @@ services:
       insert_test_data:
         condition: service_completed_successfully
 
+  game_sub:
+    build:
+      context: .
+      dockerfile: ./cmd/game/Dockerfile
+      target: development
+    ports:
+      - 8181:8080
+    volumes:
+      - ./:/app
+    environment:
+      ENVIRONMENT: development
+      FIRESTORE_EMULATOR_HOST: firebase:8000
+    depends_on:
+      firebase:
+        condition: service_healthy
+      insert_test_data:
+        condition: service_completed_successfully
+
   auth:
     build:
       context: .
