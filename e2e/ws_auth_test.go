@@ -61,10 +61,12 @@ func TestWSAuth(t *testing.T) {
 		t.Fatalf("メッセージのエンコードに失敗しました: %v", err)
 	}
 
-	conn.WriteMessage(
+	if err := conn.WriteMessage(
 		websocket.TextMessage,
 		payload,
-	)
+	); err != nil {
+		t.Fatalf("メッセージの送信に失敗しました: %v", err)
+	}
 
 	authResultReceived := make(chan bool)
 
