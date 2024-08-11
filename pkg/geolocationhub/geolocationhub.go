@@ -6,7 +6,7 @@ import (
 	"cloud.google.com/go/firestore"
 )
 
-type LocationHub struct {
+type GeolocationHub struct {
 	AssocID         string
 	FirestoreClient *firestore.Client
 }
@@ -26,8 +26,8 @@ type Geolocation struct {
 func NewGeolocationHub(
 	AssocID string,
 	firestoreClient *firestore.Client,
-) *LocationHub {
-	return &LocationHub{
+) *GeolocationHub {
+	return &GeolocationHub{
 		FirestoreClient: firestoreClient,
 	}
 }
