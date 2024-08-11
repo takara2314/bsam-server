@@ -33,6 +33,11 @@ type Client struct {
 	Conn              *websocket.Conn
 	Send              chan []byte
 	StoppingWritePump chan bool
+
+	DeviceID   string
+	Role       string
+	MyMarkNo   int
+	NextMarkNo int
 }
 
 // WebSocketアップグレーダー: HTTP接続をWebSocket接続にアップグレードする設定
@@ -62,6 +67,10 @@ func (c *Client) LogValue() slog.Value {
 		slog.String("id", c.ID),
 		slog.String("address", c.Conn.RemoteAddr().String()),
 		slog.String("assoc_id", c.Hub.AssocID),
+		slog.String("device_id", c.DeviceID),
+		slog.String("role", c.Role),
+		slog.Int("my_mark_no", c.MyMarkNo),
+		slog.Int("next_mark_no", c.NextMarkNo),
 	)
 }
 
@@ -74,11 +83,16 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 		Conn:              conn,
 		Send:              make(chan []byte, maxIngressMessageBytes),
 		StoppingWritePump: make(chan bool),
+
+		DeviceID:   "unknown",
+		Role:       "unknown",
+		MyMarkNo:   -1,
+		NextMarkNo: -1,
 	}
 
-	h.mu.Lock()
+	h.Mu.Lock()
 	h.clients[id] = client
-	h.mu.Unlock()
+	h.Mu.Unlock()
 
 	slog.Info(
 		"client registered",
@@ -93,8 +107,8 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 }
 
 func (h *Hub) Unregister(c *Client) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Mu.Lock()
+	defer h.Mu.Unlock()
 
 	slog.Info(
 		"client unregistered",

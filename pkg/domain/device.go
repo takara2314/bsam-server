@@ -2,6 +2,7 @@ package domain
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/takara2314/bsam-server/pkg/util"
 )
@@ -27,4 +28,30 @@ func ValidateDeviceID(deviceID string) bool {
 	}
 
 	return true
+}
+
+func RetrieveRoleAndMyMarkNo(deviceID string) (string, int, bool) {
+	if !ValidateDeviceID(deviceID) {
+		return "", -1, false
+	}
+
+	for _, prefix := range idPrefixes {
+		if strings.HasPrefix(deviceID, prefix) {
+			myMarkNo := -1
+
+			if prefix == "mark" {
+				var err error
+				myMarkNo, err = strconv.Atoi(
+					strings.TrimPrefix(deviceID, prefix),
+				)
+				if err != nil {
+					return "", 0, false
+				}
+			}
+
+			return prefix, myMarkNo, true
+		}
+	}
+
+	return "", -1, false
 }

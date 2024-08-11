@@ -9,17 +9,35 @@ import (
 )
 
 type Handler interface {
-	Auth(c *Client)
-	PostGeolocation(c *Client)
+	Auth(*Client, *AuthInput)
+	PostGeolocation(*Client, *PostGeolocationInput)
 }
 
 type UnimplementedHandler struct{}
 
-func (UnimplementedHandler) Auth(c *Client) {
+type AuthInput struct {
+	MessageType string `json:"type"`
+	Token       string `json:"token"`
+	DeviceID    string `json:"device_id"`
+}
+
+type PostGeolocationInput struct {
+	MessageType           string    `json:"type"`
+	Latitude              float64   `json:"latitude"`
+	Longitude             float64   `json:"longitude"`
+	AltitudeMeter         float64   `json:"altitude_meter"`
+	AccuracyMeter         float64   `json:"accuracy_meter"`
+	AltitudeAccuracyMeter float64   `json:"altitude_accuracy_meter"`
+	Heading               float64   `json:"heading"`
+	SpeedMeterPerSec      float64   `json:"speed_meter_per_sec"`
+	RecordedAt            time.Time `json:"recorded_at"`
+}
+
+func (UnimplementedHandler) Auth(*Client, *AuthInput) {
 	panic("not implemented")
 }
 
-func (UnimplementedHandler) PostGeolocation(c *Client) {
+func (UnimplementedHandler) PostGeolocation(*Client, *PostGeolocationInput) {
 	panic("not implemented")
 }
 
@@ -85,26 +103,50 @@ func (c *Client) readPump() {
 			"payload", msg,
 		)
 
-		c.routeMessage(msg)
+		handlerType, ok := msg["type"].(string)
+		if !ok {
+			slog.Warn(
+				"invalid message type",
+				"client", c,
+				"message", msg,
+			)
+			continue
+		}
+
+		c.routeMessage(handlerType, payload, msg)
 	}
 }
 
-func (c *Client) routeMessage(msg map[string]any) {
-	handlerType, ok := msg["type"].(string)
-	if !ok {
-		slog.Warn(
-			"invalid message type",
-			"client", c,
-			"message", msg,
-		)
-		return
-	}
-
+func (c *Client) routeMessage(
+	handlerType string,
+	payload []byte,
+	msg map[string]any,
+) {
 	switch handlerType {
 	case "auth":
-		c.Hub.handler.Auth(c)
+		var input AuthInput
+		if err := sonic.Unmarshal(payload, &input); err != nil {
+			slog.Error(
+				"failed to unmarshal auth input",
+				"client", c,
+				"error", err,
+			)
+			return
+		}
+		c.Hub.handler.Auth(c, &input)
+
 	case "post_geolocation":
-		c.Hub.handler.PostGeolocation(c)
+		var input PostGeolocationInput
+		if err := sonic.Unmarshal(payload, &input); err != nil {
+			slog.Error(
+				"failed to unmarshal post_geolocation input",
+				"client", c,
+				"error", err,
+			)
+			return
+		}
+		c.Hub.handler.PostGeolocation(c, &input)
+
 	default:
 		slog.Warn(
 			"unknown handler type",

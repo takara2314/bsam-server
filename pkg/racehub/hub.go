@@ -6,7 +6,7 @@ type Hub struct {
 	AssocID string
 	clients map[string]*Client
 	handler Handler
-	mu      sync.RWMutex
+	Mu      sync.RWMutex
 }
 
 func NewHub(assocID string, handler Handler) *Hub {
