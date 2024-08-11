@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/takara2314/bsam-server/pkg/domain"
 )
 
 const (
@@ -18,6 +19,7 @@ const (
 
 type Action interface {
 	AuthResult(*Client, *AuthResultOutput)
+	MarkGeolocations(*Client, *MarkGeolocationsOutput)
 }
 
 type UnimplementedAction struct{}
@@ -27,8 +29,23 @@ type AuthResultOutput struct {
 	OK          bool   `json:"ok"`
 	DeviceID    string `json:"device_id"`
 	Role        string `json:"role"`
-	MyMarkNo    int    `json:"my_mark_no"`
+	MarkNo      int    `json:"mark_no"`
 	Message     string `json:"message"`
+}
+
+type MarkGeolocationsOutput struct {
+	MessageType string                       `json:"type"`
+	Marks       []MarkGeolocationsOutputMark `json:"marks"`
+}
+
+type MarkGeolocationsOutputMark struct {
+	MarkNo        int       `json:"mark_no"`
+	Stored        bool      `json:"stored"`
+	Latitude      float64   `json:"latitude"`
+	Longitude     float64   `json:"longitude"`
+	AccuracyMeter float64   `json:"accuracy_meter"`
+	Heading       float64   `json:"heading"`
+	RecordedAt    time.Time `json:"recorded_at"`
 }
 
 func (UnimplementedAction) AuthResult(*Client, *AuthResultOutput) {
@@ -36,8 +53,13 @@ func (UnimplementedAction) AuthResult(*Client, *AuthResultOutput) {
 }
 
 func (c *Client) writePump() {
+	sendingMarkGeolocationsTicker := time.NewTicker(
+		sendingMarkGeolocationsTickerPeriodSec,
+	)
 	pingTicker := time.NewTicker(pingPeriodSec)
+
 	defer func() {
+		sendingMarkGeolocationsTicker.Stop()
 		pingTicker.Stop()
 		c.Hub.Unregister(c)
 	}()
@@ -49,11 +71,12 @@ func (c *Client) writePump() {
 				return
 			}
 
+		case <-sendingMarkGeolocationsTicker.C:
+			if err := c.writeMarkGeolocations(); err != nil {
+				return
+			}
+
 		case <-pingTicker.C:
-			slog.Info(
-				"sending ping",
-				"client", c,
-			)
 			if err := c.writePing(); err != nil {
 				return
 			}
@@ -69,6 +92,16 @@ func (c *Client) writePump() {
 }
 
 func (c *Client) writeMessage(msg []byte, ok bool) error {
+	if !ok {
+		return nil
+	}
+
+	slog.Info(
+		"writing message",
+		"client", c,
+		"message", string(msg),
+	)
+
 	if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWaitSec)); err != nil {
 		slog.Error(
 			"failed to set write deadline",
@@ -112,7 +145,25 @@ func (c *Client) writeMessage(msg []byte, ok bool) error {
 	return nil
 }
 
+func (c *Client) writeMarkGeolocations() error {
+	slog.Info(
+		"sending mark geolocations",
+		"client", c,
+	)
+
+	if c.Role != domain.RoleMark {
+		return nil
+	}
+
+	return nil
+}
+
 func (c *Client) writePing() error {
+	slog.Info(
+		"sending ping",
+		"client", c,
+	)
+
 	if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWaitSec)); err != nil {
 		slog.Error(
 			"failed to set write deadline for ping",

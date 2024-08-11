@@ -18,6 +18,9 @@ const (
 	// Pongが返ってこない場合は接続に問題があると判断する
 	pongWaitSec = 10 * time.Second
 
+	// クライアントへのマークの位置情報送信間隔: 5秒
+	sendingMarkGeolocationsTickerPeriodSec = 5 * time.Second
+
 	// サーバーからクライアントへPingを送信する間隔: 9秒
 	// タイムアウト前に必ずPingを送信する
 	pingPeriodSec = (pongWaitSec * 9) / 10
@@ -36,7 +39,7 @@ type Client struct {
 
 	DeviceID   string
 	Role       string
-	MyMarkNo   int
+	MarkNo     int
 	NextMarkNo int
 }
 
@@ -69,7 +72,7 @@ func (c *Client) LogValue() slog.Value {
 		slog.String("assoc_id", c.Hub.AssocID),
 		slog.String("device_id", c.DeviceID),
 		slog.String("role", c.Role),
-		slog.Int("my_mark_no", c.MyMarkNo),
+		slog.Int("mark_no", c.MarkNo),
 		slog.Int("next_mark_no", c.NextMarkNo),
 	)
 }
@@ -86,7 +89,7 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 
 		DeviceID:   "unknown",
 		Role:       "unknown",
-		MyMarkNo:   -1,
+		MarkNo:     -1,
 		NextMarkNo: -1,
 	}
 
