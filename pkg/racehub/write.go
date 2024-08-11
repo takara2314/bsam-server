@@ -79,6 +79,10 @@ func (c *Client) writePump() {
 			}
 
 		case <-sendingMarkGeolocationsTicker.C:
+			// 選手ロールのみ送信する
+			if c.Role != domain.RoleAthlete {
+				continue
+			}
 			if err := c.WriteMarkGeolocations(); err != nil {
 				return
 			}
@@ -163,6 +167,12 @@ func (c *Client) writeMessage(msg any, ok bool) error {
 		return err
 	}
 
+	slog.Info(
+		"sent payload",
+		"client", c,
+		"payload", string(payload),
+	)
+
 	return nil
 }
 
@@ -198,10 +208,6 @@ func (c *Client) WriteMarkGeolocations() error {
 		"writing mark geolocations",
 		"client", c,
 	)
-
-	if c.Role != domain.RoleMark {
-		return nil
-	}
 
 	output, err := c.Hub.action.MarkGeolocations(c)
 	if err != nil {
