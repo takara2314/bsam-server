@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/takara2314/bsam-server/internal/auth/common"
+	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/pkg/auth"
 	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/geolocationhub"
@@ -19,6 +19,7 @@ type RaceHandler struct {
 // 1. トークンが問題ないか検証
 // 2. 内部の協会デバイスからの参加なら許可
 // 3. デバイスID、ロール、自分のマーク番号を登録
+// 4. クライアントに認証完了メッセージを送信
 func (r *RaceHandler) Auth(
 	c *racehub.Client,
 	input *racehub.AuthInput,
@@ -38,6 +39,16 @@ func (r *RaceHandler) Auth(
 			"error", err,
 			"input", input,
 		)
+
+		// クライアントに認証失敗した旨を送信
+		c.SendAuthResult(
+			false,
+			c.DeviceID,
+			c.Role,
+			c.MyMarkNo,
+			string(racehub.AuthResultFailedAuthToken),
+		)
+
 		c.Hub.Unregister(c)
 		return
 	}
@@ -50,6 +61,16 @@ func (r *RaceHandler) Auth(
 			"assoc_id", assocID,
 			"input", input,
 		)
+
+		// クライアントに認証失敗した旨を送信
+		c.SendAuthResult(
+			false,
+			c.DeviceID,
+			c.Role,
+			c.MyMarkNo,
+			string(racehub.AuthResultOutsideAssoc),
+		)
+
 		c.Hub.Unregister(c)
 		return
 	}
@@ -67,6 +88,16 @@ func (r *RaceHandler) Auth(
 			"device_id", input.DeviceID,
 			"input", input,
 		)
+
+		// クライアントに認証失敗した旨を送信
+		c.SendAuthResult(
+			false,
+			c.DeviceID,
+			c.Role,
+			c.MyMarkNo,
+			string(racehub.AuthResultInvalidDeviceID),
+		)
+
 		c.Hub.Unregister(c)
 		return
 	}
@@ -79,6 +110,15 @@ func (r *RaceHandler) Auth(
 		"role", c.Role,
 		"my_mark_no", c.MyMarkNo,
 		"input", input,
+	)
+
+	// クライアントに認証完了メッセージを送信
+	c.SendAuthResult(
+		true,
+		c.DeviceID,
+		c.Role,
+		c.MyMarkNo,
+		string(racehub.AuthResultOK),
 	)
 }
 
