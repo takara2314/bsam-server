@@ -10,12 +10,12 @@ import (
 )
 
 type StreamIterator struct {
-	hub   *GeolocationHub
+	hub   *Hub
 	queue []Geolocation
 	err   error
 }
 
-func (h *GeolocationHub) Snapshots(ctx context.Context) *StreamIterator {
+func (h *Hub) Snapshots(ctx context.Context) *StreamIterator {
 	it := &StreamIterator{hub: h}
 	go it.watchGeolocationCollection(ctx)
 	return it

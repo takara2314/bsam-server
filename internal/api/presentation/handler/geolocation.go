@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/takara2314/bsam-server/internal/api/common"
-	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	"github.com/takara2314/bsam-server/pkg/geolocationhub"
 )
 
 type GeolocationPOSTRequest struct {
@@ -22,12 +23,15 @@ type GeolocationPOSTRequest struct {
 }
 
 func GeolocationPOST(c *gin.Context, assocID string, req GeolocationPOSTRequest) {
-	geolocationID := assocID + "_" + req.DeviceID
-
-	if err := repoFirestore.SetGeolocation(
-		c,
+	geoHub := geolocationhub.NewHub(
+		assocID,
 		common.FirestoreClient,
-		geolocationID,
+	)
+
+	// 位置情報を記録
+	if err := geoHub.StoreGeolocation(
+		c,
+		req.DeviceID,
 		req.Latitude,
 		req.Longitude,
 		req.AltitudeMeter,
@@ -37,8 +41,13 @@ func GeolocationPOST(c *gin.Context, assocID string, req GeolocationPOSTRequest)
 		req.SpeedMeterPerSec,
 		req.RecordedAt,
 	); err != nil {
+		slog.Warn(
+			"failed to store geolocation",
+			"error", err,
+			"request", req,
+		)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error": "failed to set geolocation to firestore",
+			"error": "failed to post geolocation",
 		})
 		return
 	}

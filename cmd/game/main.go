@@ -59,7 +59,7 @@ func main() {
 }
 
 func watchGeolocations(ctx context.Context) {
-	geohub := geolocationhub.NewGeolocationHub("ise", common.FirestoreClient)
+	geohub := geolocationhub.NewHub("ise", common.FirestoreClient)
 
 	it := geohub.Snapshots(ctx)
 	for {

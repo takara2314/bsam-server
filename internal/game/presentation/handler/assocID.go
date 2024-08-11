@@ -7,7 +7,7 @@ import (
 	"github.com/takara2314/bsam-server/internal/auth/common"
 	"github.com/takara2314/bsam-server/pkg/auth"
 	"github.com/takara2314/bsam-server/pkg/domain"
-	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	"github.com/takara2314/bsam-server/pkg/geolocationhub"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
@@ -83,7 +83,6 @@ func (r *RaceHandler) Auth(
 }
 
 // 位置情報を受信したときの処理
-// 1. 位置情報をFirestoreに保存
 func (r *RaceHandler) PostGeolocation(
 	c *racehub.Client,
 	input *racehub.PostGeolocationInput,
@@ -94,14 +93,16 @@ func (r *RaceHandler) PostGeolocation(
 		"input", input,
 	)
 
-	// 位置情報をFirestoreに保存
-	ctx := context.Background()
-	geolocationID := c.Hub.AssocID + "_" + c.DeviceID
-
-	if err := repoFirestore.SetGeolocation(
-		ctx,
+	geoHub := geolocationhub.NewHub(
+		c.Hub.AssocID,
 		common.FirestoreClient,
-		geolocationID,
+	)
+	ctx := context.Background()
+
+	// 位置情報を記録
+	if err := geoHub.StoreGeolocation(
+		ctx,
+		c.DeviceID,
 		input.Latitude,
 		input.Longitude,
 		input.AltitudeMeter,
@@ -112,7 +113,7 @@ func (r *RaceHandler) PostGeolocation(
 		input.RecordedAt,
 	); err != nil {
 		slog.Warn(
-			"failed to set geolocation to firestore",
+			"failed to store geolocation",
 			"client", c,
 			"error", err,
 			"input", input,
