@@ -62,7 +62,7 @@ func (r *RaceAction) MarkGeolocations(
 // データが取得できなかった場合は、Storedフィールドをfalseにする
 func fetchMarkGeolocation(
 	ctx context.Context,
-	geolocationhub *geolocationhub.Hub,
+	geolocHub *geolocationhub.Hub,
 	markNo int,
 ) racehub.MarkGeolocationsOutputMark {
 	deviceID := domain.CreateDeviceID(
@@ -70,7 +70,7 @@ func fetchMarkGeolocation(
 		markNo,
 	)
 
-	loc, err := geolocationhub.FetchLatestGeolocationByDeviceID(
+	loc, err := geolocHub.FetchLatestGeolocationByDeviceID(
 		ctx,
 		deviceID,
 	)
