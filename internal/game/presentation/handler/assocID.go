@@ -22,6 +22,7 @@ type RaceHandler struct {
 // 4. デバイスID、ロール、自分のマーク番号を登録
 // 5. 選手ロールなら、ほしいマーク数を登録 (1以上10以下でなければエラーを返す)
 // 6. クライアントに認証完了メッセージを送信
+// 7. 選手ロールなら、マークの位置情報を送信
 func (r *RaceHandler) Auth(
 	c *racehub.Client,
 	input *racehub.AuthInput,
@@ -158,6 +159,17 @@ func (r *RaceHandler) Auth(
 			"client", c,
 			"error", err,
 		)
+	}
+
+	// 選手ロールなら、マークの位置情報を送信
+	if c.Role == domain.RoleAthlete {
+		if err := c.WriteMarkGeolocations(); err != nil {
+			slog.Error(
+				"failed to write mark geolocations",
+				"client", c,
+				"error", err,
+			)
+		}
 	}
 }
 
