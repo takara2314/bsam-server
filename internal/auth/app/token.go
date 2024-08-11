@@ -10,33 +10,33 @@ import (
 )
 
 func ParseToken(token string) (string, error) {
-	assocID, err := auth.ParseJWT(token, common.Env.JWTSecretKey)
+	associationID, err := auth.ParseJWT(token, common.Env.JWTSecretKey)
 	if err != nil {
 		return "", oops.
 			In("app.ParseToken").
 			Wrapf(err, "failed to parse token")
 	}
 
-	return assocID, nil
+	return associationID, nil
 }
 
-func CreateToken(assocID string) (string, error) {
+func CreateToken(associationID string) (string, error) {
 	ctx := context.Background()
 
-	assoc, err := repoFirestore.FetchAssocByID(
+	association, err := repoFirestore.FetchAssociationByID(
 		ctx,
 		common.FirestoreClient,
-		assocID,
+		associationID,
 	)
 	if err != nil {
 		return "", oops.
 			In("auth.CreateToken").
-			Wrapf(err, "failed to fetch assoc")
+			Wrapf(err, "failed to fetch association")
 	}
 
 	return auth.CreateJWT(
-		assocID,
-		assoc.ExpiresAt,
+		associationID,
+		association.ExpiresAt,
 		common.Env.JWTSecretKey,
 	), nil
 }

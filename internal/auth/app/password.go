@@ -8,13 +8,13 @@ import (
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 )
 
-func VerifyPassword(assocID string, password string) error {
+func VerifyPassword(associationID string, password string) error {
 	ctx := context.Background()
 
-	_, err := repoFirestore.FetchAssocByIDAndHashedPassword(
+	_, err := repoFirestore.FetchAssociationByIDAndHashedPassword(
 		ctx,
 		common.FirestoreClient,
-		assocID,
+		associationID,
 		auth.HashPassword(password),
 	)
 	if err != nil {

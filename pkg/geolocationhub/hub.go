@@ -5,16 +5,16 @@ import (
 )
 
 type Hub struct {
-	AssocID         string
+	AssociationID   string
 	FirestoreClient *firestore.Client
 }
 
 func NewHub(
-	AssocID string,
+	AssociationID string,
 	firestoreClient *firestore.Client,
 ) *Hub {
 	return &Hub{
-		AssocID:         AssocID,
+		AssociationID:   AssociationID,
 		FirestoreClient: firestoreClient,
 	}
 }

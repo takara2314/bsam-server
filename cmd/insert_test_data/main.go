@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	sampleAssocs = []repoFirestore.Assoc{
+	sampleAssociations = []repoFirestore.Association{
 		{
 			ID:             "japan",
 			Name:           "日本サンプルセーリング協会",
@@ -74,24 +74,24 @@ func main() {
 }
 
 func insertTestData(ctx context.Context, client *firestore.Client) error {
-	if err := insertTestAssocs(ctx, client); err != nil {
+	if err := insertTestAssociations(ctx, client); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func insertTestAssocs(ctx context.Context, client *firestore.Client) error {
-	for _, assoc := range sampleAssocs {
-		if err := repoFirestore.SetAssoc(
+func insertTestAssociations(ctx context.Context, client *firestore.Client) error {
+	for _, associations := range sampleAssociations {
+		if err := repoFirestore.SetAssociation(
 			ctx,
 			client,
-			assoc.ID,
-			assoc.Name,
-			assoc.HashedPassword,
-			assoc.ContractType,
-			assoc.ExpiresAt,
-			assoc.UpdatedAt,
+			associations.ID,
+			associations.Name,
+			associations.HashedPassword,
+			associations.ContractType,
+			associations.ExpiresAt,
+			associations.UpdatedAt,
 		); err != nil {
 			return err
 		}

@@ -35,7 +35,7 @@ func (r *RaceAction) MarkGeolocations(
 ) (*racehub.MarkGeolocationsOutput, error) {
 	ctx := context.Background()
 	geoHub := geolocationhub.NewHub(
-		c.Hub.AssocID,
+		c.Hub.AssociationID,
 		common.FirestoreClient,
 	)
 

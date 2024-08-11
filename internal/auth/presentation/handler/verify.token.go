@@ -12,7 +12,7 @@ type VerifyTokenPOSTRequest struct {
 }
 
 func VerifyTokenPOST(c *gin.Context, req VerifyTokenPOSTRequest) {
-	assocID, err := app.ParseToken(req.Token)
+	associationID, err := app.ParseToken(req.Token)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"error": "token is invalid",
@@ -20,7 +20,7 @@ func VerifyTokenPOST(c *gin.Context, req VerifyTokenPOSTRequest) {
 		return
 	}
 
-	newToken, err := app.CreateToken(assocID)
+	newToken, err := app.CreateToken(associationID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to create token",

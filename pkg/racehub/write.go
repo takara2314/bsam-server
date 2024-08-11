@@ -15,7 +15,7 @@ const (
 
 	AuthResultOK                    = "OK"
 	AuthResultFailedAuthToken       = "failed_auth_token"
-	AuthResultOutsideAssoc          = "outside_assoc"
+	AuthResultOutsideAssociation    = "outside_association"
 	AuthResultInvalidDeviceID       = "invalid_device_id"
 	AuthResultInvalidWantMarkCounts = "invalid_want_mark_counts"
 )

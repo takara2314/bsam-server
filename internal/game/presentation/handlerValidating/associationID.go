@@ -13,19 +13,19 @@ import (
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
-func AssocIDWS(c *gin.Context) {
+func AssociationIDWS(c *gin.Context) {
 	var err error
-	assocID := c.Param("assocID")
+	associationID := c.Param("associationID")
 
-	hub, err := findOrCreateHub(c, assocID)
+	hub, err := findOrCreateHub(c, associationID)
 	if err != nil {
 		slog.Warn(
 			"failed to find or create hub",
-			"assoc_id", assocID,
+			"association_id", associationID,
 			"error", err,
 		)
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-			"error": "assoc_id is not found",
+			"error": "association_id is not found",
 		})
 		return
 	}
@@ -34,7 +34,7 @@ func AssocIDWS(c *gin.Context) {
 	if err != nil {
 		slog.Warn(
 			"failed to upgrade connection",
-			"assoc_id", assocID,
+			"association_id", associationID,
 			"error", err,
 		)
 		return
@@ -43,32 +43,32 @@ func AssocIDWS(c *gin.Context) {
 	hub.Register(conn)
 }
 
-func findOrCreateHub(c *gin.Context, assocID string) (*racehub.Hub, error) {
-	if hub, exist := common.Hubs[assocID]; exist {
+func findOrCreateHub(c *gin.Context, associationID string) (*racehub.Hub, error) {
+	if hub, exist := common.Hubs[associationID]; exist {
 		return hub, nil
 	}
 
-	hub, err := createNewHub(c, assocID)
+	hub, err := createNewHub(c, associationID)
 	if err != nil {
 		return nil, err
 	}
 
-	common.Hubs[assocID] = hub
+	common.Hubs[associationID] = hub
 	return hub, nil
 }
 
-func createNewHub(ctx context.Context, assocID string) (*racehub.Hub, error) {
-	assoc, err := repoFirestore.FetchAssocByID(
+func createNewHub(ctx context.Context, associationID string) (*racehub.Hub, error) {
+	association, err := repoFirestore.FetchAssociationByID(
 		ctx,
 		common.FirestoreClient,
-		assocID,
+		associationID,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	return racehub.NewHub(
-		assoc.ID,
+		association.ID,
 		&handler.RaceHandler{},
 		&action.RaceAction{},
 	), nil

@@ -33,7 +33,7 @@ func AuthToken(jwtSecretKey string) gin.HandlerFunc {
 			return
 		}
 
-		assocID, err := auth.ParseJWT(
+		associationID, err := auth.ParseJWT(
 			token,
 			jwtSecretKey,
 		)
@@ -44,7 +44,7 @@ func AuthToken(jwtSecretKey string) gin.HandlerFunc {
 			return
 		}
 
-		c.Set("assoc_id", assocID)
+		c.Set("association_id", associationID)
 	}
 }
 

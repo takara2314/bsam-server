@@ -10,11 +10,11 @@ import (
 	"github.com/bytedance/sonic"
 )
 
-func FetchTokenFromAPI(assocID string, password string) (string, error) {
+func FetchTokenFromAPI(associationID string, password string) (string, error) {
 	// リクエストのボディを作成
 	requestBody, err := sonic.Marshal(map[string]string{
-		"assoc_id": assocID,
-		"password": password,
+		"association_id": associationID,
+		"password":       password,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal request body: %w", err)

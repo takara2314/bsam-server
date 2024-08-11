@@ -11,7 +11,7 @@ func VerifyPasswordPOST(c *gin.Context) {
 	var req handler.VerifyPasswordPOSTRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "assoc_id and password are required",
+			"error": "association_id and password are required",
 		})
 		return
 	}

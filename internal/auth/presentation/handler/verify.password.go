@@ -8,19 +8,19 @@ import (
 )
 
 type VerifyPasswordPOSTRequest struct {
-	AssocID  string `json:"assoc_id"`
-	Password string `json:"password"`
+	AssociationID string `json:"association_id"`
+	Password      string `json:"password"`
 }
 
 func VerifyPasswordPOST(c *gin.Context, req VerifyPasswordPOSTRequest) {
-	if err := app.VerifyPassword(req.AssocID, req.Password); err != nil {
+	if err := app.VerifyPassword(req.AssociationID, req.Password); err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"error": "assoc_id or password is incorrect",
+			"error": "association_id or password is incorrect",
 		})
 		return
 	}
 
-	token, err := app.CreateToken(req.AssocID)
+	token, err := app.CreateToken(req.AssociationID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"error": "failed to create token",

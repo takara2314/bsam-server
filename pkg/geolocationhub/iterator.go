@@ -37,7 +37,7 @@ func (it *StreamIterator) watchGeolocationCollection(ctx context.Context) {
 		for _, change := range snap.Changes {
 			var loc repoFirestore.Geolocation
 
-			if !strings.HasPrefix(change.Doc.Ref.ID, it.hub.AssocID) {
+			if !strings.HasPrefix(change.Doc.Ref.ID, it.hub.AssociationID) {
 				continue
 			}
 

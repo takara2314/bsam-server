@@ -16,7 +16,7 @@ import (
 func TestWSPostGeolocation(t *testing.T) {
 	var (
 		url                = "ws://localhost:8081/japan"
-		assocID            = "japan"
+		associationID      = "japan"
 		password           = "nippon"
 		timeoutSec         = 1 * time.Second
 		sampleGeolocations = []racehub.PostGeolocationInput{
@@ -50,7 +50,7 @@ func TestWSPostGeolocation(t *testing.T) {
 	defer cancel()
 
 	// トークンを取得
-	token, err := FetchTokenFromAPI(assocID, password)
+	token, err := FetchTokenFromAPI(associationID, password)
 	if err != nil {
 		t.Fatalf("トークンの取得に失敗しました: %v", err)
 	}

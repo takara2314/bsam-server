@@ -33,7 +33,7 @@ func (h *Hub) StoreGeolocation(
 	speedMeterPerSec float64,
 	recordedAt time.Time,
 ) error {
-	geolocationID := h.AssocID + "_" + deviceID
+	geolocationID := h.AssociationID + "_" + deviceID
 
 	if err := repoFirestore.SetGeolocation(
 		ctx,
@@ -50,7 +50,7 @@ func (h *Hub) StoreGeolocation(
 	); err != nil {
 		return oops.
 			In("geolocationhub.StoreGeolocation").
-			With("assoc_id", h.AssocID).
+			With("association_id", h.AssociationID).
 			With("device_id", deviceID).
 			With("geolocation_id", geolocationID).
 			With("latitude", lat).
@@ -66,7 +66,7 @@ func (h *Hub) StoreGeolocation(
 
 	slog.Info(
 		"geolocation stored",
-		"assoc_id", h.AssocID,
+		"association_id", h.AssociationID,
 		"device_id", deviceID,
 		"geolocation_id", geolocationID,
 		"latitude", lat,
@@ -86,7 +86,7 @@ func (h *Hub) FetchLatestGeolocationByDeviceID(
 	ctx context.Context,
 	deviceID string,
 ) (*Geolocation, error) {
-	geolocationID := h.AssocID + "_" + deviceID
+	geolocationID := h.AssociationID + "_" + deviceID
 
 	loc, err := repoFirestore.FetchGeolocationByID(
 		ctx,
@@ -96,7 +96,7 @@ func (h *Hub) FetchLatestGeolocationByDeviceID(
 	if err != nil {
 		return nil, oops.
 			In("geolocationhub.FetchLatestGeolocationByDeviceID").
-			With("assoc_id", h.AssocID).
+			With("association_id", h.AssociationID).
 			With("device_id", deviceID).
 			With("geolocation_id", geolocationID).
 			Wrapf(err, "failed to fetch geolocation by device id")

@@ -22,9 +22,9 @@ type GeolocationPOSTRequest struct {
 	RecordedAt            time.Time `json:"recorded_at"`
 }
 
-func GeolocationPOST(c *gin.Context, assocID string, req GeolocationPOSTRequest) {
+func GeolocationPOST(c *gin.Context, associationID string, req GeolocationPOSTRequest) {
 	geoHub := geolocationhub.NewHub(
-		assocID,
+		associationID,
 		common.FirestoreClient,
 	)
 

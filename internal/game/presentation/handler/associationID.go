@@ -34,7 +34,7 @@ func (r *RaceHandler) Auth(
 	)
 
 	// JWTトークンを検証
-	assocID, err := auth.ParseJWT(input.Token, common.Env.JWTSecretKey)
+	associationID, err := auth.ParseJWT(input.Token, common.Env.JWTSecretKey)
 	if err != nil {
 		slog.Warn(
 			"failed to authenticate client",
@@ -59,17 +59,17 @@ func (r *RaceHandler) Auth(
 	}
 
 	// 外部の協会デバイスからの参加は現在許可しない
-	if assocID != c.Hub.AssocID {
+	if associationID != c.Hub.AssociationID {
 		slog.Warn(
-			"outside assoc client tried to connect",
+			"outside association client tried to connect",
 			"client", c,
-			"assoc_id", assocID,
+			"association_id", associationID,
 			"input", input,
 		)
 
 		// クライアントに認証失敗した旨を送信
 		if err := c.WriteAuthResult(
-			false, racehub.AuthResultOutsideAssoc,
+			false, racehub.AuthResultOutsideAssociation,
 		); err != nil {
 			slog.Error(
 				"failed to write auth result",
@@ -185,7 +185,7 @@ func (r *RaceHandler) PostGeolocation(
 	)
 
 	geoHub := geolocationhub.NewHub(
-		c.Hub.AssocID,
+		c.Hub.AssociationID,
 		common.FirestoreClient,
 	)
 	ctx := context.Background()

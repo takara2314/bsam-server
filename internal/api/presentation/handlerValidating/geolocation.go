@@ -9,7 +9,7 @@ import (
 )
 
 func GeolocationPOST(c *gin.Context) {
-	assocID := c.GetString("assoc_id")
+	associationID := c.GetString("association_id")
 
 	var req handler.GeolocationPOSTRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -26,5 +26,5 @@ func GeolocationPOST(c *gin.Context) {
 		return
 	}
 
-	handler.GeolocationPOST(c, assocID, req)
+	handler.GeolocationPOST(c, associationID, req)
 }

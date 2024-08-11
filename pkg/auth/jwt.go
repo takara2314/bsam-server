@@ -7,11 +7,11 @@ import (
 	"github.com/samber/oops"
 )
 
-func CreateJWT(assocID string, exp time.Time, secretKey string) string {
+func CreateJWT(associationID string, exp time.Time, secretKey string) string {
 	claims := jwt.MapClaims{
-		"assoc_id": assocID,
-		"iat":      time.Now().Unix(),
-		"exp":      exp.Unix(),
+		"association_id": associationID,
+		"iat":            time.Now().Unix(),
+		"exp":            exp.Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -38,12 +38,12 @@ func ParseJWT(tokenStr string, secretKey string) (string, error) {
 			Wrapf(err, "failed to parse jwt token claims")
 	}
 
-	assocID, ok := claims["assoc_id"].(string)
+	associationID, ok := claims["association_id"].(string)
 	if !ok {
 		return "", oops.
 			In("auth.parseJWT").
 			Wrapf(err, "failed to parse jwt token claims")
 	}
 
-	return assocID, nil
+	return associationID, nil
 }

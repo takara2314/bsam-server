@@ -13,10 +13,10 @@ import (
 
 func TestWSAuth(t *testing.T) {
 	var (
-		url        = "ws://localhost:8081/japan"
-		assocID    = "japan"
-		password   = "nippon"
-		timeoutSec = 1 * time.Second
+		url           = "ws://localhost:8081/japan"
+		associationID = "japan"
+		password      = "nippon"
+		timeoutSec    = 1 * time.Second
 	)
 
 	t.Parallel()
@@ -25,7 +25,7 @@ func TestWSAuth(t *testing.T) {
 	defer cancel()
 
 	// トークンを取得
-	token, err := FetchTokenFromAPI(assocID, password)
+	token, err := FetchTokenFromAPI(associationID, password)
 	if err != nil {
 		t.Fatalf("トークンの取得に失敗しました: %v", err)
 	}

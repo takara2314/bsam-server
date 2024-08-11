@@ -23,5 +23,5 @@ func RegisterRouter(router *gin.Engine) {
 
 	router.GET("/healthz", handler.HealthzGET)
 
-	router.GET("/:assocID", handlerValidating.AssocIDWS)
+	router.GET("/:associationID", handlerValidating.AssociationIDWS)
 }

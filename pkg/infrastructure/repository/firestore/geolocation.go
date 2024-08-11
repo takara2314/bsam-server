@@ -46,8 +46,8 @@ func SetGeolocation(
 	})
 	if err != nil {
 		return oops.
-			In("repository.AddAssoc").
-			Wrapf(err, "failed to add assoc")
+			In("firestore.SetGeolocation").
+			Wrapf(err, "failed to set geolocation")
 	}
 
 	return nil
@@ -57,7 +57,7 @@ func FetchGeolocationByID(ctx context.Context, client *firestore.Client, id stri
 	doc, err := client.Collection("geolocations").Doc(id).Get(ctx)
 	if err != nil {
 		return nil, oops.
-			In("repository.FetchGeolocationByID").
+			In("firestore.FetchGeolocationByID").
 			Wrapf(err, "failed to fetch geolocation")
 	}
 
@@ -65,7 +65,7 @@ func FetchGeolocationByID(ctx context.Context, client *firestore.Client, id stri
 	err = doc.DataTo(&loc)
 	if err != nil {
 		return nil, oops.
-			In("repository.FetchGeolocationByID").
+			In("firestore.FetchGeolocationByID").
 			Wrapf(err, "failed to convert data to user")
 	}
 
