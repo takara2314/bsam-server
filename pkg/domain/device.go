@@ -7,10 +7,16 @@ import (
 	"github.com/takara2314/bsam-server/pkg/util"
 )
 
+const (
+	RoleMark    = "mark"
+	RoleAthlete = "athlete"
+	RoleManager = "manager"
+)
+
 var idPrefixes = []string{
-	"mark",
-	"athlete",
-	"manager",
+	RoleMark,
+	RoleAthlete,
+	RoleManager,
 }
 
 func ValidateDeviceID(deviceID string) bool {
@@ -30,18 +36,18 @@ func ValidateDeviceID(deviceID string) bool {
 	return true
 }
 
-func RetrieveRoleAndMyMarkNo(deviceID string) (string, int, bool) {
+func RetrieveRoleAndMarkNo(deviceID string) (string, int, bool) {
 	if !ValidateDeviceID(deviceID) {
 		return "", -1, false
 	}
 
 	for _, prefix := range idPrefixes {
 		if strings.HasPrefix(deviceID, prefix) {
-			myMarkNo := -1
+			MarkNo := -1
 
-			if prefix == "mark" {
+			if prefix == RoleMark {
 				var err error
-				myMarkNo, err = strconv.Atoi(
+				MarkNo, err = strconv.Atoi(
 					strings.TrimPrefix(deviceID, prefix),
 				)
 				if err != nil {
@@ -49,7 +55,7 @@ func RetrieveRoleAndMyMarkNo(deviceID string) (string, int, bool) {
 				}
 			}
 
-			return prefix, myMarkNo, true
+			return prefix, MarkNo, true
 		}
 	}
 
