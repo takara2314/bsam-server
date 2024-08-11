@@ -99,7 +99,9 @@ func TestWSAuth(t *testing.T) {
 
 			if msg.Message != "OK" {
 				t.Errorf(
-					"認証メッセージが正しくありません: got %v, want OK", msg.Message)
+					"認証メッセージが正しくありません: got %v, want OK",
+					msg.Message,
+				)
 			}
 
 			authResultReceived <- true
