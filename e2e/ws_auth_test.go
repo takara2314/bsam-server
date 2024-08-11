@@ -84,7 +84,7 @@ func TestWSAuth(t *testing.T) {
 				return
 			}
 
-			var msg *racehub.AuthResultInput
+			var msg *racehub.AuthResultOutput
 			err = sonic.Unmarshal(payload, &msg)
 			if err != nil {
 				t.Errorf("メッセージのデコードに失敗しました: %v", err)

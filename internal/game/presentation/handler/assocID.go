@@ -41,12 +41,16 @@ func (r *RaceHandler) Auth(
 		)
 
 		// クライアントに認証失敗した旨を送信
-		c.SendAuthResult(
-			false,
-			c.DeviceID,
-			c.Role,
-			c.MyMarkNo,
-			racehub.AuthResultFailedAuthToken,
+		c.Hub.Action.AuthResult(
+			c,
+			&racehub.AuthResultOutput{
+				MessageType: racehub.ActionTypeAuthResult,
+				OK:          false,
+				DeviceID:    c.DeviceID,
+				Role:        c.Role,
+				MyMarkNo:    c.MyMarkNo,
+				Message:     racehub.AuthResultFailedAuthToken,
+			},
 		)
 
 		c.Hub.Unregister(c)
@@ -63,12 +67,16 @@ func (r *RaceHandler) Auth(
 		)
 
 		// クライアントに認証失敗した旨を送信
-		c.SendAuthResult(
-			false,
-			c.DeviceID,
-			c.Role,
-			c.MyMarkNo,
-			racehub.AuthResultOutsideAssoc,
+		c.Hub.Action.AuthResult(
+			c,
+			&racehub.AuthResultOutput{
+				MessageType: racehub.ActionTypeAuthResult,
+				OK:          false,
+				DeviceID:    c.DeviceID,
+				Role:        c.Role,
+				MyMarkNo:    c.MyMarkNo,
+				Message:     racehub.AuthResultOutsideAssoc,
+			},
 		)
 
 		c.Hub.Unregister(c)
@@ -86,12 +94,16 @@ func (r *RaceHandler) Auth(
 		)
 
 		// クライアントに認証失敗した旨を送信
-		c.SendAuthResult(
-			false,
-			c.DeviceID,
-			c.Role,
-			c.MyMarkNo,
-			racehub.AuthResultInvalidDeviceID,
+		c.Hub.Action.AuthResult(
+			c,
+			&racehub.AuthResultOutput{
+				MessageType: racehub.ActionTypeAuthResult,
+				OK:          false,
+				DeviceID:    c.DeviceID,
+				Role:        c.Role,
+				MyMarkNo:    c.MyMarkNo,
+				Message:     racehub.AuthResultInvalidDeviceID,
+			},
 		)
 
 		c.Hub.Unregister(c)
@@ -114,12 +126,16 @@ func (r *RaceHandler) Auth(
 	)
 
 	// クライアントに認証完了メッセージを送信
-	c.SendAuthResult(
-		true,
-		c.DeviceID,
-		c.Role,
-		c.MyMarkNo,
-		racehub.AuthResultOK,
+	c.Hub.Action.AuthResult(
+		c,
+		&racehub.AuthResultOutput{
+			MessageType: racehub.ActionTypeAuthResult,
+			OK:          true,
+			DeviceID:    c.DeviceID,
+			Role:        c.Role,
+			MyMarkNo:    c.MyMarkNo,
+			Message:     racehub.AuthResultOK,
+		},
 	)
 }
 

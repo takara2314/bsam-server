@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/bytedance/sonic"
 	"github.com/gorilla/websocket"
 )
 
@@ -17,13 +16,23 @@ const (
 	AuthResultInvalidDeviceID = "invalid_device_id"
 )
 
-type AuthResultInput struct {
+type Action interface {
+	AuthResult(*Client, *AuthResultOutput)
+}
+
+type UnimplementedAction struct{}
+
+type AuthResultOutput struct {
 	MessageType string `json:"type"`
 	OK          bool   `json:"ok"`
 	DeviceID    string `json:"device_id"`
 	Role        string `json:"role"`
 	MyMarkNo    int    `json:"my_mark_no"`
 	Message     string `json:"message"`
+}
+
+func (UnimplementedHandler) AuthResult(*Client, *AuthResultOutput) {
+	panic("not implemented")
 }
 
 func (c *Client) writePump() {
@@ -122,42 +131,4 @@ func (c *Client) writePing() error {
 	}
 
 	return nil
-}
-
-func (c *Client) SendAuthResult(
-	ok bool,
-	deviceID string,
-	role string,
-	myMarkNo int,
-	msg string,
-) {
-	input := AuthResultInput{
-		MessageType: ActionTypeAuthResult,
-		OK:          ok,
-		DeviceID:    deviceID,
-		Role:        role,
-		MyMarkNo:    myMarkNo,
-		Message:     msg,
-	}
-
-	payload, err := sonic.Marshal(input)
-	if err != nil {
-		slog.Error(
-			"failed to marshal auth result",
-			"client", c,
-			"device_id", deviceID,
-			"role", role,
-			"my_mark_no", myMarkNo,
-			"error", err,
-		)
-		return
-	}
-
-	c.Send <- payload
-
-	slog.Info(
-		"sent auth result",
-		"client", c,
-		"input", input,
-	)
 }
