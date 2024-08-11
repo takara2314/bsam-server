@@ -38,14 +38,6 @@ type PostGeolocationInput struct {
 	RecordedAt            time.Time `json:"recorded_at"`
 }
 
-func (UnimplementedHandler) Auth(*Client, *AuthInput) {
-	panic("not implemented")
-}
-
-func (UnimplementedHandler) PostGeolocation(*Client, *PostGeolocationInput) {
-	panic("not implemented")
-}
-
 func (c *Client) readPump() {
 	defer c.Hub.Unregister(c)
 

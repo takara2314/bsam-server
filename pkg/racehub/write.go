@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/gorilla/websocket"
 	"github.com/takara2314/bsam-server/pkg/domain"
 )
@@ -18,8 +19,15 @@ const (
 )
 
 type Action interface {
-	AuthResult(*Client, *AuthResultOutput)
-	MarkGeolocations(*Client, *MarkGeolocationsOutput)
+	AuthResult(
+		c *Client,
+		ok bool,
+		message string,
+	) (*AuthResultOutput, error)
+
+	MarkGeolocations(
+		c *Client,
+	) (*MarkGeolocationsOutput, error)
 }
 
 type UnimplementedAction struct{}
@@ -48,10 +56,6 @@ type MarkGeolocationsOutputMark struct {
 	RecordedAt    time.Time `json:"recorded_at"`
 }
 
-func (UnimplementedAction) AuthResult(*Client, *AuthResultOutput) {
-	panic("not implemented")
-}
-
 func (c *Client) writePump() {
 	sendingMarkGeolocationsTicker := time.NewTicker(
 		sendingMarkGeolocationsTickerPeriodSec,
@@ -72,7 +76,7 @@ func (c *Client) writePump() {
 			}
 
 		case <-sendingMarkGeolocationsTicker.C:
-			if err := c.writeMarkGeolocations(); err != nil {
+			if err := c.WriteMarkGeolocations(); err != nil {
 				return
 			}
 
@@ -91,16 +95,30 @@ func (c *Client) writePump() {
 	}
 }
 
-func (c *Client) writeMessage(msg []byte, ok bool) error {
+func (c *Client) writeMessage(msg any, ok bool) error {
 	if !ok {
+		slog.Info(
+			"write pump stopped",
+			"client", c,
+		)
 		return nil
 	}
 
 	slog.Info(
 		"writing message",
 		"client", c,
-		"message", string(msg),
+		"message", msg,
 	)
+
+	payload, err := sonic.Marshal(msg)
+	if err != nil {
+		slog.Error(
+			"failed to marshal message",
+			"client", c,
+			"error", err,
+		)
+		return err
+	}
 
 	if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWaitSec)); err != nil {
 		slog.Error(
@@ -124,7 +142,7 @@ func (c *Client) writeMessage(msg []byte, ok bool) error {
 		return err
 	}
 
-	if _, err := w.Write(msg); err != nil {
+	if _, err := w.Write(payload); err != nil {
 		slog.Error(
 			"failed to write message",
 			"client", c,
@@ -145,9 +163,36 @@ func (c *Client) writeMessage(msg []byte, ok bool) error {
 	return nil
 }
 
-func (c *Client) writeMarkGeolocations() error {
+func (c *Client) WriteAuthResult(
+	ok bool,
+	message string,
+) error {
 	slog.Info(
-		"sending mark geolocations",
+		"writing auth result",
+		"client", c,
+	)
+
+	output, err := c.Hub.action.AuthResult(
+		c,
+		ok,
+		message,
+	)
+	if err != nil {
+		slog.Error(
+			"failed to create auth result output",
+			"client", c,
+			"error", err,
+		)
+		return err
+	}
+
+	c.Send <- output
+	return nil
+}
+
+func (c *Client) WriteMarkGeolocations() error {
+	slog.Info(
+		"writing mark geolocations",
 		"client", c,
 	)
 
@@ -160,7 +205,7 @@ func (c *Client) writeMarkGeolocations() error {
 
 func (c *Client) writePing() error {
 	slog.Info(
-		"sending ping",
+		"writing ping",
 		"client", c,
 	)
 

@@ -42,7 +42,16 @@ func (r *RaceHandler) Auth(
 		)
 
 		// クライアントに認証失敗した旨を送信
-		sendAuthResult(c, false, racehub.AuthResultFailedAuthToken)
+		if err := c.WriteAuthResult(
+			false, racehub.AuthResultFailedAuthToken,
+		); err != nil {
+			slog.Error(
+				"failed to write auth result",
+				"client", c,
+				"error", err,
+			)
+		}
+
 		c.Hub.Unregister(c)
 		return
 	}
@@ -57,7 +66,16 @@ func (r *RaceHandler) Auth(
 		)
 
 		// クライアントに認証失敗した旨を送信
-		sendAuthResult(c, false, racehub.AuthResultOutsideAssoc)
+		if err := c.WriteAuthResult(
+			false, racehub.AuthResultOutsideAssoc,
+		); err != nil {
+			slog.Error(
+				"failed to write auth result",
+				"client", c,
+				"error", err,
+			)
+		}
+
 		c.Hub.Unregister(c)
 		return
 	}
@@ -73,7 +91,16 @@ func (r *RaceHandler) Auth(
 		)
 
 		// クライアントに認証失敗した旨を送信
-		sendAuthResult(c, false, racehub.AuthResultInvalidDeviceID)
+		if err := c.WriteAuthResult(
+			false, racehub.AuthResultInvalidDeviceID,
+		); err != nil {
+			slog.Error(
+				"failed to write auth result",
+				"client", c,
+				"error", err,
+			)
+		}
+
 		c.Hub.Unregister(c)
 		return
 	}
@@ -95,25 +122,15 @@ func (r *RaceHandler) Auth(
 	)
 
 	// クライアントに認証完了メッセージを送信
-	sendAuthResult(c, true, racehub.AuthResultOK)
-}
-
-func sendAuthResult(
-	c *racehub.Client,
-	ok bool,
-	message string,
-) {
-	c.Hub.Action.AuthResult(
-		c,
-		&racehub.AuthResultOutput{
-			MessageType: racehub.ActionTypeAuthResult,
-			OK:          ok,
-			DeviceID:    c.DeviceID,
-			Role:        c.Role,
-			MarkNo:      c.MarkNo,
-			Message:     message,
-		},
-	)
+	if err := c.WriteAuthResult(
+		true, racehub.AuthResultOK,
+	); err != nil {
+		slog.Error(
+			"failed to write auth result",
+			"client", c,
+			"error", err,
+		)
+	}
 }
 
 // 位置情報を受信したときの処理

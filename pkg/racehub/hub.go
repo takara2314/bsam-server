@@ -6,7 +6,7 @@ type Hub struct {
 	AssocID string
 	clients map[string]*Client
 	handler Handler
-	Action  Action
+	action  Action
 	Mu      sync.RWMutex
 }
 
@@ -15,6 +15,6 @@ func NewHub(assocID string, handler Handler, action Action) *Hub {
 		AssocID: assocID,
 		clients: make(map[string]*Client),
 		handler: handler,
-		Action:  action,
+		action:  action,
 	}
 }

@@ -34,7 +34,7 @@ type Client struct {
 	ID                string
 	Hub               *Hub
 	Conn              *websocket.Conn
-	Send              chan []byte
+	Send              chan any
 	StoppingWritePump chan bool
 
 	DeviceID   string
@@ -84,7 +84,7 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 		ID:                id,
 		Hub:               h,
 		Conn:              conn,
-		Send:              make(chan []byte, maxIngressMessageBytes),
+		Send:              make(chan any, maxIngressMessageBytes),
 		StoppingWritePump: make(chan bool),
 
 		DeviceID:   "unknown",
