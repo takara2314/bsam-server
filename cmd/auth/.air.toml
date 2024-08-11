@@ -9,13 +9,13 @@ tmp_dir = "cmd/auth/tmp"
 # Array of commands to run before each build
 pre_cmd = ["echo 'hello air' > ./cmd/auth/pre_cmd.txt"]
 # Just plain old shell command. You could use `make` as well.
-cmd = "go build -o ./tmp/main ./cmd/auth"
+cmd = "go build -o ./cmd/auth/tmp/main ./cmd/auth"
 # Array of commands to run after ^C
 post_cmd = ["echo 'hello air' > ./cmd/auth/post_cmd.txt"]
 # Binary file yields from `cmd`.
-bin = ";export $(grep -v '^#' .env | xargs); ./tmp/main"
+bin = ";export $(grep -v '^#' .env | xargs); ./cmd/auth/tmp/main"
 # Customize binary, can setup environment variables when run your app.
-full_bin = "APP_USER=air ./tmp/main"
+full_bin = "APP_USER=air ./cmd/auth/tmp/main"
 # Watch these filename extensions.
 include_ext = ["go", "tpl", "tmpl", "html"]
 # Ignore these filename extensions or directories.
@@ -50,7 +50,7 @@ kill_delay = 500 # nanosecond
 rerun = false
 # Delay after each executions
 rerun_delay = 500
-# Add additional arguments when running binary (bin/full_bin). Will run './tmp/main hello world'.
+# Add additional arguments when running binary (bin/full_bin). Will run './cmd/auth/tmp/main hello world'.
 args_bin = ["hello", "world"]
 
 [log]
