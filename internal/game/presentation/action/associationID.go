@@ -76,6 +76,7 @@ func fetchMarkGeolocation(
 	)
 	if err != nil {
 		return racehub.MarkGeolocationsOutputMark{
+			MarkNo: markNo,
 			Stored: false,
 		}
 	}
