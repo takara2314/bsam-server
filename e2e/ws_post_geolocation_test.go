@@ -255,7 +255,7 @@ func receiveMarkGeolocationsWS(
 	authInput := racehub.AuthInput{
 		MessageType:    racehub.HandlerTypeAuth,
 		Token:          token,
-		DeviceID:       "athlete9",
+		DeviceID:       "athlete1",
 		WantMarkCounts: 5,
 	}
 
