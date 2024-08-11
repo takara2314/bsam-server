@@ -1,6 +1,11 @@
 package action
 
 import (
+	"context"
+
+	"github.com/takara2314/bsam-server/internal/game/common"
+	"github.com/takara2314/bsam-server/pkg/domain"
+	"github.com/takara2314/bsam-server/pkg/geolocationhub"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
@@ -8,6 +13,7 @@ type RaceAction struct {
 	racehub.UnimplementedAction
 }
 
+// 認証結果メッセージを送信するときの処理
 func (r *RaceAction) AuthResult(
 	c *racehub.Client,
 	ok bool,
@@ -23,8 +29,64 @@ func (r *RaceAction) AuthResult(
 	}, nil
 }
 
+// 選手にマークの位置情報を送信するときの処理
 func (r *RaceAction) MarkGeolocations(
 	c *racehub.Client,
 ) (*racehub.MarkGeolocationsOutput, error) {
-	panic("not implemented")
+	ctx := context.Background()
+	geoHub := geolocationhub.NewHub(
+		c.Hub.AssocID,
+		common.FirestoreClient,
+	)
+
+	marks := make(
+		[]racehub.MarkGeolocationsOutputMark, c.WantMarkCounts,
+	)
+
+	for i := range marks {
+		marks[i] = fetchMarkGeolocation(
+			ctx,
+			geoHub,
+			i+1,
+		)
+	}
+
+	return &racehub.MarkGeolocationsOutput{
+		MessageType: racehub.ActionTypeMarkGeolocations,
+		MarkCounts:  c.WantMarkCounts,
+		Marks:       marks,
+	}, nil
+}
+
+// マークの位置情報を取得する
+// データが取得できなかった場合は、Storedフィールドをfalseにする
+func fetchMarkGeolocation(
+	ctx context.Context,
+	geolocationhub *geolocationhub.Hub,
+	markNo int,
+) racehub.MarkGeolocationsOutputMark {
+	deviceID := domain.CreateDeviceID(
+		domain.RoleMark,
+		markNo,
+	)
+
+	loc, err := geolocationhub.FetchLatestGeolocationByDeviceID(
+		ctx,
+		deviceID,
+	)
+	if err != nil {
+		return racehub.MarkGeolocationsOutputMark{
+			Stored: false,
+		}
+	}
+
+	return racehub.MarkGeolocationsOutputMark{
+		MarkNo:        markNo,
+		Stored:        true,
+		Latitude:      loc.Latitude,
+		Longitude:     loc.Longitude,
+		AccuracyMeter: loc.AccuracyMeter,
+		Heading:       loc.Heading,
+		RecordedAt:    loc.RecordedAt,
+	}
 }

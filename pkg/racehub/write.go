@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	ActionTypeAuthResult = "auth_result"
+	ActionTypeAuthResult       = "auth_result"
+	ActionTypeMarkGeolocations = "mark_geolocations"
 
 	AuthResultOK                    = "OK"
 	AuthResultFailedAuthToken       = "failed_auth_token"
@@ -44,6 +45,7 @@ type AuthResultOutput struct {
 
 type MarkGeolocationsOutput struct {
 	MessageType string                       `json:"type"`
+	MarkCounts  int                          `json:"mark_counts"`
 	Marks       []MarkGeolocationsOutputMark `json:"marks"`
 }
 
@@ -201,6 +203,17 @@ func (c *Client) WriteMarkGeolocations() error {
 		return nil
 	}
 
+	output, err := c.Hub.action.MarkGeolocations(c)
+	if err != nil {
+		slog.Error(
+			"failed to create mark geolocations output",
+			"client", c,
+			"error", err,
+		)
+		return err
+	}
+
+	c.Send <- output
 	return nil
 }
 

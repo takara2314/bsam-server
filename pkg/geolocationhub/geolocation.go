@@ -9,6 +9,18 @@ import (
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 )
 
+type Geolocation struct {
+	DeviceID              string
+	Latitude              float64
+	Longitude             float64
+	AltitudeMeter         float64
+	AccuracyMeter         float64
+	AltitudeAccuracyMeter float64
+	Heading               float64
+	SpeedMeterPerSec      float64
+	RecordedAt            time.Time
+}
+
 func (h *Hub) StoreGeolocation(
 	ctx context.Context,
 	deviceID string,
@@ -68,4 +80,37 @@ func (h *Hub) StoreGeolocation(
 	)
 
 	return nil
+}
+
+func (h *Hub) FetchLatestGeolocationByDeviceID(
+	ctx context.Context,
+	deviceID string,
+) (*Geolocation, error) {
+	geolocationID := h.AssocID + "_" + deviceID
+
+	loc, err := repoFirestore.FetchGeolocationByID(
+		ctx,
+		h.FirestoreClient,
+		geolocationID,
+	)
+	if err != nil {
+		return nil, oops.
+			In("geolocationhub.FetchLatestGeolocationByDeviceID").
+			With("assoc_id", h.AssocID).
+			With("device_id", deviceID).
+			With("geolocation_id", geolocationID).
+			Wrapf(err, "failed to fetch geolocation by device id")
+	}
+
+	return &Geolocation{
+		DeviceID:              deviceID,
+		Latitude:              loc.Latitude,
+		Longitude:             loc.Longitude,
+		AltitudeMeter:         loc.AltitudeMeter,
+		AccuracyMeter:         loc.AccuracyMeter,
+		AltitudeAccuracyMeter: loc.AltitudeAccuracyMeter,
+		Heading:               loc.Heading,
+		SpeedMeterPerSec:      loc.SpeedMeterPerSec,
+		RecordedAt:            loc.UpdatedAt,
+	}, nil
 }

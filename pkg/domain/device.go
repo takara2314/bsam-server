@@ -61,3 +61,7 @@ func RetrieveRoleAndMarkNo(deviceID string) (string, int, bool) {
 
 	return "", -1, false
 }
+
+func CreateDeviceID(role string, markNo int) string {
+	return role + strconv.Itoa(markNo)
+}
