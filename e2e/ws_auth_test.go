@@ -51,7 +51,7 @@ func TestWSAuth(t *testing.T) {
 
 	// Authメッセージを送信
 	authInput := racehub.AuthInput{
-		MessageType: "auth",
+		MessageType: racehub.HandlerTypeAuth,
 		Token:       token,
 		DeviceID:    "athlete1",
 	}
@@ -90,17 +90,19 @@ func TestWSAuth(t *testing.T) {
 				t.Errorf("メッセージのデコードに失敗しました: %v", err)
 			}
 
-			if msg.MessageType != "auth_result" {
+			if msg.MessageType != racehub.ActionTypeAuthResult {
 				t.Errorf(
-					"メッセージタイプが正しくありません: got %s, want auth_result",
+					"メッセージタイプが正しくありません: got %s, want %s",
 					msg.MessageType,
+					racehub.ActionTypeAuthResult,
 				)
 			}
 
-			if msg.Message != "OK" {
+			if msg.Message != racehub.AuthResultOK {
 				t.Errorf(
-					"認証メッセージが正しくありません: got %v, want OK",
+					"認証メッセージが正しくありません: got %v, want %s",
 					msg.Message,
+					racehub.AuthResultOK,
 				)
 			}
 

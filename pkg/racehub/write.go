@@ -8,13 +8,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type AuthResultMessage string
-
 const (
-	AuthResultOK              AuthResultMessage = "OK"
-	AuthResultFailedAuthToken AuthResultMessage = "failed_auth_token"
-	AuthResultOutsideAssoc    AuthResultMessage = "outside_assoc"
-	AuthResultInvalidDeviceID AuthResultMessage = "invalid_device_id"
+	ActionTypeAuthResult = "auth_result"
+
+	AuthResultOK              = "OK"
+	AuthResultFailedAuthToken = "failed_auth_token"
+	AuthResultOutsideAssoc    = "outside_assoc"
+	AuthResultInvalidDeviceID = "invalid_device_id"
 )
 
 type AuthResultInput struct {
@@ -30,7 +30,7 @@ func (c *Client) writePump() {
 	pingTicker := time.NewTicker(pingPeriodSec)
 	defer func() {
 		pingTicker.Stop()
-		c.Conn.Close()
+		c.Hub.Unregister(c)
 	}()
 
 	for {
@@ -132,7 +132,7 @@ func (c *Client) SendAuthResult(
 	msg string,
 ) {
 	input := AuthResultInput{
-		MessageType: "auth_result",
+		MessageType: ActionTypeAuthResult,
 		OK:          ok,
 		DeviceID:    deviceID,
 		Role:        role,

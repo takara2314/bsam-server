@@ -8,6 +8,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const (
+	HandlerTypeAuth            = "auth"
+	HandlerTypePostGeolocation = "post_geolocation"
+)
+
 type Handler interface {
 	Auth(*Client, *AuthInput)
 	PostGeolocation(*Client, *PostGeolocationInput)
@@ -123,7 +128,7 @@ func (c *Client) routeMessage(
 	msg map[string]any,
 ) {
 	switch handlerType {
-	case "auth":
+	case HandlerTypeAuth:
 		var input AuthInput
 		if err := sonic.Unmarshal(payload, &input); err != nil {
 			slog.Error(
@@ -135,7 +140,7 @@ func (c *Client) routeMessage(
 		}
 		c.Hub.handler.Auth(c, &input)
 
-	case "post_geolocation":
+	case HandlerTypePostGeolocation:
 		var input PostGeolocationInput
 		if err := sonic.Unmarshal(payload, &input); err != nil {
 			slog.Error(

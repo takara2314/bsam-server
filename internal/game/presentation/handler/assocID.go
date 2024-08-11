@@ -46,7 +46,7 @@ func (r *RaceHandler) Auth(
 			c.DeviceID,
 			c.Role,
 			c.MyMarkNo,
-			string(racehub.AuthResultFailedAuthToken),
+			racehub.AuthResultFailedAuthToken,
 		)
 
 		c.Hub.Unregister(c)
@@ -68,7 +68,7 @@ func (r *RaceHandler) Auth(
 			c.DeviceID,
 			c.Role,
 			c.MyMarkNo,
-			string(racehub.AuthResultOutsideAssoc),
+			racehub.AuthResultOutsideAssoc,
 		)
 
 		c.Hub.Unregister(c)
@@ -95,7 +95,7 @@ func (r *RaceHandler) Auth(
 			c.DeviceID,
 			c.Role,
 			c.MyMarkNo,
-			string(racehub.AuthResultInvalidDeviceID),
+			racehub.AuthResultInvalidDeviceID,
 		)
 
 		c.Hub.Unregister(c)
@@ -118,7 +118,7 @@ func (r *RaceHandler) Auth(
 		c.DeviceID,
 		c.Role,
 		c.MyMarkNo,
-		string(racehub.AuthResultOK),
+		racehub.AuthResultOK,
 	)
 }
 
