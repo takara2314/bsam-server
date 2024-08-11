@@ -51,9 +51,10 @@ func TestWSAuth(t *testing.T) {
 
 	// Authメッセージを送信
 	authInput := racehub.AuthInput{
-		MessageType: racehub.HandlerTypeAuth,
-		Token:       token,
-		DeviceID:    "athlete1",
+		MessageType:    racehub.HandlerTypeAuth,
+		Token:          token,
+		DeviceID:       "athlete1",
+		WantMarkCounts: 3,
 	}
 
 	payload, err := sonic.Marshal(&authInput)

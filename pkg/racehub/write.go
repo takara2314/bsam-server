@@ -12,10 +12,11 @@ import (
 const (
 	ActionTypeAuthResult = "auth_result"
 
-	AuthResultOK              = "OK"
-	AuthResultFailedAuthToken = "failed_auth_token"
-	AuthResultOutsideAssoc    = "outside_assoc"
-	AuthResultInvalidDeviceID = "invalid_device_id"
+	AuthResultOK                    = "OK"
+	AuthResultFailedAuthToken       = "failed_auth_token"
+	AuthResultOutsideAssoc          = "outside_assoc"
+	AuthResultInvalidDeviceID       = "invalid_device_id"
+	AuthResultInvalidWantMarkCounts = "invalid_want_mark_counts"
 )
 
 type Action interface {

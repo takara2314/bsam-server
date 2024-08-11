@@ -37,10 +37,11 @@ type Client struct {
 	Send              chan any
 	StoppingWritePump chan bool
 
-	DeviceID   string
-	Role       string
-	MarkNo     int
-	NextMarkNo int
+	DeviceID       string
+	Role           string
+	MarkNo         int
+	WantMarkCounts int
+	NextMarkNo     int
 }
 
 // WebSocketアップグレーダー: HTTP接続をWebSocket接続にアップグレードする設定

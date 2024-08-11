@@ -21,9 +21,10 @@ type Handler interface {
 type UnimplementedHandler struct{}
 
 type AuthInput struct {
-	MessageType string `json:"type"`
-	Token       string `json:"token"`
-	DeviceID    string `json:"device_id"`
+	MessageType    string `json:"type"`
+	Token          string `json:"token"`
+	DeviceID       string `json:"device_id"`
+	WantMarkCounts int    `json:"want_mark_counts"`
 }
 
 type PostGeolocationInput struct {
