@@ -32,6 +32,7 @@ func NewHub(
 	firestoreClient *firestore.Client,
 ) *Hub {
 	return &Hub{
+		AssocID:         AssocID,
 		FirestoreClient: firestoreClient,
 	}
 }
