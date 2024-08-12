@@ -7,9 +7,9 @@ import (
 
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/pkg/auth"
-	"github.com/takara2314/bsam-server/pkg/devicehub"
+	"github.com/takara2314/bsam-server/pkg/devicelib"
 	"github.com/takara2314/bsam-server/pkg/domain"
-	"github.com/takara2314/bsam-server/pkg/geolocationhub"
+	"github.com/takara2314/bsam-server/pkg/geolocationlib"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
@@ -155,15 +155,13 @@ func (r *RaceHandler) Auth(
 		"input", input,
 	)
 
-	deviceHub := devicehub.NewHub(
-		c.Hub.AssociationID,
-		common.FirestoreClient,
-	)
 	ctx := context.Background()
 
 	// デバイス情報を記録
-	if err := deviceHub.StoreDevice(
+	if err := devicelib.StoreDevice(
 		ctx,
+		common.FirestoreClient,
+		associationID,
 		c.Hub.ID,
 		c.DeviceID,
 		c.ID,
@@ -214,15 +212,13 @@ func (r *RaceHandler) PostGeolocation(
 		"input", input,
 	)
 
-	geolocHub := geolocationhub.NewHub(
-		c.Hub.AssociationID,
-		common.FirestoreClient,
-	)
 	ctx := context.Background()
 
 	// 位置情報を記録
-	if err := geolocHub.StoreGeolocation(
+	if err := geolocationlib.StoreGeolocation(
 		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
 		c.DeviceID,
 		input.Latitude,
 		input.Longitude,

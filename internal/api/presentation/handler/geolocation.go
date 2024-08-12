@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/takara2314/bsam-server/internal/api/common"
-	"github.com/takara2314/bsam-server/pkg/geolocationhub"
+	"github.com/takara2314/bsam-server/pkg/geolocationlib"
 )
 
 type GeolocationPOSTRequest struct {
@@ -23,14 +23,11 @@ type GeolocationPOSTRequest struct {
 }
 
 func GeolocationPOST(c *gin.Context, associationID string, req GeolocationPOSTRequest) {
-	geolocHub := geolocationhub.NewHub(
-		associationID,
-		common.FirestoreClient,
-	)
-
 	// 位置情報を記録
-	if err := geolocHub.StoreGeolocation(
+	if err := geolocationlib.StoreGeolocation(
 		c,
+		common.FirestoreClient,
+		associationID,
 		req.DeviceID,
 		req.Latitude,
 		req.Longitude,

@@ -1,10 +1,11 @@
-package devicehub
+package devicelib
 
 import (
 	"context"
 	"log/slog"
 	"time"
 
+	"cloud.google.com/go/firestore"
 	"github.com/samber/oops"
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 )
@@ -15,26 +16,28 @@ type Device struct {
 	AuthedAt time.Time
 }
 
-func (h *Hub) StoreDevice(
+func StoreDevice(
 	ctx context.Context,
+	firestoreClient *firestore.Client,
+	associationID string,
 	raceHubID string,
 	deviceID string,
 	clientID string,
 	authedAt time.Time,
 ) error {
-	firestoreDeviceID := h.AssociationID + "_" + deviceID
+	firestoreDeviceID := associationID + "_" + deviceID
 
 	if err := repoFirestore.SetDevice(
 		ctx,
-		h.FirestoreClient,
+		firestoreClient,
 		firestoreDeviceID,
 		raceHubID,
 		clientID,
 		authedAt,
 	); err != nil {
 		return oops.
-			In("geolocationhub.StoreDevice").
-			With("association_id", h.AssociationID).
+			In("geolocationlib.StoreDevice").
+			With("association_id", associationID).
 			With("device_id", deviceID).
 			With("firestore_device_id", firestoreDeviceID).
 			With("racehub_id", raceHubID).
@@ -45,7 +48,7 @@ func (h *Hub) StoreDevice(
 
 	slog.Info(
 		"device stored",
-		"association_id", h.AssociationID,
+		"association_id", associationID,
 		"device_id", deviceID,
 		"firestore_device_id", firestoreDeviceID,
 		"racehub_id", raceHubID,
@@ -56,21 +59,23 @@ func (h *Hub) StoreDevice(
 	return nil
 }
 
-func (h *Hub) FetchLatestDeviceByDeviceID(
+func FetchLatestDeviceByDeviceID(
 	ctx context.Context,
+	firestoreClient *firestore.Client,
+	associationID string,
 	deviceID string,
 ) (*Device, error) {
-	firestoreDeviceID := h.AssociationID + "_" + deviceID
+	firestoreDeviceID := associationID + "_" + deviceID
 
 	loc, err := repoFirestore.FetchDeviceByID(
 		ctx,
-		h.FirestoreClient,
+		firestoreClient,
 		firestoreDeviceID,
 	)
 	if err != nil {
 		return nil, oops.
-			In("geolocationhub.FetchLatestDeviceByDeviceID").
-			With("association_id", h.AssociationID).
+			In("geolocationlib.FetchLatestDeviceByDeviceID").
+			With("association_id", associationID).
 			With("device_id", deviceID).
 			With("firestore_device_id", firestoreDeviceID).
 			Wrapf(err, "failed to fetch device by device id")
@@ -83,20 +88,22 @@ func (h *Hub) FetchLatestDeviceByDeviceID(
 	}, nil
 }
 
-func (h *Hub) DeleteFirestoreDeviceByDeviceID(
+func DeleteFirestoreDeviceByDeviceID(
 	ctx context.Context,
+	firestoreClient *firestore.Client,
+	associationID string,
 	deviceID string,
 ) error {
-	firestoreDeviceID := h.AssociationID + "_" + deviceID
+	firestoreDeviceID := associationID + "_" + deviceID
 
 	if err := repoFirestore.DeleteDeviceByID(
 		ctx,
-		h.FirestoreClient,
+		firestoreClient,
 		firestoreDeviceID,
 	); err != nil {
 		return oops.
-			In("geolocationhub.DeleteFirestoreDeviceByDeviceID").
-			With("association_id", h.AssociationID).
+			In("geolocationlib.DeleteFirestoreDeviceByDeviceID").
+			With("association_id", associationID).
 			With("device_id", deviceID).
 			With("firestore_device_id", firestoreDeviceID).
 			Wrapf(err, "failed to delete device by device id")
@@ -104,7 +111,7 @@ func (h *Hub) DeleteFirestoreDeviceByDeviceID(
 
 	slog.Info(
 		"device deleted",
-		"association_id", h.AssociationID,
+		"association_id", associationID,
 		"device_id", deviceID,
 		"firestore_device_id", firestoreDeviceID,
 	)

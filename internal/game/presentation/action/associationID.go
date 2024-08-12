@@ -3,9 +3,10 @@ package action
 import (
 	"context"
 
+	"cloud.google.com/go/firestore"
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/pkg/domain"
-	"github.com/takara2314/bsam-server/pkg/geolocationhub"
+	"github.com/takara2314/bsam-server/pkg/geolocationlib"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
@@ -34,10 +35,6 @@ func (r *RaceAction) MarkGeolocations(
 	c *racehub.Client,
 ) (*racehub.MarkGeolocationsOutput, error) {
 	ctx := context.Background()
-	geolocHub := geolocationhub.NewHub(
-		c.Hub.AssociationID,
-		common.FirestoreClient,
-	)
 
 	marks := make(
 		[]racehub.MarkGeolocationsOutputMark, c.WantMarkCounts,
@@ -46,7 +43,8 @@ func (r *RaceAction) MarkGeolocations(
 	for i := range marks {
 		marks[i] = fetchMarkGeolocation(
 			ctx,
-			geolocHub,
+			common.FirestoreClient,
+			c.Hub.AssociationID,
 			i+1,
 		)
 	}
@@ -62,7 +60,8 @@ func (r *RaceAction) MarkGeolocations(
 // データが取得できなかった場合は、Storedフィールドをfalseにする
 func fetchMarkGeolocation(
 	ctx context.Context,
-	geolocHub *geolocationhub.Hub,
+	firestore *firestore.Client,
+	associationID string,
 	markNo int,
 ) racehub.MarkGeolocationsOutputMark {
 	deviceID := domain.CreateDeviceID(
@@ -70,8 +69,10 @@ func fetchMarkGeolocation(
 		markNo,
 	)
 
-	loc, err := geolocHub.FetchLatestGeolocationByDeviceID(
+	loc, err := geolocationlib.FetchLatestGeolocationByDeviceID(
 		ctx,
+		firestore,
+		associationID,
 		deviceID,
 	)
 	if err != nil {

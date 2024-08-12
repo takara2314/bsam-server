@@ -1,11 +1,11 @@
 {
   "cSpell.words": [
     "bsam",
-    "geolocationhub",
-    "geolochub",
-    "geolocation",
     "racehub",
-    "devicehub",
-    "taskhub"
+    "geolocationlib",
+    "geoloclib",
+    "geolocation",
+    "devicelib",
+    "tasklib"
   ]
 }

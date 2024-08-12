@@ -1,10 +1,11 @@
-package geolocationhub
+package geolocationlib
 
 import (
 	"context"
 	"log/slog"
 	"time"
 
+	"cloud.google.com/go/firestore"
 	"github.com/samber/oops"
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 )
@@ -21,8 +22,10 @@ type Geolocation struct {
 	RecordedAt            time.Time
 }
 
-func (h *Hub) StoreGeolocation(
+func StoreGeolocation(
 	ctx context.Context,
+	firestoreClient *firestore.Client,
+	associationID string,
 	deviceID string,
 	lat float64,
 	lng float64,
@@ -33,11 +36,11 @@ func (h *Hub) StoreGeolocation(
 	speedMeterPerSec float64,
 	recordedAt time.Time,
 ) error {
-	geolocationID := h.AssociationID + "_" + deviceID
+	geolocationID := associationID + "_" + deviceID
 
 	if err := repoFirestore.SetGeolocation(
 		ctx,
-		h.FirestoreClient,
+		firestoreClient,
 		geolocationID,
 		lat,
 		lng,
@@ -49,8 +52,8 @@ func (h *Hub) StoreGeolocation(
 		recordedAt,
 	); err != nil {
 		return oops.
-			In("geolocationhub.StoreGeolocation").
-			With("association_id", h.AssociationID).
+			In("geolocationlib.StoreGeolocation").
+			With("association_id", associationID).
 			With("device_id", deviceID).
 			With("geolocation_id", geolocationID).
 			With("latitude", lat).
@@ -66,7 +69,7 @@ func (h *Hub) StoreGeolocation(
 
 	slog.Info(
 		"geolocation stored",
-		"association_id", h.AssociationID,
+		"association_id", associationID,
 		"device_id", deviceID,
 		"geolocation_id", geolocationID,
 		"latitude", lat,
@@ -82,21 +85,23 @@ func (h *Hub) StoreGeolocation(
 	return nil
 }
 
-func (h *Hub) FetchLatestGeolocationByDeviceID(
+func FetchLatestGeolocationByDeviceID(
 	ctx context.Context,
+	firestoreClient *firestore.Client,
+	associationID string,
 	deviceID string,
 ) (*Geolocation, error) {
-	geolocationID := h.AssociationID + "_" + deviceID
+	geolocationID := associationID + "_" + deviceID
 
 	loc, err := repoFirestore.FetchGeolocationByID(
 		ctx,
-		h.FirestoreClient,
+		firestoreClient,
 		geolocationID,
 	)
 	if err != nil {
 		return nil, oops.
-			In("geolocationhub.FetchLatestGeolocationByDeviceID").
-			With("association_id", h.AssociationID).
+			In("geolocationlib.FetchLatestGeolocationByDeviceID").
+			With("association_id", associationID).
 			With("device_id", deviceID).
 			With("geolocation_id", geolocationID).
 			Wrapf(err, "failed to fetch geolocation by device id")
