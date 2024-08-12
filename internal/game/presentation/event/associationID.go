@@ -55,11 +55,6 @@ func (r *RaceEvent) ManageRaceStatusTaskReceived(
 		if !c.Authed {
 			continue
 		}
-		if err := c.WriteManageRaceStatus(msg.Started); err != nil {
-			slog.Error(
-				"failed to write",
-				"error", err,
-			)
-		}
+		_ = c.WriteManageRaceStatus(msg.Started)
 	}
 }
