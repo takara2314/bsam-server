@@ -29,6 +29,9 @@ const (
 	// 受信メッセージ (ingress) の最大サイズ: 1KB
 	// これより大きいメッセージは拒否される
 	maxIngressMessageBytes = 1024
+
+	// 送信メッセージ (egress) の最大サイズ: 1KB
+	maxEgressMessageBytes = 1024
 )
 
 type Client struct {
@@ -97,7 +100,7 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 		ID:                id,
 		Hub:               h,
 		Conn:              conn,
-		Send:              make(chan any, maxIngressMessageBytes),
+		Send:              make(chan any, maxEgressMessageBytes),
 		StoppingWritePump: make(chan bool),
 
 		DeviceID:   "unknown",
