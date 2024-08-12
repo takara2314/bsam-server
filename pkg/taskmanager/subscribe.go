@@ -2,10 +2,13 @@ package taskmanager
 
 import (
 	"context"
+	"log/slog"
 	"strings"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	"github.com/takara2314/bsam-server/pkg/util"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -42,36 +45,99 @@ func (m *Manager) subscribeTasks(ctx context.Context, errPipe chan error) {
 				continue
 			}
 
-			// 自分のIDのものだけ処理する
-			if !strings.HasPrefix(change.Doc.Ref.ID, m.ID) {
-				continue
+			// タスクIDのprefixによって処理を分岐
+			switch util.StripAnyPrefix(
+				change.Doc.Ref.ID,
+				[]string{PrefixManager, PrefixAssociation},
+			) {
+			case PrefixManager:
+				m.callSubscribeHandlerIfMyManager(ctx, errPipe, change)
+			case PrefixAssociation:
+				m.callSubscribeHandlerIfMyAssociation(ctx, errPipe, change)
+			default:
+				slog.Warn(
+					"unsupported prefix",
+					"task_id", change.Doc.Ref.ID,
+				)
 			}
+		}
+	}
+}
 
-			task, err := repoFirestore.FetchTaskByID(
+func (m *Manager) callSubscribeHandlerIfMyManager(
+	ctx context.Context,
+	errPipe chan error,
+	change firestore.DocumentChange,
+) {
+	// 自分のIDのものだけ処理する
+	if !strings.HasPrefix(change.Doc.Ref.ID, m.ID) {
+		return
+	}
+
+	task, err := repoFirestore.FetchTaskByID(
+		ctx,
+		m.FirestoreClient,
+		change.Doc.Ref.ID,
+	)
+	if err != nil {
+		errPipe <- err
+		return
+	}
+
+	// 登録されたハンドラを呼び出す
+	if handlerErr := m.subscribeHandler(
+		task.Type,
+		task.Payload,
+	); handlerErr == nil {
+		// ハンドラーでエラーがなければタスクを完了としてマークする
+		if err := repoFirestore.DeleteTaskByID(
+			ctx,
+			m.FirestoreClient,
+			task.ID,
+		); err != nil {
+			errPipe <- err
+			return
+		}
+	}
+}
+
+func (m *Manager) callSubscribeHandlerIfMyAssociation(
+	ctx context.Context,
+	errPipe chan error,
+	change firestore.DocumentChange,
+) {
+	// 自分の協会IDのものだけ処理する
+	if !strings.HasPrefix(change.Doc.Ref.ID, m.AssociationID) {
+		return
+	}
+
+	task, err := repoFirestore.FetchTaskByID(
+		ctx,
+		m.FirestoreClient,
+		change.Doc.Ref.ID,
+	)
+	if err != nil {
+		errPipe <- err
+		return
+	}
+
+	// 登録されたハンドラを呼び出す
+	if handlerErr := m.subscribeHandler(
+		task.Type,
+		task.Payload,
+	); handlerErr == nil {
+		// ハンドラーでエラーがなければタスクを完了としてマークする
+		// 他のレースハブが未ウォッチかもしれないので、10秒後に削除する
+		go func(ctx context.Context) {
+			time.Sleep(10 * time.Second)
+			if err := repoFirestore.DeleteTaskByID(
 				ctx,
 				m.FirestoreClient,
-				change.Doc.Ref.ID,
-			)
-			if err != nil {
+				task.ID,
+			); err != nil {
 				errPipe <- err
 				return
 			}
-
-			// 登録されたハンドラを呼び出す
-			if handlerErr := m.subscribeHandler(
-				task.Type,
-				task.Payload,
-			); handlerErr == nil {
-				// ハンドラーでエラーがなければタスクを完了としてマークする
-				if err := repoFirestore.DeleteTaskByID(
-					ctx,
-					m.FirestoreClient,
-					task.ID,
-				); err != nil {
-					errPipe <- err
-					return
-				}
-			}
-		}
+		}(ctx)
 	}
 }
