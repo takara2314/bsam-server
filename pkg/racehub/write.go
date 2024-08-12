@@ -12,6 +12,7 @@ import (
 const (
 	ActionTypeAuthResult       = "auth_result"
 	ActionTypeMarkGeolocations = "mark_geolocations"
+	ActionTypeManageRaceStatus = "manage_race_status"
 
 	AuthResultOK                    = "OK"
 	AuthResultFailedAuthToken       = "failed_auth_token"
@@ -30,6 +31,11 @@ type Action interface {
 	MarkGeolocations(
 		c *Client,
 	) (*MarkGeolocationsOutput, error)
+
+	ManageRaceStatus(
+		c *Client,
+		started bool,
+	) (*ManageRaceStatusOutput, error)
 }
 
 type UnimplementedAction struct{}
@@ -57,6 +63,11 @@ type MarkGeolocationsOutputMark struct {
 	AccuracyMeter float64   `json:"accuracy_meter"`
 	Heading       float64   `json:"heading"`
 	RecordedAt    time.Time `json:"recorded_at"`
+}
+
+type ManageRaceStatusOutput struct {
+	MessageType string `json:"type"`
+	Started     bool   `json:"started"`
 }
 
 func (c *Client) writePump() {
@@ -181,7 +192,7 @@ func (c *Client) WriteAuthResult(
 	message string,
 ) error {
 	slog.Info(
-		"writing auth result",
+		"writing auth_result",
 		"client", c,
 	)
 
@@ -192,7 +203,7 @@ func (c *Client) WriteAuthResult(
 	)
 	if err != nil {
 		slog.Error(
-			"failed to create auth result output",
+			"failed to create auth_result output",
 			"client", c,
 			"error", err,
 		)
@@ -205,14 +216,34 @@ func (c *Client) WriteAuthResult(
 
 func (c *Client) WriteMarkGeolocations() error {
 	slog.Info(
-		"writing mark geolocations",
+		"writing mark_geolocations",
 		"client", c,
 	)
 
 	output, err := c.Hub.action.MarkGeolocations(c)
 	if err != nil {
 		slog.Error(
-			"failed to create mark geolocations output",
+			"failed to create mark_geolocations output",
+			"client", c,
+			"error", err,
+		)
+		return err
+	}
+
+	c.Send <- output
+	return nil
+}
+
+func (c *Client) WriteManageRaceStatus(started bool) error {
+	slog.Info(
+		"writing start race",
+		"client", c,
+	)
+
+	output, err := c.Hub.action.ManageRaceStatus(c, started)
+	if err != nil {
+		slog.Error(
+			"failed to create manage_race_status output",
 			"client", c,
 			"error", err,
 		)

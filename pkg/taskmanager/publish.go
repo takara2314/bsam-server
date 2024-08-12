@@ -12,7 +12,7 @@ import (
 func (m *Manager) Publish(
 	ctx context.Context,
 	targetID string,
-	msgType string,
+	taskType string,
 	payload []byte,
 ) error {
 	taskID := targetID + "_" + ulid.Make().String()
@@ -21,7 +21,7 @@ func (m *Manager) Publish(
 		ctx,
 		m.FirestoreClient,
 		taskID,
-		msgType,
+		taskType,
 		payload,
 		time.Now(),
 	); err != nil {
@@ -29,7 +29,7 @@ func (m *Manager) Publish(
 			In("taskmanager.Publish").
 			With("target_id", targetID).
 			With("task_id", taskID).
-			With("message_type", msgType).
+			With("task_type", taskType).
 			Wrapf(err, "failed to set task to firestore")
 	}
 

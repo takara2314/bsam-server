@@ -40,3 +40,14 @@ func (r *RaceEvent) Unregister(c *racehub.Client) {
 		"client", c,
 	)
 }
+
+// レースの状態を管理するタスクを受信したときの処理
+// 全員にレース開始アクションを送信する
+func (r *RaceEvent) ManageRaceStatusTaskReceived(
+	h *racehub.Hub,
+	msg *racehub.ManageRaceStatusTaskMessage,
+) {
+	for _, c := range h.Clients {
+		c.WriteManageRaceStatus(msg.Started)
+	}
+}

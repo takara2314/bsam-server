@@ -56,6 +56,17 @@ func (r *RaceAction) MarkGeolocations(
 	}, nil
 }
 
+// レースの状態を管理するときの処理
+func (r *RaceAction) ManageRaceStatus(
+	c *racehub.Client,
+	started bool,
+) (*racehub.ManageRaceStatusOutput, error) {
+	return &racehub.ManageRaceStatusOutput{
+		MessageType: racehub.ActionTypeManageRaceStatus,
+		Started:     started,
+	}, nil
+}
+
 // マークの位置情報を取得する
 // データが取得できなかった場合は、Storedフィールドをfalseにする
 func fetchMarkGeolocation(

@@ -81,6 +81,7 @@ func (c *Client) LogValue() slog.Value {
 type Event interface {
 	Register(*Client)
 	Unregister(*Client)
+	ManageRaceStatusTaskReceived(*Hub, *ManageRaceStatusTaskMessage)
 }
 
 type UnimplementedEvent struct{}
@@ -102,7 +103,7 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 	}
 
 	h.Mu.Lock()
-	h.clients[id] = client
+	h.Clients[id] = client
 	h.Mu.Unlock()
 
 	h.event.Register(client)
@@ -115,7 +116,7 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 }
 
 func (h *Hub) Unregister(c *Client) {
-	if _, exist := h.clients[c.ID]; !exist {
+	if _, exist := h.Clients[c.ID]; !exist {
 		return
 	}
 
@@ -125,7 +126,7 @@ func (h *Hub) Unregister(c *Client) {
 	h.Mu.Lock()
 	defer h.Mu.Unlock()
 
-	delete(h.clients, c.ID)
+	delete(h.Clients, c.ID)
 	close(c.Send)
 }
 

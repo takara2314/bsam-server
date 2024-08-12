@@ -19,13 +19,13 @@ func SetTask(
 	ctx context.Context,
 	client *firestore.Client,
 	id string,
-	msgType string,
+	taskType string,
 	payload []byte,
 	updatedAt time.Time,
 ) error {
 	_, err := client.Collection("tasks").Doc(id).Set(ctx, Task{
 		ID:        id,
-		Type:      msgType,
+		Type:      taskType,
 		Payload:   payload,
 		UpdatedAt: updatedAt,
 	})

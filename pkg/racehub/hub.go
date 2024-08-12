@@ -8,10 +8,14 @@ import (
 	"github.com/takara2314/bsam-server/pkg/taskmanager"
 )
 
+const (
+	TaskTypeManageRaceStatus = "race_start"
+)
+
 type Hub struct {
 	ID            string
 	AssociationID string
-	clients       map[string]*Client
+	Clients       map[string]*Client
 	TaskManager   *taskmanager.Manager
 	event         Event
 	handler       Handler
@@ -23,7 +27,7 @@ func (h *Hub) LogValue() slog.Value {
 	return slog.GroupValue(
 		slog.String("id", h.ID),
 		slog.String("association_id", h.AssociationID),
-		slog.Int("client_counts", len(h.clients)),
+		slog.Int("client_counts", len(h.Clients)),
 	)
 }
 
@@ -45,7 +49,7 @@ func NewHub(
 	hub := &Hub{
 		ID:            id,
 		AssociationID: associationID,
-		clients:       make(map[string]*Client),
+		Clients:       make(map[string]*Client),
 		TaskManager:   tm,
 		event:         event,
 		handler:       handler,
@@ -60,12 +64,30 @@ func NewHub(
 	return hub
 }
 
-func (h *Hub) subscribeHandler(msgType string, payload []byte) error {
+type ManageRaceStatusTaskMessage struct {
+	Started bool `json:"started"`
+}
+
+func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
 	slog.Info(
 		"received task",
 		"hub", h,
-		"msg_type", msgType,
+		"task_type", taskType,
 		"payload", string(payload),
 	)
+
+	switch taskType {
+	case TaskTypeManageRaceStatus:
+		h.event.ManageRaceStatusTaskReceived(h, &ManageRaceStatusTaskMessage{})
+
+	default:
+		slog.Warn(
+			"unsupported task type",
+			"hub", h,
+			"task_type", taskType,
+			"payload", string(payload),
+		)
+	}
+
 	return nil
 }
