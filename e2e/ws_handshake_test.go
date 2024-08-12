@@ -3,64 +3,61 @@ package e2e
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"github.com/takara2314/bsam-server/e2e/raceclient"
 )
 
 func TestWSHandshake(t *testing.T) {
-	var (
-		url        = "ws://localhost:8081/japan"
-		timeoutSec = 1 * time.Second
-	)
-
 	t.Parallel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeoutSec)
+	var (
+		serverURL = url.URL{
+			Scheme: "ws",
+			Host:   "localhost:8081",
+			Path:   "/japan",
+		}
+		timeout = 1 * time.Second
+	)
+
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		timeout,
+	)
 	defer cancel()
 
-	// WebSocket Dialerの設定
-	dialer := websocket.Dialer{
-		HandshakeTimeout: timeoutSec,
-	}
+	client := raceclient.NewClient(serverURL)
 
-	// WebSocket接続を試みる
-	conn, resp, err := dialer.DialContext(ctx, url, nil)
+	err := client.Connect(ctx, timeout)
 	if err != nil {
-		t.Fatalf("WebSocket接続に失敗しました: %v", err)
+		t.Fatalf("接続に失敗しました: %v", err)
 	}
-	defer conn.Close()
+	defer client.Close()
 
 	// レスポンスのステータスコードを確認
-	if resp.StatusCode != http.StatusSwitchingProtocols {
+	if client.Resp.StatusCode != http.StatusSwitchingProtocols {
 		t.Errorf(
 			"予期しないステータスコード: got %d, want %d",
-			resp.StatusCode, http.StatusSwitchingProtocols,
+			client.Resp.StatusCode,
+			http.StatusSwitchingProtocols,
 		)
 	}
 
 	// Upgradeヘッダーを確認
-	if resp.Header.Get("Upgrade") != "websocket" {
+	if client.Resp.Header.Get("Upgrade") != "websocket" {
 		t.Errorf(
 			"Upgradeヘッダーが正しくありません: got %s, want websocket",
-			resp.Header.Get("Upgrade"),
+			client.Resp.Header.Get("Upgrade"),
 		)
 	}
 
 	// Connectionヘッダーを確認
-	if resp.Header.Get("Connection") != "Upgrade" {
+	if client.Resp.Header.Get("Connection") != "Upgrade" {
 		t.Errorf(
 			"Connectionヘッダーが正しくありません: got %s, want Upgrade",
-			resp.Header.Get("Connection"),
+			client.Resp.Header.Get("Connection"),
 		)
-	}
-
-	// 正常にクローズ
-	if err := conn.WriteMessage(
-		websocket.CloseMessage,
-		websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
-	); err != nil {
-		t.Errorf("コネクションのクローズ中にエラーが発生しました: %v", err)
 	}
 }

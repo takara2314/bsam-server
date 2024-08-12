@@ -2,80 +2,80 @@ package e2e
 
 import (
 	"context"
-	"net/http"
+	"errors"
+	"net/url"
 	"testing"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/takara2314/bsam-server/e2e/raceclient"
 )
 
 func TestWSReceivePong(t *testing.T) {
-	var (
-		url        = "ws://localhost:8081/japan"
-		timeoutSec = 1 * time.Second
-	)
-
 	t.Parallel()
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeoutSec)
+	var (
+		serverURL = url.URL{
+			Scheme: "ws",
+			Host:   "localhost:8081",
+			Path:   "/japan",
+		}
+		timeout = 1 * time.Second
+	)
+
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		timeout,
+	)
 	defer cancel()
 
-	// WebSocket Dialerの設定
-	dialer := websocket.Dialer{
-		HandshakeTimeout: timeoutSec,
-	}
+	client := raceclient.NewClient(serverURL)
 
-	// WebSocket接続を試みる
-	conn, resp, err := dialer.DialContext(ctx, url, nil)
+	err := client.Connect(ctx, timeout)
 	if err != nil {
-		t.Fatalf("WebSocket接続に失敗しました: %v", err)
+		t.Fatalf("接続に失敗しました: %v", err)
 	}
-	defer conn.Close()
+	defer client.Close()
 
-	if resp.StatusCode != http.StatusSwitchingProtocols {
-		t.Errorf(
-			"予期しないステータスコード: got %d, want %d",
-			resp.StatusCode, http.StatusSwitchingProtocols,
-		)
-	}
-
-	pongReceived := make(chan bool)
-	conn.SetPongHandler(func(appData string) error {
-		close(pongReceived)
+	// Pongを受信したら成功
+	pongReceivedCh := make(chan bool)
+	client.Conn.SetPongHandler(func(appData string) error {
+		close(pongReceivedCh)
 		return nil
 	})
 
-	err = conn.WriteControl(
+	// Pingを送信
+	err = client.Conn.WriteControl(
 		websocket.PingMessage,
-		[]byte("test ping"),
+		[]byte("ping"),
 		time.Now().Add(time.Second),
 	)
 	if err != nil {
 		t.Fatalf("Ping送信エラー: %v", err)
 	}
 
-	go func() {
+	errCh := make(chan error)
+
+	// Pongを受信するまで待機
+	go func(ctx context.Context, errCh chan error) {
+		it := client.ReceiveStream(ctx)
 		for {
-			_, _, err := conn.ReadMessage()
+			_, err := it.Read()
 			if err != nil {
-				if websocket.IsUnexpectedCloseError(
-					err,
-					websocket.CloseNormalClosure,
-					websocket.CloseGoingAway,
-					websocket.CloseAbnormalClosure,
-					websocket.CloseNoStatusReceived,
-				) {
-					t.Errorf("予期しない接続クローズエラー: %v", err)
+				if errors.Is(err, context.DeadlineExceeded) {
+					break
 				}
-				return
+				errCh <- err
 			}
 		}
-	}()
+	}(ctx, errCh)
 
 	select {
-	case <-pongReceived:
+	case <-pongReceivedCh:
 		return
-	case <-time.After(timeoutSec):
-		t.Fatal("Pong待機中にタイムアウトしました")
+	case err := <-errCh:
+		t.Fatalf("メッセージの受信に失敗しました: %v", err)
+	case <-time.After(timeout):
+		t.Fatal("タイムアウトしました")
 	}
 }

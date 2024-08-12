@@ -2,24 +2,32 @@ package e2e
 
 import (
 	"context"
-	"net/http"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/url"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/bytedance/sonic"
-	"github.com/gorilla/websocket"
+	"github.com/takara2314/bsam-server/e2e/auth"
+	"github.com/takara2314/bsam-server/e2e/raceclient"
 	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
 func TestWSPostGeolocation(t *testing.T) {
+	t.Parallel()
+
 	var (
-		url                = "ws://localhost:8081/japan"
-		associationID      = "japan"
-		password           = "nippon"
-		timeoutSec         = 1 * time.Second
-		sampleGeolocations = []racehub.PostGeolocationInput{
+		serverURL = url.URL{
+			Scheme: "ws",
+			Host:   "localhost:8081",
+			Path:   "/japan",
+		}
+		associationID = "japan"
+		password      = "nippon"
+		geolocations  = []racehub.PostGeolocationInput{
 			{
 				Latitude:      35.6895,
 				Longitude:     139.6917,
@@ -42,286 +50,214 @@ func TestWSPostGeolocation(t *testing.T) {
 				RecordedAt:    time.Now(),
 			},
 		}
+		wantMarkCounts = 5
+		timeout        = 1 * time.Second
 	)
 
-	t.Parallel()
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeoutSec)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		timeout,
+	)
 	defer cancel()
 
 	// トークンを取得
-	token, err := FetchTokenFromAPI(associationID, password)
+	token, err := auth.FetchTokenFromAPI(associationID, password)
 	if err != nil {
 		t.Fatalf("トークンの取得に失敗しました: %v", err)
 	}
 
+	errCh := make(chan error)
+
+	// 3つのマークデバイスから位置情報を送信
 	var wg sync.WaitGroup
-	for i, geolocation := range sampleGeolocations {
+	for i, geolocation := range geolocations {
 		wg.Add(1)
-		go postMarkGeolocationWS(
-			ctx,
-			t,
-			timeoutSec,
-			&wg,
-			url,
-			token,
-			i+1,
-			geolocation.Latitude,
-			geolocation.Longitude,
-			geolocation.AccuracyMeter,
-			geolocation.Heading,
-			geolocation.RecordedAt,
+		go func() {
+			defer wg.Done()
+			if err := connectAndPostGeolocation(
+				ctx,
+				timeout,
+				serverURL,
+				token,
+				domain.CreateDeviceID(domain.RoleMark, i+1),
+				geolocation,
+			); err != nil {
+				errCh <- err
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	select {
+	case err := <-errCh:
+		t.Fatalf("マークから位置情報を送信しているときにエラーが発生しました: %v", err)
+	default:
+	}
+
+	// マークの位置情報を取得
+	marks, err := connectAndReceiveMarkGeolocations(
+		ctx,
+		timeout,
+		serverURL,
+		token,
+		domain.CreateDeviceID(domain.RoleAthlete, 1),
+		wantMarkCounts,
+	)
+	if err != nil {
+		t.Fatalf("マークの位置情報の取得に失敗しました: %v", err)
+	}
+
+	if len(marks) != wantMarkCounts {
+		t.Errorf(
+			"位置情報の数が正しくありません: got %d, want %d",
+			len(marks),
+			wantMarkCounts,
 		)
 	}
 
-	done := make(chan bool)
-	go func() {
-		wg.Wait()
-
-		// 位置情報を受け取る
-		go receiveMarkGeolocationsWS(
-			ctx,
-			t,
-			timeoutSec,
-			url,
-			token,
-			len(sampleGeolocations),
-			done,
-		)
-	}()
-
-	select {
-	case <-done:
-		return
-	case <-time.After(timeoutSec):
-		t.Fatal("MarkGeolocations待機中にタイムアウトしました")
+	// 位置情報の格納状態を確認
+	// mark1, mark2, mark3 のみ送信したため、それ以降は格納されていない
+	correctStored := []bool{true, true, true, false, false}
+	for i, mark := range marks {
+		if mark.Stored != correctStored[i] {
+			t.Errorf(
+				"マーク%dの位置情報の格納状態が正しくありません: got %v, want %v",
+				i+1,
+				mark.Stored,
+				correctStored[i],
+			)
+		}
 	}
 }
 
-func postMarkGeolocationWS(
+// WebSocketに接続し、位置情報を送信する
+func connectAndPostGeolocation(
 	ctx context.Context,
-	t *testing.T,
-	timeoutSec time.Duration,
-	wg *sync.WaitGroup,
-	url string,
+	timeout time.Duration,
+	serverURL url.URL,
 	token string,
-	markNo int,
-	latitude float64,
-	longitude float64,
-	accuracyMeter float64,
-	heading float64,
-	recordedAt time.Time,
-) {
-	deviceID := domain.CreateDeviceID(domain.RoleMark, markNo)
+	deviceID string,
+	geolocation racehub.PostGeolocationInput,
+) error {
+	client := raceclient.NewClient(serverURL)
 
-	// WebSocket Dialerの設定
-	dialer := websocket.Dialer{
-		HandshakeTimeout: timeoutSec,
-	}
-
-	// WebSocket接続を試みる
-	conn, resp, err := dialer.DialContext(ctx, url, nil)
+	err := client.Connect(ctx, timeout)
 	if err != nil {
-		t.Fatalf("WebSocket接続に失敗しました: %v", err)
+		return fmt.Errorf("接続に失敗しました: %v", err)
 	}
-	defer conn.Close()
+	defer client.Close()
 
-	if resp.StatusCode != http.StatusSwitchingProtocols {
-		t.Errorf(
-			"予期しないステータスコード: got %d, want %d",
-			resp.StatusCode, http.StatusSwitchingProtocols,
-		)
-	}
-
-	// Authメッセージを送信
-	authInput := racehub.AuthInput{
+	// 認証メッセージを送信
+	err = client.Send(racehub.AuthInput{
 		MessageType: racehub.HandlerTypeAuth,
 		Token:       token,
 		DeviceID:    deviceID,
-	}
-
-	payload, err := sonic.Marshal(&authInput)
+	})
 	if err != nil {
-		t.Fatalf("メッセージのエンコードに失敗しました: %v", err)
+		return fmt.Errorf("メッセージの送信に失敗しました: %v", err)
 	}
 
-	if err := conn.WriteMessage(
-		websocket.TextMessage,
-		payload,
-	); err != nil {
-		t.Fatalf("メッセージの送信に失敗しました: %v", err)
-	}
-
-	authResultReceived := make(chan bool)
-
-	go func() {
-		for {
-			_, payload, err := conn.ReadMessage()
-			if err != nil {
-				if websocket.IsUnexpectedCloseError(
-					err,
-					websocket.CloseNormalClosure,
-					websocket.CloseGoingAway,
-					websocket.CloseAbnormalClosure,
-					websocket.CloseNoStatusReceived,
-				) {
-					t.Errorf("予期しない接続クローズエラー: %v", err)
-				}
-				return
+	it := client.ReceiveStream(ctx)
+	for {
+		payload, err := it.Read()
+		if err != nil {
+			if errors.Is(err, context.DeadlineExceeded) {
+				break
 			}
-
-			var msg *racehub.AuthResultOutput
-			err = sonic.Unmarshal(payload, &msg)
-			if err != nil {
-				t.Errorf("メッセージのデコードに失敗しました: %v", err)
-			}
-
-			if msg.MessageType != racehub.ActionTypeAuthResult {
-				t.Errorf(
-					"メッセージタイプが正しくありません: got %s, want %s",
-					msg.MessageType,
-					racehub.ActionTypeAuthResult,
-				)
-			}
-
-			if msg.Message != racehub.AuthResultOK {
-				t.Errorf(
-					"認証メッセージが正しくありません: got %v, want %s",
-					msg.Message,
-					racehub.AuthResultOK,
-				)
-			}
-
-			authResultReceived <- true
+			return fmt.Errorf("メッセージの受信に失敗しました: %v", err)
 		}
-	}()
 
-	<-authResultReceived
+		var msg map[string]any
+		err = json.Unmarshal(payload, &msg)
+		if err != nil {
+			return fmt.Errorf("メッセージのパースに失敗しました: %v", err)
+		}
 
-	// MarkGeolocationメッセージを送信
-	input := racehub.PostGeolocationInput{
-		MessageType:   racehub.HandlerTypePostGeolocation,
-		Latitude:      latitude,
-		Longitude:     longitude,
-		AccuracyMeter: accuracyMeter,
-		Heading:       heading,
-		RecordedAt:    recordedAt,
+		switch msg["type"] {
+		case "auth_result":
+			if msg["ok"] != true {
+				return fmt.Errorf(
+					"認証に失敗しました: got %v want ok",
+					msg["message"],
+				)
+			}
+
+			// 位置情報を送信
+			err = client.Send(geolocation)
+			if err != nil {
+				return fmt.Errorf("メッセージの送信に失敗しました: %v", err)
+			}
+			return nil
+		}
 	}
 
-	payload, err = sonic.Marshal(&input)
-	if err != nil {
-		t.Fatalf("メッセージのエンコードに失敗しました: %v", err)
-	}
-
-	if err := conn.WriteMessage(
-		websocket.TextMessage,
-		payload,
-	); err != nil {
-		t.Fatalf("メッセージの送信に失敗しました: %v", err)
-	}
-
-	wg.Done()
+	return nil
 }
 
-func receiveMarkGeolocationsWS(
+// WebSocketに接続し、位置情報を受信する
+func connectAndReceiveMarkGeolocations(
 	ctx context.Context,
-	t *testing.T,
-	timeoutSec time.Duration,
-	url string,
+	timeout time.Duration,
+	serverURL url.URL,
 	token string,
+	deviceID string,
 	wantMarkCounts int,
-	done chan bool,
-) {
-	// WebSocket Dialerの設定
-	dialer := websocket.Dialer{
-		HandshakeTimeout: timeoutSec,
-	}
+) ([]racehub.MarkGeolocationsOutputMark, error) {
+	client := raceclient.NewClient(serverURL)
 
-	// WebSocket接続を試みる
-	conn, resp, err := dialer.DialContext(ctx, url, nil)
+	err := client.Connect(ctx, timeout)
 	if err != nil {
-		t.Fatalf("WebSocket接続に失敗しました: %v", err)
+		return nil, fmt.Errorf("接続に失敗しました: %v", err)
 	}
-	defer conn.Close()
+	defer client.Close()
 
-	if resp.StatusCode != http.StatusSwitchingProtocols {
-		t.Errorf(
-			"予期しないステータスコード: got %d, want %d",
-			resp.StatusCode, http.StatusSwitchingProtocols,
-		)
-	}
-
-	// Authメッセージを送信
-	authInput := racehub.AuthInput{
+	// 認証メッセージを送信
+	err = client.Send(racehub.AuthInput{
 		MessageType:    racehub.HandlerTypeAuth,
 		Token:          token,
-		DeviceID:       "athlete1",
-		WantMarkCounts: 5,
-	}
-
-	payload, err := sonic.Marshal(&authInput)
+		DeviceID:       deviceID,
+		WantMarkCounts: wantMarkCounts,
+	})
 	if err != nil {
-		t.Fatalf("メッセージのエンコードに失敗しました: %v", err)
+		return nil, fmt.Errorf("メッセージの送信に失敗しました: %v", err)
 	}
 
-	if err := conn.WriteMessage(
-		websocket.TextMessage,
-		payload,
-	); err != nil {
-		t.Fatalf("メッセージの送信に失敗しました: %v", err)
-	}
-
-	received := make(chan bool)
-
-	go func() {
-		for {
-			_, payload, err := conn.ReadMessage()
-			if err != nil {
-				if websocket.IsUnexpectedCloseError(
-					err,
-					websocket.CloseNormalClosure,
-					websocket.CloseGoingAway,
-					websocket.CloseAbnormalClosure,
-					websocket.CloseNoStatusReceived,
-				) {
-					t.Errorf("予期しない接続クローズエラー: %v", err)
-				}
-				return
+	it := client.ReceiveStream(ctx)
+	for {
+		payload, err := it.Read()
+		if err != nil {
+			if errors.Is(err, context.DeadlineExceeded) {
+				break
 			}
+			return nil, fmt.Errorf("メッセージの受信に失敗しました: %v", err)
+		}
 
-			var msg *racehub.MarkGeolocationsOutput
-			err = sonic.Unmarshal(payload, &msg)
-			if err != nil {
-				t.Errorf("メッセージのデコードに失敗しました: %v", err)
-			}
+		var msg map[string]any
+		err = json.Unmarshal(payload, &msg)
+		if err != nil {
+			return nil, fmt.Errorf("メッセージのパースに失敗しました: %v", err)
+		}
 
-			if msg.MessageType != racehub.ActionTypeMarkGeolocations {
-				continue
-			}
-
-			if len(msg.Marks) != 5 {
-				t.Errorf(
-					"位置情報の数が正しくありません: got %d, want %d",
-					len(msg.Marks),
-					wantMarkCounts,
+		switch msg["type"] {
+		case "auth_result":
+			if msg["ok"] != true {
+				return nil, fmt.Errorf(
+					"認証に失敗しました: got %v want ok",
+					msg["message"],
 				)
 			}
 
-			correctStored := []bool{true, true, true, false, false}
-			for i, mark := range msg.Marks {
-				if mark.Stored != correctStored[i] {
-					t.Errorf(
-						"マーク%dの位置情報の格納状態が正しくありません: got %v, want %v",
-						i+1,
-						mark.Stored,
-						correctStored[i],
-					)
-				}
+		case "mark_geolocations":
+			var output racehub.MarkGeolocationsOutput
+			err = json.Unmarshal(payload, &output)
+			if err != nil {
+				return nil, fmt.Errorf("メッセージのパースに失敗しました: %v", err)
 			}
 
-			received <- true
+			return output.Marks, nil
 		}
-	}()
-	<-received
-	done <- true
+	}
+
+	return nil, nil
 }
