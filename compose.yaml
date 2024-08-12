@@ -38,7 +38,7 @@ services:
   game_sub:
     build:
       context: .
-      dockerfile: ./cmd/game/Dockerfile
+      dockerfile: ./cmd/game_sub/Dockerfile
       target: development
     ports:
       - 8181:8080
