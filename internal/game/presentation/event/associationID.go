@@ -55,6 +55,6 @@ func (r *RaceEvent) ManageRaceStatusTaskReceived(
 		if !c.Authed {
 			continue
 		}
-		c.WriteManageRaceStatus(msg.Started)
+		_ = c.WriteManageRaceStatus(msg.Started)
 	}
 }

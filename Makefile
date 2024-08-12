@@ -8,6 +8,16 @@ up:
 up-build:
 	docker compose up --build
 
+# Lintを行います。
+.PHONY: lint
+lint:
+	docker compose run --rm lint run --config .golangci.yaml
+
+# 簡易的なLintを行います。
+.PHONY: lint-easy
+lint-easy:
+	docker compose run --rm lint run --config .golangci.easy.yaml
+
 # 単体テストを行います。
 .PHONY: test
 test:
