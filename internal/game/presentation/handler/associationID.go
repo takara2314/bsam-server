@@ -3,9 +3,11 @@ package handler
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/pkg/auth"
+	"github.com/takara2314/bsam-server/pkg/devicehub"
 	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/geolocationhub"
 	"github.com/takara2314/bsam-server/pkg/racehub"
@@ -21,8 +23,9 @@ type RaceHandler struct {
 // 3. デバイスIDが問題ないか検証
 // 4. デバイスID、ロール、自分のマーク番号を登録
 // 5. 選手ロールなら、ほしいマーク数を登録 (1以上10以下でなければエラーを返す)
-// 6. クライアントに認証完了メッセージを送信
-// 7. 選手ロールなら、マークの位置情報を送信
+// 6. デバイス情報を記録
+// 7. クライアントに認証完了メッセージを送信
+// 8. 選手ロールなら、マークの位置情報を送信
 func (r *RaceHandler) Auth(
 	c *racehub.Client,
 	input *racehub.AuthInput,
@@ -141,6 +144,8 @@ func (r *RaceHandler) Auth(
 		c.Hub.Mu.Unlock()
 	}
 
+	authedAt := time.Now()
+
 	slog.Info(
 		"client authenticated",
 		"client", c,
@@ -149,6 +154,31 @@ func (r *RaceHandler) Auth(
 		"mark_no", c.MarkNo,
 		"input", input,
 	)
+
+	deviceHub := devicehub.NewHub(
+		c.Hub.AssociationID,
+		common.FirestoreClient,
+	)
+	ctx := context.Background()
+
+	// デバイス情報を記録
+	if err := deviceHub.StoreDevice(
+		ctx,
+		c.Hub.ID,
+		c.DeviceID,
+		c.ID,
+		authedAt,
+	); err != nil {
+		slog.Error(
+			"failed to store device",
+			"client", c,
+			"error", err,
+			"racehub_id", c.Hub.ID,
+			"device_id", c.DeviceID,
+			"client_id", c.ID,
+			"authed_at", authedAt,
+		)
+	}
 
 	// クライアントに認証完了メッセージを送信
 	if err := c.WriteAuthResult(

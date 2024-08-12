@@ -66,7 +66,7 @@ func FetchGeolocationByID(ctx context.Context, client *firestore.Client, id stri
 	if err != nil {
 		return nil, oops.
 			In("firestore.FetchGeolocationByID").
-			Wrapf(err, "failed to convert data to user")
+			Wrapf(err, "failed to convert data to geolocation")
 	}
 
 	loc.ID = doc.Ref.ID

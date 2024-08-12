@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"os"
 
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/internal/game/presentation"
 	"github.com/takara2314/bsam-server/pkg/environment"
-	"github.com/takara2314/bsam-server/pkg/geolocationhub"
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 	"github.com/takara2314/bsam-server/pkg/logging"
 )
@@ -38,9 +36,6 @@ func main() {
 	}
 	defer common.FirestoreClient.Close()
 
-	// TODO: Firestoreの位置情報データの変更を監視するコード。後で削除する
-	go watchGeolocations(ctx)
-
 	router := presentation.NewGin()
 	presentation.RegisterRouter(router)
 
@@ -55,25 +50,5 @@ func main() {
 			"error", err,
 		)
 		panic(err)
-	}
-}
-
-func watchGeolocations(ctx context.Context) {
-	geolocHub := geolocationhub.NewHub("ise", common.FirestoreClient)
-
-	it := geolocHub.Snapshots(ctx)
-	for {
-		fmt.Println("watching...")
-
-		item, err := it.Next()
-		if err != nil {
-			slog.Error(
-				"failed to get next item",
-				"error", err,
-			)
-			return
-		}
-
-		fmt.Println("geolocation item:", item)
 	}
 }

@@ -61,7 +61,7 @@ func FetchAssociationByID(
 	if err != nil {
 		return nil, oops.
 			In("firestore.FetchAssociationByID").
-			Wrapf(err, "failed to convert data to user")
+			Wrapf(err, "failed to convert data to association")
 	}
 
 	association.ID = doc.Ref.ID
