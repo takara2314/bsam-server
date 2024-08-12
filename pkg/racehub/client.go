@@ -78,6 +78,13 @@ func (c *Client) LogValue() slog.Value {
 	)
 }
 
+type Event interface {
+	Register(*Client)
+	Unregister(*Client)
+}
+
+type UnimplementedEvent struct{}
+
 func (h *Hub) Register(conn *websocket.Conn) *Client {
 	id := ulid.Make().String()
 
@@ -98,10 +105,7 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 	h.clients[id] = client
 	h.Mu.Unlock()
 
-	slog.Info(
-		"client registered",
-		"client", client,
-	)
+	h.event.Register(client)
 
 	client.SetPingPongHandler()
 	go client.readPump()
@@ -111,20 +115,18 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 }
 
 func (h *Hub) Unregister(c *Client) {
+	if _, exist := h.clients[c.ID]; !exist {
+		return
+	}
+
+	c.StoppingWritePump <- true
+	h.event.Unregister(c)
+
 	h.Mu.Lock()
 	defer h.Mu.Unlock()
 
-	slog.Info(
-		"client unregistered",
-		"client", c,
-	)
-
-	if _, exist := h.clients[c.ID]; exist {
-		c.StoppingWritePump <- true
-
-		delete(h.clients, c.ID)
-		close(c.Send)
-	}
+	delete(h.clients, c.ID)
+	close(c.Send)
 }
 
 func (c *Client) SetPingPongHandler() {

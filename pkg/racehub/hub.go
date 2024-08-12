@@ -11,6 +11,7 @@ type Hub struct {
 	ID            string
 	AssociationID string
 	clients       map[string]*Client
+	event         Event
 	handler       Handler
 	action        Action
 	Mu            sync.RWMutex
@@ -24,7 +25,12 @@ func (h *Hub) LogValue() slog.Value {
 	)
 }
 
-func NewHub(associationID string, handler Handler, action Action) *Hub {
+func NewHub(
+	associationID string,
+	event Event,
+	handler Handler,
+	action Action,
+) *Hub {
 	id := ulid.Make().String()
 
 	slog.Info(
@@ -37,6 +43,7 @@ func NewHub(associationID string, handler Handler, action Action) *Hub {
 		ID:            id,
 		AssociationID: associationID,
 		clients:       make(map[string]*Client),
+		event:         event,
 		handler:       handler,
 		action:        action,
 	}

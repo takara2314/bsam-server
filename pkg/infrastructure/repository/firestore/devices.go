@@ -58,3 +58,14 @@ func FetchDeviceByID(ctx context.Context, client *firestore.Client, id string) (
 
 	return &c, err
 }
+
+func DeleteDeviceByID(ctx context.Context, client *firestore.Client, id string) error {
+	_, err := client.Collection("devices").Doc(id).Delete(ctx)
+	if err != nil {
+		return oops.
+			In("firestore.DeleteDeviceByID").
+			Wrapf(err, "failed to delete device")
+	}
+
+	return nil
+}

@@ -82,3 +82,32 @@ func (h *Hub) FetchLatestDeviceByDeviceID(
 		AuthedAt: loc.UpdatedAt,
 	}, nil
 }
+
+func (h *Hub) DeleteFirestoreDeviceByDeviceID(
+	ctx context.Context,
+	deviceID string,
+) error {
+	firestoreDeviceID := h.AssociationID + "_" + deviceID
+
+	if err := repoFirestore.DeleteDeviceByID(
+		ctx,
+		h.FirestoreClient,
+		firestoreDeviceID,
+	); err != nil {
+		return oops.
+			In("geolocationhub.DeleteFirestoreDeviceByDeviceID").
+			With("association_id", h.AssociationID).
+			With("device_id", deviceID).
+			With("firestore_device_id", firestoreDeviceID).
+			Wrapf(err, "failed to delete device by device id")
+	}
+
+	slog.Info(
+		"device deleted",
+		"association_id", h.AssociationID,
+		"device_id", deviceID,
+		"firestore_device_id", firestoreDeviceID,
+	)
+
+	return nil
+}

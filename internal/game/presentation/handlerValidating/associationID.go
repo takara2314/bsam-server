@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/internal/game/presentation/action"
+	"github.com/takara2314/bsam-server/internal/game/presentation/event"
 	"github.com/takara2314/bsam-server/internal/game/presentation/handler"
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 	"github.com/takara2314/bsam-server/pkg/racehub"
@@ -69,6 +70,7 @@ func createNewHub(ctx context.Context, associationID string) (*racehub.Hub, erro
 
 	return racehub.NewHub(
 		association.ID,
+		&event.RaceEvent{},
 		&handler.RaceHandler{},
 		&action.RaceAction{},
 	), nil
