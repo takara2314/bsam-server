@@ -70,9 +70,9 @@ func TestWSPostGeolocationMultiInstance(t *testing.T) {
 	errCh := make(chan error)
 
 	// 3つのマークデバイスから位置情報を送信
-	// mark1 -> serverURL1
-	// mark2 -> serverURL2
-	// mark3 -> serverURL1
+	// mark1 -> server1
+	// mark2 -> server2
+	// mark3 -> server1
 	var wg sync.WaitGroup
 	for i, geolocation := range geolocations {
 		serverURL := serverURL1
@@ -105,7 +105,7 @@ func TestWSPostGeolocationMultiInstance(t *testing.T) {
 	}
 
 	// マークの位置情報を取得
-	// athlete1 -> serverURL2
+	// athlete1 -> server2
 	marks, err := connectAndReceiveMarkGeolocations(
 		ctx,
 		timeout,
