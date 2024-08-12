@@ -6,6 +6,7 @@ import (
 
 	"github.com/bytedance/sonic"
 	"github.com/gorilla/websocket"
+	"github.com/takara2314/bsam-server/pkg/domain"
 )
 
 const (
@@ -141,6 +142,15 @@ func (c *Client) routeMessage(
 		c.Hub.handler.Auth(c, &input)
 
 	case HandlerTypePostGeolocation:
+		// 未認証のクライアントからは受け付けない
+		if !c.Authed {
+			slog.Warn(
+				"not authed client tried to post geolocation",
+				"client", c,
+			)
+			return
+		}
+
 		var input PostGeolocationInput
 		if err := sonic.Unmarshal(payload, &input); err != nil {
 			slog.Error(
@@ -153,6 +163,15 @@ func (c *Client) routeMessage(
 		c.Hub.handler.PostGeolocation(c, &input)
 
 	case HandlerTypeManageRaceStatus:
+		// マネージャ以外のクライアントからは受け付けない
+		if c.Role != domain.RoleManager {
+			slog.Warn(
+				"non-manager client tried to manage race status",
+				"client", c,
+			)
+			return
+		}
+
 		var input ManageRaceStatusInput
 		if err := sonic.Unmarshal(payload, &input); err != nil {
 			slog.Error(
