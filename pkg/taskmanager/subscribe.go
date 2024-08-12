@@ -21,7 +21,7 @@ func (m *Manager) SetSubscribeHandler(handler SubscribeHandler) {
 	m.subscribeHandler = handler
 }
 
-func (m *Manager) subscribeTasks(ctx context.Context, errPipe chan error) {
+func (m *Manager) subscribeTasks(ctx context.Context, errCh chan error) {
 	if m.subscribeHandler == nil {
 		panic("subscribe handler is not set")
 	}
@@ -35,7 +35,7 @@ func (m *Manager) subscribeTasks(ctx context.Context, errPipe chan error) {
 			return
 		}
 		if err != nil {
-			errPipe <- err
+			errCh <- err
 			return
 		}
 
@@ -51,9 +51,9 @@ func (m *Manager) subscribeTasks(ctx context.Context, errPipe chan error) {
 				[]string{PrefixManager, PrefixAssociation},
 			) {
 			case PrefixManager:
-				m.callSubscribeHandlerIfMyManager(ctx, errPipe, change)
+				m.callSubscribeHandlerIfMyManager(ctx, errCh, change)
 			case PrefixAssociation:
-				m.callSubscribeHandlerIfMyAssociation(ctx, errPipe, change)
+				m.callSubscribeHandlerIfMyAssociation(ctx, errCh, change)
 			default:
 				slog.Warn(
 					"unsupported prefix",
@@ -66,7 +66,7 @@ func (m *Manager) subscribeTasks(ctx context.Context, errPipe chan error) {
 
 func (m *Manager) callSubscribeHandlerIfMyManager(
 	ctx context.Context,
-	errPipe chan error,
+	errCh chan error,
 	change firestore.DocumentChange,
 ) {
 	// 自分のIDのものだけ処理する
@@ -80,7 +80,7 @@ func (m *Manager) callSubscribeHandlerIfMyManager(
 		change.Doc.Ref.ID,
 	)
 	if err != nil {
-		errPipe <- err
+		errCh <- err
 		return
 	}
 
@@ -95,7 +95,7 @@ func (m *Manager) callSubscribeHandlerIfMyManager(
 			m.FirestoreClient,
 			task.ID,
 		); err != nil {
-			errPipe <- err
+			errCh <- err
 			return
 		}
 	}
@@ -103,7 +103,7 @@ func (m *Manager) callSubscribeHandlerIfMyManager(
 
 func (m *Manager) callSubscribeHandlerIfMyAssociation(
 	ctx context.Context,
-	errPipe chan error,
+	errCh chan error,
 	change firestore.DocumentChange,
 ) {
 	// 自分の協会IDのものだけ処理する
@@ -117,7 +117,7 @@ func (m *Manager) callSubscribeHandlerIfMyAssociation(
 		change.Doc.Ref.ID,
 	)
 	if err != nil {
-		errPipe <- err
+		errCh <- err
 		return
 	}
 
@@ -135,7 +135,7 @@ func (m *Manager) callSubscribeHandlerIfMyAssociation(
 				m.FirestoreClient,
 				task.ID,
 			); err != nil {
-				errPipe <- err
+				errCh <- err
 				return
 			}
 		}(ctx)

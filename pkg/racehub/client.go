@@ -13,18 +13,18 @@ import (
 const (
 	// WebSocketの書き込み操作のタイムアウト時間: 1秒
 	// 書き込みが完了しない場合はエラーとする
-	writeWaitSec = 1 * time.Second
+	writeTimeout = 1 * time.Second
 
 	// クライアントからのPong応答を待つ最大時間: 10秒
 	// Pongが返ってこない場合は接続に問題があると判断する
-	pongWaitSec = 10 * time.Second
+	pongTimeout = 10 * time.Second
 
 	// クライアントへのマークの位置情報送信間隔: 5秒
-	sendingMarkGeolocationsTickerPeriodSec = 5 * time.Second
+	sendingMarkGeolocationsTickerInterval = 5 * time.Second
 
 	// サーバーからクライアントへPingを送信する間隔: 9秒
 	// タイムアウト前に必ずPingを送信する
-	pingPeriodSec = (pongWaitSec * 9) / 10
+	pingInterval = (pongTimeout * 9) / 10
 
 	// 受信メッセージ (ingress) の最大サイズ: 1KB
 	// これより大きいメッセージは拒否される
@@ -35,11 +35,11 @@ const (
 )
 
 type Client struct {
-	ID                string
-	Hub               *Hub
-	Conn              *websocket.Conn
-	Send              chan any
-	StoppingWritePump chan bool
+	ID                  string
+	Hub                 *Hub
+	Conn                *websocket.Conn
+	SendCh              chan any
+	StoppingWritePumpCh chan bool
 
 	DeviceID       string
 	Role           string
@@ -97,11 +97,11 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 	id := ulid.Make().String()
 
 	client := &Client{
-		ID:                id,
-		Hub:               h,
-		Conn:              conn,
-		Send:              make(chan any, maxEgressMessageBytes),
-		StoppingWritePump: make(chan bool),
+		ID:                  id,
+		Hub:                 h,
+		Conn:                conn,
+		SendCh:              make(chan any, maxEgressMessageBytes),
+		StoppingWritePumpCh: make(chan bool),
 
 		DeviceID:   "unknown",
 		Role:       domain.RoleUnknown,
@@ -128,14 +128,14 @@ func (h *Hub) Unregister(c *Client) {
 		return
 	}
 
-	c.StoppingWritePump <- true
+	c.StoppingWritePumpCh <- true
 	h.event.Unregister(c)
 
 	h.Mu.Lock()
 	defer h.Mu.Unlock()
 
 	delete(h.Clients, c.ID)
-	close(c.Send)
+	close(c.SendCh)
 }
 
 func (c *Client) SetPingPongHandler() {
@@ -150,7 +150,7 @@ func (c *Client) SetPingPongHandler() {
 		return c.Conn.WriteControl(
 			websocket.PongMessage,
 			[]byte(data),
-			time.Now().Add(writeWaitSec),
+			time.Now().Add(writeTimeout),
 		)
 	})
 
@@ -162,6 +162,6 @@ func (c *Client) SetPingPongHandler() {
 			"data", data,
 		)
 
-		return c.Conn.SetReadDeadline(time.Now().Add(pongWaitSec))
+		return c.Conn.SetReadDeadline(time.Now().Add(pongTimeout))
 	})
 }

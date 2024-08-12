@@ -61,8 +61,8 @@ func NewHub(
 
 	tm.SetSubscribeHandler(hub.subscribeHandler)
 
-	errorPipe := make(chan error)
-	go tm.StartManager(id, associationID, errorPipe)
+	errorCh := make(chan error)
+	go tm.StartManager(id, associationID, errorCh)
 
 	return hub
 }

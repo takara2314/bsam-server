@@ -51,7 +51,7 @@ func (c *Client) readPump() {
 	defer c.Hub.Unregister(c)
 
 	c.Conn.SetReadLimit(maxIngressMessageBytes)
-	if err := c.Conn.SetReadDeadline(time.Now().Add(pongWaitSec)); err != nil {
+	if err := c.Conn.SetReadDeadline(time.Now().Add(pongTimeout)); err != nil {
 		slog.Error(
 			"failed to set read deadline",
 			"client", c,

@@ -30,7 +30,7 @@ func NewManager(firestoreClient *firestore.Client) *Manager {
 func (m *Manager) StartManager(
 	id string,
 	associationID string,
-	errorPipe chan error,
+	errorCh chan error,
 ) {
 	m.Mu.Lock()
 	m.ID = id
@@ -38,5 +38,5 @@ func (m *Manager) StartManager(
 	m.Mu.Unlock()
 
 	ctx := context.Background()
-	go m.subscribeTasks(ctx, errorPipe)
+	go m.subscribeTasks(ctx, errorCh)
 }

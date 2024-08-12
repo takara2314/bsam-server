@@ -73,9 +73,9 @@ type ManageRaceStatusOutput struct {
 
 func (c *Client) writePump() {
 	sendingMarkGeolocationsTicker := time.NewTicker(
-		sendingMarkGeolocationsTickerPeriodSec,
+		sendingMarkGeolocationsTickerInterval,
 	)
-	pingTicker := time.NewTicker(pingPeriodSec)
+	pingTicker := time.NewTicker(pingInterval)
 
 	defer func() {
 		sendingMarkGeolocationsTicker.Stop()
@@ -85,7 +85,7 @@ func (c *Client) writePump() {
 
 	for {
 		select {
-		case message, ok := <-c.Send:
+		case message, ok := <-c.SendCh:
 			if err := c.writeMessage(message, ok); err != nil {
 				return
 			}
@@ -104,7 +104,7 @@ func (c *Client) writePump() {
 				return
 			}
 
-		case <-c.StoppingWritePump:
+		case <-c.StoppingWritePumpCh:
 			slog.Info(
 				"stopping write pump",
 				"client", c,
@@ -139,7 +139,7 @@ func (c *Client) writeMessage(msg any, ok bool) error {
 		return err
 	}
 
-	if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWaitSec)); err != nil {
+	if err := c.Conn.SetWriteDeadline(time.Now().Add(writeTimeout)); err != nil {
 		slog.Error(
 			"failed to set write deadline",
 			"client", c,
@@ -211,7 +211,7 @@ func (c *Client) WriteAuthResult(
 		return err
 	}
 
-	c.Send <- output
+	c.SendCh <- output
 	return nil
 }
 
@@ -231,7 +231,7 @@ func (c *Client) WriteMarkGeolocations() error {
 		return err
 	}
 
-	c.Send <- output
+	c.SendCh <- output
 	return nil
 }
 
@@ -251,7 +251,7 @@ func (c *Client) WriteManageRaceStatus(started bool) error {
 		return err
 	}
 
-	c.Send <- output
+	c.SendCh <- output
 	return nil
 }
 
@@ -261,7 +261,7 @@ func (c *Client) writePing() error {
 		"client", c,
 	)
 
-	if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWaitSec)); err != nil {
+	if err := c.Conn.SetWriteDeadline(time.Now().Add(writeTimeout)); err != nil {
 		slog.Error(
 			"failed to set write deadline for ping",
 			"client", c,
