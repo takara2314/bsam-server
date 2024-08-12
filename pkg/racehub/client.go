@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/oklog/ulid/v2"
+	"github.com/takara2314/bsam-server/pkg/domain"
 )
 
 const (
@@ -42,6 +43,7 @@ type Client struct {
 	MarkNo         int
 	WantMarkCounts int
 	NextMarkNo     int
+	Authed         bool
 }
 
 // WebSocketアップグレーダー: HTTP接続をWebSocket接続にアップグレードする設定
@@ -74,7 +76,9 @@ func (c *Client) LogValue() slog.Value {
 		slog.String("device_id", c.DeviceID),
 		slog.String("role", c.Role),
 		slog.Int("mark_no", c.MarkNo),
+		slog.Int("want_mark_counts", c.WantMarkCounts),
 		slog.Int("next_mark_no", c.NextMarkNo),
+		slog.Bool("authed", c.Authed),
 	)
 }
 
@@ -97,9 +101,10 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 		StoppingWritePump: make(chan bool),
 
 		DeviceID:   "unknown",
-		Role:       "unknown",
+		Role:       domain.RoleUnknown,
 		MarkNo:     -1,
 		NextMarkNo: -1,
+		Authed:     false,
 	}
 
 	h.Mu.Lock()

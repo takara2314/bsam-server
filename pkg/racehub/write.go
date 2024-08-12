@@ -46,6 +46,7 @@ type AuthResultOutput struct {
 	DeviceID    string `json:"device_id"`
 	Role        string `json:"role"`
 	MarkNo      int    `json:"mark_no"`
+	Authed      bool   `json:"authed"`
 	Message     string `json:"message"`
 }
 

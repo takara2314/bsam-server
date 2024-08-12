@@ -21,8 +21,8 @@ type RaceHandler struct {
 // 1. トークンが問題ないか検証
 // 2. 内部の協会デバイスからの参加なら許可
 // 3. デバイスIDが問題ないか検証
-// 4. デバイスID、ロール、自分のマーク番号を登録
-// 5. 選手ロールなら、ほしいマーク数を登録 (1以上10以下でなければエラーを返す)
+// 4. 選手ロールなら、ほしいマーク数が 1以上10以下 か検証
+// 5. デバイスID、ロール、自分のマーク番号を登録
 // 6. デバイス情報を記録
 // 7. クライアントに認証完了メッセージを送信
 // 8. 選手ロールなら、マークの位置情報を送信
@@ -110,15 +110,8 @@ func (r *RaceHandler) Auth(
 		return
 	}
 
-	// デバイスID、ロール、自分のマーク番号を登録
-	c.Hub.Mu.Lock()
-	c.DeviceID = input.DeviceID
-	c.Role = role
-	c.MarkNo = MarkNo
-	c.Hub.Mu.Unlock()
-
-	// 選手ロールなら、ほしいマーク数を登録 (1以上10以下でなければエラーを返す)
-	if c.Role == domain.RoleAthlete {
+	// 選手ロールなら、ほしいマーク数が 1以上10以下 か検証
+	if role == domain.RoleAthlete {
 		if input.WantMarkCounts < 1 || input.WantMarkCounts > 10 {
 			slog.Warn(
 				"invalid want_mark_no",
@@ -138,13 +131,18 @@ func (r *RaceHandler) Auth(
 				)
 			}
 		}
-
-		c.Hub.Mu.Lock()
-		c.WantMarkCounts = input.WantMarkCounts
-		c.Hub.Mu.Unlock()
 	}
 
 	authedAt := time.Now()
+
+	// デバイスID、ロール、自分のマーク番号を登録
+	c.Hub.Mu.Lock()
+	c.DeviceID = input.DeviceID
+	c.Role = role
+	c.MarkNo = MarkNo
+	c.WantMarkCounts = input.WantMarkCounts
+	c.Authed = true
+	c.Hub.Mu.Unlock()
 
 	slog.Info(
 		"client authenticated",
@@ -191,6 +189,7 @@ func (r *RaceHandler) Auth(
 
 	// 選手ロールなら、マークの位置情報を送信
 	if c.Role == domain.RoleAthlete {
+		time.Sleep(10 * time.Millisecond)
 		if err := c.WriteMarkGeolocations(); err != nil {
 			slog.Error(
 				"failed to write mark geolocations",

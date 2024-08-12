@@ -11,6 +11,7 @@ const (
 	RoleMark    = "mark"
 	RoleAthlete = "athlete"
 	RoleManager = "manager"
+	RoleUnknown = "unknown"
 )
 
 var idPrefixes = []string{
