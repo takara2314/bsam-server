@@ -12,6 +12,7 @@ import (
 	"github.com/takara2314/bsam-server/internal/game/presentation/handler"
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
 	"github.com/takara2314/bsam-server/pkg/racehub"
+	"github.com/takara2314/bsam-server/pkg/taskmanager"
 )
 
 func AssociationIDWS(c *gin.Context) {
@@ -68,8 +69,11 @@ func createNewHub(ctx context.Context, associationID string) (*racehub.Hub, erro
 		return nil, err
 	}
 
+	tm := taskmanager.NewManager(common.FirestoreClient)
+
 	return racehub.NewHub(
 		association.ID,
+		tm,
 		&event.RaceEvent{},
 		&handler.RaceHandler{},
 		&action.RaceAction{},

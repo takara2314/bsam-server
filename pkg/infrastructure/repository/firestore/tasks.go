@@ -9,10 +9,10 @@ import (
 )
 
 type Task struct {
-	ID        string         `firestore:"-"`
-	Type      string         `firestore:"type"`
-	Message   map[string]any `firestore:"message"`
-	UpdatedAt time.Time      `firestore:"updatedAt"`
+	ID        string    `firestore:"-"`
+	Type      string    `firestore:"type"`
+	Payload   []byte    `firestore:"payload"`
+	UpdatedAt time.Time `firestore:"updatedAt"`
 }
 
 func SetTask(
@@ -20,13 +20,13 @@ func SetTask(
 	client *firestore.Client,
 	id string,
 	msgType string,
-	msg map[string]any,
+	payload []byte,
 	updatedAt time.Time,
 ) error {
 	_, err := client.Collection("tasks").Doc(id).Set(ctx, Task{
 		ID:        id,
 		Type:      msgType,
-		Message:   msg,
+		Payload:   payload,
 		UpdatedAt: updatedAt,
 	})
 	if err != nil {

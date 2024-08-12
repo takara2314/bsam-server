@@ -6,6 +6,6 @@
     "geoloclib",
     "geolocation",
     "devicelib",
-    "tasklib"
+    "taskmanager"
   ]
 }
