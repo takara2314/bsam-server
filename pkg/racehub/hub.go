@@ -1,9 +1,11 @@
 package racehub
 
 import (
+	"context"
 	"log/slog"
 	"sync"
 
+	"github.com/bytedance/sonic"
 	"github.com/oklog/ulid/v2"
 	"github.com/takara2314/bsam-server/pkg/taskmanager"
 )
@@ -16,7 +18,8 @@ type Hub struct {
 	ID            string
 	AssociationID string
 	Clients       map[string]*Client
-	TaskManager   *taskmanager.Manager
+	Started       bool
+	taskManager   *taskmanager.Manager
 	event         Event
 	handler       Handler
 	action        Action
@@ -50,7 +53,7 @@ func NewHub(
 		ID:            id,
 		AssociationID: associationID,
 		Clients:       make(map[string]*Client),
-		TaskManager:   tm,
+		taskManager:   tm,
 		event:         event,
 		handler:       handler,
 		action:        action,
@@ -59,7 +62,7 @@ func NewHub(
 	tm.SetSubscribeHandler(hub.subscribeHandler)
 
 	errorPipe := make(chan error)
-	go tm.StartManager(id, errorPipe)
+	go tm.StartManager(id, associationID, errorPipe)
 
 	return hub
 }
@@ -87,6 +90,26 @@ func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
 			"task_type", taskType,
 			"payload", string(payload),
 		)
+	}
+
+	return nil
+}
+
+func (h *Hub) PublishManageRaceStatusTask(ctx context.Context, started bool) error {
+	payload, err := sonic.Marshal(&ManageRaceStatusTaskMessage{
+		Started: started,
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := h.taskManager.PublishToAssociation(
+		ctx,
+		h.AssociationID,
+		TaskTypeManageRaceStatus,
+		payload,
+	); err != nil {
+		return err
 	}
 
 	return nil

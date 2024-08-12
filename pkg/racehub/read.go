@@ -9,13 +9,15 @@ import (
 )
 
 const (
-	HandlerTypeAuth            = "auth"
-	HandlerTypePostGeolocation = "post_geolocation"
+	HandlerTypeAuth             = "auth"
+	HandlerTypePostGeolocation  = "post_geolocation"
+	HandlerTypeManageRaceStatus = "manage_race_status"
 )
 
 type Handler interface {
 	Auth(*Client, *AuthInput)
 	PostGeolocation(*Client, *PostGeolocationInput)
+	ManageRaceStatus(*Client, *ManageRaceStatusInput)
 }
 
 type UnimplementedHandler struct{}
@@ -37,6 +39,11 @@ type PostGeolocationInput struct {
 	Heading               float64   `json:"heading"`
 	SpeedMeterPerSec      float64   `json:"speed_meter_per_sec"`
 	RecordedAt            time.Time `json:"recorded_at"`
+}
+
+type ManageRaceStatusInput struct {
+	MessageType string `json:"type"`
+	Started     bool   `json:"started"`
 }
 
 func (c *Client) readPump() {
@@ -144,6 +151,18 @@ func (c *Client) routeMessage(
 			return
 		}
 		c.Hub.handler.PostGeolocation(c, &input)
+
+	case HandlerTypeManageRaceStatus:
+		var input ManageRaceStatusInput
+		if err := sonic.Unmarshal(payload, &input); err != nil {
+			slog.Error(
+				"failed to unmarshal manage_race_status input",
+				"client", c,
+				"error", err,
+			)
+			return
+		}
+		c.Hub.handler.ManageRaceStatus(c, &input)
 
 	default:
 		slog.Warn(
