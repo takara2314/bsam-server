@@ -22,7 +22,7 @@ func CreateJWT(associationID string, exp time.Time, secretKey string) string {
 }
 
 func ParseJWT(tokenStr string, secretKey string) (string, error) {
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
 		return []byte(secretKey), nil
 	})
 	if err != nil {

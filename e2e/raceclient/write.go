@@ -27,7 +27,7 @@ func (c *Client) writePump() {
 	}
 }
 
-func (c *Client) Send(msg interface{}) error {
+func (c *Client) Send(msg any) error {
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("メッセージのシリアライズに失敗しました: %w", err)
