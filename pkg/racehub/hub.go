@@ -49,6 +49,8 @@ func NewHub(
 		"association_id", associationID,
 	)
 
+	// TODO: 協会のレース開始状態を取得する (from firestore)
+
 	hub := &Hub{
 		ID:            id,
 		AssociationID: associationID,
