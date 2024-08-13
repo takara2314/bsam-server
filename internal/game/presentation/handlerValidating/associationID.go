@@ -46,6 +46,9 @@ func AssociationIDWS(c *gin.Context) {
 }
 
 func findOrCreateHub(c *gin.Context, associationID string) (*racehub.Hub, error) {
+	common.Mu.Lock()
+	defer common.Mu.Unlock()
+
 	if hub, exist := common.Hubs[associationID]; exist {
 		return hub, nil
 	}
