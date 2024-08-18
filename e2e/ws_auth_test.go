@@ -14,8 +14,6 @@ import (
 )
 
 func TestWSAuth(t *testing.T) {
-	t.Parallel()
-
 	var (
 		serverURL = url.URL{
 			Scheme: "ws",

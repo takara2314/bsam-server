@@ -11,8 +11,6 @@ import (
 )
 
 func TestWSHandshake(t *testing.T) {
-	t.Parallel()
-
 	var (
 		serverURL = url.URL{
 			Scheme: "ws",

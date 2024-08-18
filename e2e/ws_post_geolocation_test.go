@@ -17,8 +17,6 @@ import (
 )
 
 func TestWSPostGeolocation(t *testing.T) {
-	t.Parallel()
-
 	var (
 		serverURL = url.URL{
 			Scheme: "ws",

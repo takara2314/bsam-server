@@ -13,8 +13,6 @@ import (
 )
 
 func TestWSPostGeolocationMultiInstance(t *testing.T) {
-	t.Parallel()
-
 	var (
 		serverURL1 = url.URL{
 			Scheme: "ws",
