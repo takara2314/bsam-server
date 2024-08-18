@@ -15,15 +15,13 @@ import (
 const (
 	// 受信メッセージ (ingress) の最大サイズ: 1KB
 	maxIngressMessageBytes = 1024
-	// 送信メッセージ (egress) の最大サイズ: 1KB
-	maxEgressMessageBytes = 1024
 )
 
 type Client struct {
+	DeviceID  string
 	Conn      *websocket.Conn
 	Resp      *http.Response
 	url       url.URL
-	sendCh    chan []byte
 	receiveCh chan []byte
 	closeCh   chan struct{}
 	closeOnce sync.Once
@@ -34,10 +32,10 @@ var (
 	ErrClientClosed = errors.New("クライアントは閉じられています")
 )
 
-func NewClient(u url.URL) *Client {
+func NewClient(u url.URL, deviceID string) *Client {
 	return &Client{
+		DeviceID:  deviceID,
 		url:       u,
-		sendCh:    make(chan []byte, maxEgressMessageBytes),
 		receiveCh: make(chan []byte, maxIngressMessageBytes),
 		closeCh:   make(chan struct{}),
 	}
@@ -60,7 +58,6 @@ func (c *Client) Connect(ctx context.Context, timeout time.Duration) error {
 	c.mu.Unlock()
 
 	go c.readPump()
-	go c.writePump()
 
 	return nil
 }

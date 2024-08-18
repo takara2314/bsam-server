@@ -7,36 +7,24 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (c *Client) writePump() {
-	defer func() {
-		c.Close()
-	}()
-
-	for {
-		select {
-		case message := <-c.sendCh:
-			c.mu.RLock()
-			err := c.Conn.WriteMessage(websocket.TextMessage, message)
-			c.mu.RUnlock()
-			if err != nil {
-				return
-			}
-		case <-c.closeCh:
-			return
-		}
-	}
-}
-
 func (c *Client) Send(msg any) error {
-	data, err := json.Marshal(msg)
+	payload, err := json.Marshal(msg)
 	if err != nil {
-		return fmt.Errorf("メッセージのシリアライズに失敗しました: %w", err)
+		return fmt.Errorf("メッセージのシリアライズに失敗しました (%s): %w", c.DeviceID, err)
 	}
 
 	select {
-	case c.sendCh <- data:
-		return nil
 	case <-c.closeCh:
-		return ErrClientClosed
+		return fmt.Errorf("メッセージの送信に失敗しました (%s): %w", c.DeviceID, ErrClientClosed)
+	default:
 	}
+
+	c.mu.RLock()
+	err = c.Conn.WriteMessage(websocket.TextMessage, payload)
+	c.mu.RUnlock()
+	if err != nil {
+		return fmt.Errorf("メッセージの送信に失敗しました (%s): %w", c.DeviceID, err)
+	}
+
+	return nil
 }

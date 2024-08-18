@@ -39,7 +39,7 @@ func TestWSAuth(t *testing.T) {
 		t.Fatalf("トークンの取得に失敗しました: %v", err)
 	}
 
-	client := raceclient.NewClient(serverURL)
+	client := raceclient.NewClient(serverURL, "athlete1")
 
 	err = client.Connect(ctx, timeout)
 	if err != nil {

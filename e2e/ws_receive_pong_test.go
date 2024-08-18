@@ -29,7 +29,7 @@ func TestWSReceivePong(t *testing.T) {
 	)
 	defer cancel()
 
-	client := raceclient.NewClient(serverURL)
+	client := raceclient.NewClient(serverURL, "")
 
 	err := client.Connect(ctx, timeout)
 	if err != nil {
