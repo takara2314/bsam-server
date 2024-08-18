@@ -29,6 +29,7 @@ func TestWSPostGeolocation(t *testing.T) {
 		password      = "nippon"
 		geolocations  = []racehub.PostGeolocationInput{
 			{
+				MessageType:   racehub.HandlerTypePostGeolocation,
 				Latitude:      35.6895,
 				Longitude:     139.6917,
 				AccuracyMeter: 10.0,
@@ -36,6 +37,7 @@ func TestWSPostGeolocation(t *testing.T) {
 				RecordedAt:    time.Now(),
 			},
 			{
+				MessageType:   racehub.HandlerTypePostGeolocation,
 				Latitude:      36.6895,
 				Longitude:     140.6917,
 				AccuracyMeter: 11.0,
@@ -43,6 +45,7 @@ func TestWSPostGeolocation(t *testing.T) {
 				RecordedAt:    time.Now(),
 			},
 			{
+				MessageType:   racehub.HandlerTypePostGeolocation,
 				Latitude:      37.6895,
 				Longitude:     141.6917,
 				AccuracyMeter: 12.0,
@@ -140,7 +143,7 @@ func connectAndPostGeolocation(
 	deviceID string,
 	geolocation racehub.PostGeolocationInput,
 ) error {
-	client := raceclient.NewClient(serverURL)
+	client := raceclient.NewClient(serverURL, deviceID)
 
 	err := client.Connect(ctx, timeout)
 	if err != nil {
@@ -192,7 +195,7 @@ func connectAndPostGeolocation(
 		}
 	}
 
-	return nil
+	return errors.New("不正に閉じられました")
 }
 
 // WebSocketに接続し、位置情報を受信する
@@ -204,7 +207,7 @@ func connectAndReceiveMarkGeolocations(
 	deviceID string,
 	wantMarkCounts int,
 ) ([]racehub.MarkGeolocationsOutputMark, error) {
-	client := raceclient.NewClient(serverURL)
+	client := raceclient.NewClient(serverURL, deviceID)
 
 	err := client.Connect(ctx, timeout)
 	if err != nil {
