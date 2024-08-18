@@ -30,6 +30,7 @@ func TestWSPostGeolocationMultiInstance(t *testing.T) {
 		password      = "nippon"
 		geolocations  = []racehub.PostGeolocationInput{
 			{
+				MessageType:   racehub.HandlerTypePostGeolocation,
 				Latitude:      35.6895,
 				Longitude:     139.6917,
 				AccuracyMeter: 10.0,
@@ -37,6 +38,7 @@ func TestWSPostGeolocationMultiInstance(t *testing.T) {
 				RecordedAt:    time.Now(),
 			},
 			{
+				MessageType:   racehub.HandlerTypePostGeolocation,
 				Latitude:      36.6895,
 				Longitude:     140.6917,
 				AccuracyMeter: 11.0,
@@ -44,6 +46,7 @@ func TestWSPostGeolocationMultiInstance(t *testing.T) {
 				RecordedAt:    time.Now(),
 			},
 			{
+				MessageType:   racehub.HandlerTypePostGeolocation,
 				Latitude:      37.6895,
 				Longitude:     141.6917,
 				AccuracyMeter: 12.0,
