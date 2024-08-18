@@ -1,0 +1,20 @@
+name: E2E Test
+
+on: [ push ]
+
+jobs:
+  e2e:
+    name: E2E test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+          cache: false
+
+      - name: E2E test
+        run: go test -timeout 10s -count=1 -v ./e2e/...
