@@ -11,9 +11,8 @@ import (
 )
 
 const (
-	// TODO: マネージ系のタスク名のprefixを manage_ にする
-	TaskTypeManageRaceStatus = "race_start"
-	TaskTypeManageNextMark   = "next_mark"
+	TaskTypeManageRaceStatus = "manage_race_start"
+	TaskTypeManageNextMark   = "manage_next_mark"
 )
 
 type Hub struct {
