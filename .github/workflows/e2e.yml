@@ -30,5 +30,8 @@ jobs:
       - name: Build and Start containers
         run: docker compose up -d
 
+      - name: DEBUG docker-compose
+        run: docker compose ps
+
       - name: E2E test
         run: go test -timeout 10s -count=1 -v ./e2e/...
