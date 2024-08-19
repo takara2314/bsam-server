@@ -2,12 +2,12 @@ package e2e
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/url"
 	"testing"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/takara2314/bsam-server/e2e/auth"
 	"github.com/takara2314/bsam-server/e2e/raceclient"
 	"github.com/takara2314/bsam-server/pkg/racehub"
@@ -67,7 +67,7 @@ func TestWSAuth(t *testing.T) {
 		}
 
 		var msg map[string]any
-		err = json.Unmarshal(payload, &msg)
+		err = sonic.Unmarshal(payload, &msg)
 		if err != nil {
 			t.Fatalf("メッセージのパースに失敗しました: %v", err)
 		}

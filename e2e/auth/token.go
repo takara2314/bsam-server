@@ -2,7 +2,6 @@ package auth
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -63,7 +62,7 @@ func FetchTokenFromAPI(associationID string, password string) (string, error) {
 	var response struct {
 		Token string `json:"token"`
 	}
-	if err := json.Unmarshal(body, &response); err != nil {
+	if err := sonic.Unmarshal(body, &response); err != nil {
 		return "", fmt.Errorf("failed to unmarshal response: %w", err)
 	}
 

@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -10,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/takara2314/bsam-server/e2e/auth"
 	"github.com/takara2314/bsam-server/e2e/raceclient"
 	"github.com/takara2314/bsam-server/pkg/domain"
@@ -141,7 +141,7 @@ func connectAndReceiveStartRace(
 		}
 
 		var msg map[string]any
-		err = json.Unmarshal(payload, &msg)
+		err = sonic.Unmarshal(payload, &msg)
 		if err != nil {
 			return fmt.Errorf("メッセージのパースに失敗しました: %v", err)
 		}
@@ -203,7 +203,7 @@ func connectAndSendStartRace(
 		}
 
 		var msg map[string]any
-		err = json.Unmarshal(payload, &msg)
+		err = sonic.Unmarshal(payload, &msg)
 		if err != nil {
 			return fmt.Errorf("メッセージのパースに失敗しました: %v", err)
 		}

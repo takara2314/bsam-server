@@ -1,14 +1,14 @@
 package raceclient
 
 import (
-	"encoding/json"
 	"fmt"
 
+	"github.com/bytedance/sonic"
 	"github.com/gorilla/websocket"
 )
 
 func (c *Client) Send(msg any) error {
-	payload, err := json.Marshal(msg)
+	payload, err := sonic.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("メッセージのシリアライズに失敗しました (%s): %w", c.DeviceID, err)
 	}

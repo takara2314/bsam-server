@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -138,7 +137,7 @@ func connectAndReceiveNextMark(
 		}
 
 		var msg map[string]any
-		err = json.Unmarshal(payload, &msg)
+		err = sonic.Unmarshal(payload, &msg)
 		if err != nil {
 			return 0, fmt.Errorf("メッセージのパースに失敗しました: %v", err)
 		}
@@ -204,7 +203,7 @@ func connectAndSendNextMark(
 		}
 
 		var msg map[string]any
-		err = json.Unmarshal(payload, &msg)
+		err = sonic.Unmarshal(payload, &msg)
 		if err != nil {
 			return fmt.Errorf("メッセージのパースに失敗しました: %v", err)
 		}
