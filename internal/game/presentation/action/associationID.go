@@ -26,6 +26,7 @@ func (r *RaceAction) AuthResult(
 		DeviceID:    c.DeviceID,
 		Role:        c.Role,
 		MarkNo:      c.MarkNo,
+		Authed:      c.Authed,
 		Message:     message,
 	}, nil
 }
