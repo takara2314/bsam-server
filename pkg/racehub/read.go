@@ -13,12 +13,14 @@ const (
 	HandlerTypeAuth             = "auth"
 	HandlerTypePostGeolocation  = "post_geolocation"
 	HandlerTypeManageRaceStatus = "manage_race_status"
+	HandlerTypeManageNextMark   = "manage_next_mark"
 )
 
 type Handler interface {
 	Auth(*Client, *AuthInput)
 	PostGeolocation(*Client, *PostGeolocationInput)
 	ManageRaceStatus(*Client, *ManageRaceStatusInput)
+	ManageNextMark(*Client, *ManageNextMarkInput)
 }
 
 type UnimplementedHandler struct{}
@@ -45,6 +47,12 @@ type PostGeolocationInput struct {
 type ManageRaceStatusInput struct {
 	MessageType string `json:"type"`
 	Started     bool   `json:"started"`
+}
+
+type ManageNextMarkInput struct {
+	MessageType    string `json:"type"`
+	TargetDeviceID string `json:"target_device_id"`
+	NextMarkNo     int    `json:"next_mark_no"`
 }
 
 func (c *Client) readPump() {
@@ -182,6 +190,27 @@ func (c *Client) routeMessage(
 			return
 		}
 		c.Hub.handler.ManageRaceStatus(c, &input)
+
+	case HandlerTypeManageNextMark:
+		// マネージャ以外のクライアントからは受け付けない
+		if c.Role != domain.RoleManager {
+			slog.Warn(
+				"non-manager client tried to manage next mark",
+				"client", c,
+			)
+			return
+		}
+
+		var input ManageNextMarkInput
+		if err := sonic.Unmarshal(payload, &input); err != nil {
+			slog.Error(
+				"failed to unmarshal manage_next_mark input",
+				"client", c,
+				"error", err,
+			)
+			return
+		}
+		c.Hub.handler.ManageNextMark(c, &input)
 
 	default:
 		slog.Warn(

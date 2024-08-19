@@ -256,6 +256,8 @@ func (r *RaceHandler) PostGeolocation(
 }
 
 // レースの状態を管理するメッセージを受信したときの処理
+// 1. 同じ協会内の全インスタンスにレースの状態を管理するタスクを送信
+// 2. タスクを受信したとき、 game/event/associationID.go で全員に向けてレース開始アクションを送信
 func (r *RaceHandler) ManageRaceStatus(
 	c *racehub.Client,
 	input *racehub.ManageRaceStatusInput,
@@ -265,6 +267,53 @@ func (r *RaceHandler) ManageRaceStatus(
 	if err := c.Hub.PublishManageRaceStatusTask(
 		ctx,
 		input.Started,
+	); err != nil {
+		slog.Error(
+			"failed to publish task",
+			"client", c,
+			"error", err,
+			"input", input,
+		)
+	}
+
+	slog.Info(
+		"published task",
+		"client", c,
+		"input", input,
+	)
+}
+
+// 次のマークを管理するメッセージを受信したときの処理
+// 1. 指定のデバイスのハブIDを取得
+// 2. 指定のデバイスに次のマークを管理するタスクを送信
+// 3. タスクを受信したとき、 game/event/associationID.go で指定のデバイスに向けて次のマークアクションを送信
+func (r *RaceHandler) ManageNextMark(
+	c *racehub.Client,
+	input *racehub.ManageNextMarkInput,
+) {
+	ctx := context.Background()
+
+	device, err := devicelib.FetchLatestDeviceByDeviceID(
+		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
+		input.TargetDeviceID,
+	)
+	if err != nil {
+		slog.Error(
+			"failed to fetch device",
+			"client", c,
+			"error", err,
+			"input", input,
+		)
+		return
+	}
+
+	if err := c.Hub.PublishManageNextMarkTask(
+		ctx,
+		device.HubID,
+		input.TargetDeviceID,
+		input.NextMarkNo,
 	); err != nil {
 		slog.Error(
 			"failed to publish task",

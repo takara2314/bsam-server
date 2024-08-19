@@ -67,6 +67,17 @@ func (r *RaceAction) ManageRaceStatus(
 	}, nil
 }
 
+// 次のマークを管理するときの処理
+func (r *RaceAction) ManageNextMark(
+	c *racehub.Client,
+	nextMarkNo int,
+) (*racehub.ManageNextMarkOutput, error) {
+	return &racehub.ManageNextMarkOutput{
+		MessageType: racehub.ActionTypeManageNextMark,
+		NextMarkNo:  nextMarkNo,
+	}, nil
+}
+
 // マークの位置情報を取得する
 // データが取得できなかった場合は、Storedフィールドをfalseにする
 func fetchMarkGeolocation(

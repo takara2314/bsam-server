@@ -58,3 +58,21 @@ func (r *RaceEvent) ManageRaceStatusTaskReceived(
 		_ = c.WriteManageRaceStatus(msg.Started)
 	}
 }
+
+// 次のマークの管理タスクを受信したときの処理
+// 指定のデバイスに次のマークの情報を送信する
+func (r *RaceEvent) ManageNextMarkTaskReceived(
+	h *racehub.Hub,
+	msg *racehub.ManageNextMarkTaskMessage,
+) {
+	c, exist := h.Clients[msg.TargetDeviceID]
+	if !exist {
+		slog.Error(
+			"client not found",
+			"device_id", msg.TargetDeviceID,
+		)
+		return
+	}
+
+	_ = c.WriteManageNextMark(msg.NextMarkNo)
+}

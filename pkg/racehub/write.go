@@ -13,6 +13,7 @@ const (
 	ActionTypeAuthResult       = "auth_result"
 	ActionTypeMarkGeolocations = "mark_geolocations"
 	ActionTypeManageRaceStatus = "manage_race_status"
+	ActionTypeManageNextMark   = "manage_next_mark"
 
 	AuthResultOK                    = "OK"
 	AuthResultFailedAuthToken       = "failed_auth_token"
@@ -36,6 +37,11 @@ type Action interface {
 		c *Client,
 		started bool,
 	) (*ManageRaceStatusOutput, error)
+
+	ManageNextMark(
+		c *Client,
+		nextMarkNo int,
+	) (*ManageNextMarkOutput, error)
 }
 
 type UnimplementedAction struct{}
@@ -69,6 +75,11 @@ type MarkGeolocationsOutputMark struct {
 type ManageRaceStatusOutput struct {
 	MessageType string `json:"type"`
 	Started     bool   `json:"started"`
+}
+
+type ManageNextMarkOutput struct {
+	MessageType string `json:"type"`
+	NextMarkNo  int    `json:"next_mark_no"`
 }
 
 func (c *Client) writePump() {
@@ -245,6 +256,26 @@ func (c *Client) WriteManageRaceStatus(started bool) error {
 	if err != nil {
 		slog.Error(
 			"failed to create manage_race_status output",
+			"client", c,
+			"error", err,
+		)
+		return err
+	}
+
+	c.SendCh <- output
+	return nil
+}
+
+func (c *Client) WriteManageNextMark(nextMarkNo int) error {
+	slog.Info(
+		"writing manage_next_mark",
+		"client", c,
+	)
+
+	output, err := c.Hub.action.ManageNextMark(c, nextMarkNo)
+	if err != nil {
+		slog.Error(
+			"failed to create manage_next_mark output",
 			"client", c,
 			"error", err,
 		)

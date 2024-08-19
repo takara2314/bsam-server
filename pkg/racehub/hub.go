@@ -11,7 +11,9 @@ import (
 )
 
 const (
+	// TODO: マネージ系のタスク名のprefixを manage_ にする
 	TaskTypeManageRaceStatus = "race_start"
+	TaskTypeManageNextMark   = "next_mark"
 )
 
 type Hub struct {
@@ -73,6 +75,11 @@ type ManageRaceStatusTaskMessage struct {
 	Started bool `json:"started"`
 }
 
+type ManageNextMarkTaskMessage struct {
+	TargetDeviceID string `json:"target_device_id"`
+	NextMarkNo     int    `json:"next_mark_no"`
+}
+
 func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
 	slog.Info(
 		"received task",
@@ -109,6 +116,27 @@ func (h *Hub) PublishManageRaceStatusTask(ctx context.Context, started bool) err
 		ctx,
 		h.AssociationID,
 		TaskTypeManageRaceStatus,
+		payload,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *Hub) PublishManageNextMarkTask(ctx context.Context, targetTaskManagerID string, targetDeviceID string, nextMarkNo int) error {
+	payload, err := sonic.Marshal(&ManageNextMarkTaskMessage{
+		TargetDeviceID: targetDeviceID,
+		NextMarkNo:     nextMarkNo,
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := h.taskManager.PublishToManager(
+		ctx,
+		targetTaskManagerID,
+		TaskTypeManageNextMark,
 		payload,
 	); err != nil {
 		return err

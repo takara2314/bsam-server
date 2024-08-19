@@ -85,10 +85,12 @@ func (c *Client) LogValue() slog.Value {
 	)
 }
 
+// TODO: RegisterとUnregister以外は hub.go に移動する
 type Event interface {
 	Register(*Client)
 	Unregister(*Client)
 	ManageRaceStatusTaskReceived(*Hub, *ManageRaceStatusTaskMessage)
+	ManageNextMarkTaskReceived(*Hub, *ManageNextMarkTaskMessage)
 }
 
 type UnimplementedEvent struct{}
