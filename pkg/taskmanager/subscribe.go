@@ -46,10 +46,12 @@ func (m *Manager) subscribeTasks(ctx context.Context, errCh chan error) {
 			}
 
 			// タスクIDのprefixによって処理を分岐
-			switch util.StripAnyPrefix(
+			taskIDPrefix := util.FindPrefixIfHasAnyPrefix(
 				change.Doc.Ref.ID,
 				[]string{PrefixManager, PrefixAssociation},
-			) {
+			)
+
+			switch taskIDPrefix {
 			case PrefixManager:
 				m.callSubscribeHandlerIfMyManager(ctx, errCh, change)
 			case PrefixAssociation:
@@ -58,6 +60,7 @@ func (m *Manager) subscribeTasks(ctx context.Context, errCh chan error) {
 				slog.Warn(
 					"unsupported prefix",
 					"task_id", change.Doc.Ref.ID,
+					"task_id_prefix", taskIDPrefix,
 				)
 			}
 		}

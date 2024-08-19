@@ -19,3 +19,12 @@ func StripAnyPrefix(str string, prefixes []string) string {
 	}
 	return str
 }
+
+func FindPrefixIfHasAnyPrefix(str string, prefixes []string) string {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(str, prefix) {
+			return prefix
+		}
+	}
+	return ""
+}
