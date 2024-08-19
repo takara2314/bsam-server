@@ -73,7 +73,8 @@ func (r *RaceServerEvent) ManageNextMarkTaskReceived(
 	if !exist {
 		slog.Error(
 			"client not found",
-			"device_id", msg.TargetDeviceID,
+			"target_device_id", msg.TargetDeviceID,
+			"hub", h,
 		)
 		return
 	}
