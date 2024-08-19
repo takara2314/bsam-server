@@ -217,7 +217,7 @@ func connectAndSendStartRace(
 				)
 			}
 
-			// 位置情報を送信
+			// レース開始アクションを送信
 			err = client.Send(racehub.ManageRaceStatusInput{
 				MessageType: racehub.HandlerTypeManageRaceStatus,
 				Started:     true,
