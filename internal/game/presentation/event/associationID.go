@@ -69,15 +69,16 @@ func (r *RaceServerEvent) ManageNextMarkTaskReceived(
 	h *racehub.Hub,
 	msg *racehub.ManageNextMarkTaskMessage,
 ) {
-	c, exist := h.Clients[msg.TargetDeviceID]
-	if !exist {
-		slog.Error(
-			"client not found",
-			"target_device_id", msg.TargetDeviceID,
-			"hub", h,
-		)
-		return
+	for _, c := range h.Clients {
+		if c.DeviceID == msg.TargetDeviceID {
+			_ = c.WriteManageNextMark(msg.NextMarkNo)
+			return
+		}
 	}
 
-	_ = c.WriteManageNextMark(msg.NextMarkNo)
+	slog.Error(
+		"client not found",
+		"target_device_id", msg.TargetDeviceID,
+		"hub", h,
+	)
 }
