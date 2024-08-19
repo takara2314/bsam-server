@@ -277,7 +277,7 @@ func (r *RaceHandler) ManageRaceStatus(
 	}
 
 	slog.Info(
-		"published task",
+		"published manage_race_status task",
 		"client", c,
 		"input", input,
 	)
@@ -324,7 +324,7 @@ func (r *RaceHandler) ManageNextMark(
 	}
 
 	slog.Info(
-		"published task",
+		"published manage_next_mark task",
 		"client", c,
 		"input", input,
 	)
