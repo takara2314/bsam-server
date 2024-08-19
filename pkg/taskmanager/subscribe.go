@@ -73,7 +73,7 @@ func (m *Manager) callSubscribeHandlerIfMyManager(
 	change firestore.DocumentChange,
 ) {
 	// 自分のIDのものだけ処理する
-	if !strings.HasPrefix(change.Doc.Ref.ID, m.ID) {
+	if checkIsMyTask(change.Doc.Ref.ID, m.ID) {
 		return
 	}
 
@@ -110,7 +110,7 @@ func (m *Manager) callSubscribeHandlerIfMyAssociation(
 	change firestore.DocumentChange,
 ) {
 	// 自分の協会IDのものだけ処理する
-	if !strings.HasPrefix(change.Doc.Ref.ID, m.AssociationID) {
+	if checkIsMyTask(change.Doc.Ref.ID, m.AssociationID) {
 		return
 	}
 
@@ -143,4 +143,16 @@ func (m *Manager) callSubscribeHandlerIfMyAssociation(
 			}
 		}(ctx)
 	}
+}
+
+func checkIsMyTask(taskID string, myID string) bool {
+	return fetchTargetManagerOrAssociationID(taskID) == myID
+}
+
+func fetchTargetManagerOrAssociationID(taskID string) string {
+	elems := strings.Split(taskID, "_")
+	if len(elems) != 3 {
+		return ""
+	}
+	return elems[1]
 }

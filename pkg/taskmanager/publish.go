@@ -42,11 +42,11 @@ func (m *Manager) PublishToAssociation(
 func (m *Manager) publish(
 	ctx context.Context,
 	prefix string,
-	targetID string,
+	targetManagerOrAssociationID string,
 	taskType string,
 	payload []byte,
 ) error {
-	taskID := prefix + targetID + "_" + ulid.Make().String()
+	taskID := createTaskID(prefix, targetManagerOrAssociationID)
 
 	if err := repoFirestore.SetTask(
 		ctx,
@@ -59,11 +59,15 @@ func (m *Manager) publish(
 		return oops.
 			In("taskmanager.Publish").
 			With("prefix", prefix).
-			With("target_id", targetID).
+			With("target_manager_or_association_id", targetManagerOrAssociationID).
 			With("task_id", taskID).
 			With("task_type", taskType).
 			Wrapf(err, "failed to set task to firestore")
 	}
 
 	return nil
+}
+
+func createTaskID(prefix string, targetManagerOrAssociationID string) string {
+	return prefix + targetManagerOrAssociationID + "_" + ulid.Make().String()
 }
