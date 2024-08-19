@@ -1,9 +1,5 @@
 package raceclient
 
-import (
-	"fmt"
-)
-
 type MessageIterator struct {
 	client *Client
 }
@@ -19,7 +15,6 @@ func (it *MessageIterator) Read() ([]byte, error) {
 	case msg := <-it.client.receiveCh:
 		return msg, nil
 	case <-it.client.closeCh:
-		fmt.Println("閉じられたぞす")
 		return nil, ErrClientClosed
 	}
 }
