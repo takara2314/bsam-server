@@ -7,6 +7,7 @@ import (
 
 	"github.com/bytedance/sonic"
 	"github.com/oklog/ulid/v2"
+	"github.com/samber/oops"
 	"github.com/takara2314/bsam-server/pkg/taskmanager"
 )
 
@@ -29,10 +30,16 @@ type Hub struct {
 }
 
 func (h *Hub) LogValue() slog.Value {
+	clients := make([]slog.Value, 0, len(h.Clients))
+	for _, c := range h.Clients {
+		clients = append(clients, c.LogValue())
+	}
+
 	return slog.GroupValue(
 		slog.String("id", h.ID),
 		slog.String("association_id", h.AssociationID),
 		slog.Int("client_counts", len(h.Clients)),
+		slog.Any("clients", clients),
 	)
 }
 
@@ -90,8 +97,8 @@ type ManageNextMarkTaskMessage struct {
 }
 
 func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
-	slog.Info(
-		"received task",
+	slog.Error(
+		"(目立ち用) received task",
 		"hub", h,
 		"task_type", taskType,
 		"payload", string(payload),
@@ -99,7 +106,26 @@ func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
 
 	switch taskType {
 	case TaskTypeManageRaceStatus:
-		h.serverEvent.ManageRaceStatusTaskReceived(h, &ManageRaceStatusTaskMessage{})
+		var msg ManageRaceStatusTaskMessage
+		err := sonic.Unmarshal(payload, &msg)
+		if err != nil {
+			return oops.
+				In("Hub.subscribeHandler").
+				Wrapf(err, "failed to unmarshal payload")
+		}
+
+		h.serverEvent.ManageRaceStatusTaskReceived(h, &msg)
+
+	case TaskTypeManageNextMark:
+		var msg ManageNextMarkTaskMessage
+		err := sonic.Unmarshal(payload, &msg)
+		if err != nil {
+			return oops.
+				In("Hub.subscribeHandler").
+				Wrapf(err, "failed to unmarshal payload")
+		}
+
+		h.serverEvent.ManageNextMarkTaskReceived(h, &msg)
 
 	default:
 		slog.Warn(
