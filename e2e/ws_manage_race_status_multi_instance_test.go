@@ -130,7 +130,7 @@ func connectAndReceiveStartRace(
 		return fmt.Errorf("メッセージの送信に失敗しました: %v", err)
 	}
 
-	it := client.ReceiveStream(ctx)
+	it := client.ReceiveStream()
 	for {
 		payload, err := it.Read()
 		if err != nil {
@@ -192,7 +192,7 @@ func connectAndSendStartRace(
 		return fmt.Errorf("メッセージの送信に失敗しました: %v", err)
 	}
 
-	it := client.ReceiveStream(ctx)
+	it := client.ReceiveStream()
 	for {
 		payload, err := it.Read()
 		if err != nil {

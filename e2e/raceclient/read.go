@@ -1,17 +1,15 @@
 package raceclient
 
 import (
-	"context"
+	"fmt"
 )
 
 type MessageIterator struct {
-	ctx    context.Context
 	client *Client
 }
 
-func (c *Client) ReceiveStream(ctx context.Context) *MessageIterator {
+func (c *Client) ReceiveStream() *MessageIterator {
 	return &MessageIterator{
-		ctx:    ctx,
 		client: c,
 	}
 }
@@ -20,9 +18,8 @@ func (it *MessageIterator) Read() ([]byte, error) {
 	select {
 	case msg := <-it.client.receiveCh:
 		return msg, nil
-	case <-it.ctx.Done():
-		return nil, it.ctx.Err()
 	case <-it.client.closeCh:
+		fmt.Println("閉じられたぞす")
 		return nil, ErrClientClosed
 	}
 }

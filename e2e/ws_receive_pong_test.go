@@ -56,7 +56,7 @@ func TestWSReceivePong(t *testing.T) {
 
 	// Pongを受信するまで待機
 	go func(ctx context.Context, errCh chan error) {
-		it := client.ReceiveStream(ctx)
+		it := client.ReceiveStream()
 		for {
 			_, err := it.Read()
 			if err != nil {

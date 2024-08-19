@@ -56,7 +56,7 @@ func TestWSAuth(t *testing.T) {
 		t.Fatalf("メッセージの送信に失敗しました: %v", err)
 	}
 
-	it := client.ReceiveStream(ctx)
+	it := client.ReceiveStream()
 	for {
 		payload, err := it.Read()
 		if err != nil {

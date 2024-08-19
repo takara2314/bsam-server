@@ -136,6 +136,12 @@ func (c *Client) routeMessage(
 	payload []byte,
 	msg map[string]any,
 ) {
+	slog.Error(
+		"(sub) 目立ち用: route_message",
+		"client", c,
+		"handler_type", handlerType,
+	)
+
 	switch handlerType {
 	case HandlerTypeAuth:
 		var input AuthInput
@@ -192,6 +198,11 @@ func (c *Client) routeMessage(
 		c.Hub.handler.ManageRaceStatus(c, &input)
 
 	case HandlerTypeManageNextMark:
+		slog.Error(
+			"(main) 目立ち用: manage_next_mark",
+			"client", c,
+		)
+
 		// マネージャ以外のクライアントからは受け付けない
 		if c.Role != domain.RoleManager {
 			slog.Warn(
