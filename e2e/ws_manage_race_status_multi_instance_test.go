@@ -163,7 +163,7 @@ func connectAndReceiveStartRace(
 		}
 	}
 
-	return nil
+	return fmt.Errorf("WebSocket接続中にタスクを達成できませんでした")
 }
 
 // WebSocketに接続し、レース開始信号を送信する
@@ -229,5 +229,5 @@ func connectAndSendStartRace(
 		}
 	}
 
-	return nil
+	return fmt.Errorf("WebSocket接続中にタスクを達成できませんでした")
 }

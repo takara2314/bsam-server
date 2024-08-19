@@ -193,7 +193,7 @@ func connectAndPostGeolocation(
 		}
 	}
 
-	return errors.New("不正に閉じられました")
+	return fmt.Errorf("WebSocket接続中にタスクを達成できませんでした")
 }
 
 // WebSocketに接続し、位置情報を受信する
@@ -260,5 +260,5 @@ func connectAndReceiveMarkGeolocations(
 		}
 	}
 
-	return nil, nil
+	return nil, fmt.Errorf("WebSocket接続中にタスクを達成できませんでした")
 }
