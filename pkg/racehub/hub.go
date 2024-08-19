@@ -97,6 +97,13 @@ type ManageNextMarkTaskMessage struct {
 }
 
 func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
+	slog.Info(
+		"received task",
+		"hub", h,
+		"task_type", taskType,
+		"payload", string(payload),
+	)
+
 	switch taskType {
 	case TaskTypeManageRaceStatus:
 		var msg ManageRaceStatusTaskMessage
