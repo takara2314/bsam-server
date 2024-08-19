@@ -9,12 +9,16 @@ import (
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
-type RaceEvent struct {
-	racehub.UnimplementedEvent
+type RaceClientEvent struct {
+	racehub.UnimplementedClientEvent
+}
+
+type RaceServerEvent struct {
+	racehub.UnimplementedServerEvent
 }
 
 // クライアントが接続したときの処理
-func (r *RaceEvent) Register(c *racehub.Client) {
+func (r *RaceClientEvent) Register(c *racehub.Client) {
 	slog.Info(
 		"client registered",
 		"client", c,
@@ -22,7 +26,7 @@ func (r *RaceEvent) Register(c *racehub.Client) {
 }
 
 // クライアントが切断するときの処理
-func (r *RaceEvent) Unregister(c *racehub.Client) {
+func (r *RaceClientEvent) Unregister(c *racehub.Client) {
 	ctx := context.Background()
 
 	// デバイス情報をFirestoreから削除
@@ -43,7 +47,7 @@ func (r *RaceEvent) Unregister(c *racehub.Client) {
 
 // レースの状態を管理するタスクを受信したときの処理
 // 認証済み全員にレース開始アクションを送信する
-func (r *RaceEvent) ManageRaceStatusTaskReceived(
+func (r *RaceServerEvent) ManageRaceStatusTaskReceived(
 	h *racehub.Hub,
 	msg *racehub.ManageRaceStatusTaskMessage,
 ) {
@@ -61,7 +65,7 @@ func (r *RaceEvent) ManageRaceStatusTaskReceived(
 
 // 次のマークの管理タスクを受信したときの処理
 // 指定のデバイスに次のマークの情報を送信する
-func (r *RaceEvent) ManageNextMarkTaskReceived(
+func (r *RaceServerEvent) ManageNextMarkTaskReceived(
 	h *racehub.Hub,
 	msg *racehub.ManageNextMarkTaskMessage,
 ) {

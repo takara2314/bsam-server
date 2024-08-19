@@ -85,15 +85,12 @@ func (c *Client) LogValue() slog.Value {
 	)
 }
 
-// TODO: RegisterとUnregister以外は hub.go に移動する
-type Event interface {
+type ClientEvent interface {
 	Register(*Client)
 	Unregister(*Client)
-	ManageRaceStatusTaskReceived(*Hub, *ManageRaceStatusTaskMessage)
-	ManageNextMarkTaskReceived(*Hub, *ManageNextMarkTaskMessage)
 }
 
-type UnimplementedEvent struct{}
+type UnimplementedClientEvent struct{}
 
 func (h *Hub) Register(conn *websocket.Conn) *Client {
 	id := ulid.Make().String()
@@ -116,7 +113,7 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 	h.Clients[id] = client
 	h.Mu.Unlock()
 
-	h.event.Register(client)
+	h.clientEvent.Register(client)
 
 	client.SetPingPongHandler()
 	go client.readPump()
@@ -131,7 +128,7 @@ func (h *Hub) Unregister(c *Client) {
 	}
 
 	c.StoppingWritePumpCh <- true
-	h.event.Unregister(c)
+	h.clientEvent.Unregister(c)
 
 	h.Mu.Lock()
 	defer h.Mu.Unlock()

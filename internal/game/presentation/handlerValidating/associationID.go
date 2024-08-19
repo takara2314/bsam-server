@@ -77,7 +77,8 @@ func createNewHub(ctx context.Context, associationID string) (*racehub.Hub, erro
 	return racehub.NewHub(
 		association.ID,
 		tm,
-		&event.RaceEvent{},
+		&event.RaceClientEvent{},
+		&event.RaceServerEvent{},
 		&handler.RaceHandler{},
 		&action.RaceAction{},
 	), nil

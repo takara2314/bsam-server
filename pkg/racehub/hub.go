@@ -21,7 +21,8 @@ type Hub struct {
 	Clients       map[string]*Client
 	Started       bool
 	taskManager   *taskmanager.Manager
-	event         Event
+	clientEvent   ClientEvent
+	serverEvent   ServerEvent
 	handler       Handler
 	action        Action
 	Mu            sync.RWMutex
@@ -38,7 +39,8 @@ func (h *Hub) LogValue() slog.Value {
 func NewHub(
 	associationID string,
 	tm *taskmanager.Manager,
-	event Event,
+	clientEvent ClientEvent,
+	serverEvent ServerEvent,
 	handler Handler,
 	action Action,
 ) *Hub {
@@ -57,7 +59,8 @@ func NewHub(
 		AssociationID: associationID,
 		Clients:       make(map[string]*Client),
 		taskManager:   tm,
-		event:         event,
+		clientEvent:   clientEvent,
+		serverEvent:   serverEvent,
 		handler:       handler,
 		action:        action,
 	}
@@ -69,6 +72,13 @@ func NewHub(
 
 	return hub
 }
+
+type ServerEvent interface {
+	ManageRaceStatusTaskReceived(*Hub, *ManageRaceStatusTaskMessage)
+	ManageNextMarkTaskReceived(*Hub, *ManageNextMarkTaskMessage)
+}
+
+type UnimplementedServerEvent struct{}
 
 type ManageRaceStatusTaskMessage struct {
 	Started bool `json:"started"`
@@ -89,7 +99,7 @@ func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
 
 	switch taskType {
 	case TaskTypeManageRaceStatus:
-		h.event.ManageRaceStatusTaskReceived(h, &ManageRaceStatusTaskMessage{})
+		h.serverEvent.ManageRaceStatusTaskReceived(h, &ManageRaceStatusTaskMessage{})
 
 	default:
 		slog.Warn(
