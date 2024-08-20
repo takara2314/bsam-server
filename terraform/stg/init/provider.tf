@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "gcs" {
-    bucket = "tf-state-bucket"
+    bucket = "bsam-stg_tf-state-bucket"
   }
 }
 
