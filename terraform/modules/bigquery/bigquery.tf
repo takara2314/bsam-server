@@ -5,7 +5,7 @@ resource "google_bigquery_dataset" "race_log" {
 }
 
 resource "google_bigquery_table" "geolocations" {
-  dataset_id  = google_bigquery_dataset
+  dataset_id  = google_bigquery_dataset.race_log.dataset_id
   table_id    = "geolocations"
   description = "Geolocations of Race Log"
 }
