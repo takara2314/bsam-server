@@ -17,9 +17,11 @@ terraform {
 }
 
 provider "google" {
-  # Configuration options
+  project = var.project
+  region  = var.location
 }
 
 provider "google-beta" {
-  # Configuration options
+  project = var.project
+  region  = var.location
 }
