@@ -1,3 +1,15 @@
-/.vscode
 .DS_Store
 bsam-app-*.json
+
+.env
+
+# Air
+post_cmd.txt
+pre_cmd.txt
+tmp
+
+# Infracost
+.infracost
+
+# Terraform
+.terraform
