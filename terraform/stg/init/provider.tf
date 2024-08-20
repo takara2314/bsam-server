@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "gcs" {
-    bucket = "${var.project}_tf-state-bucket"
+    bucket = "bsam-stg_tf-state-bucket"
     prefix = "init"
   }
 }
