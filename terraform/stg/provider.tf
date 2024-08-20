@@ -11,7 +11,8 @@ terraform {
   }
 
   backend "gcs" {
-    bucket = "tf-state-bucket"
+    bucket = "${var.project}_tf-state-bucket"
+    prefix = "ordinary"
   }
 }
 
