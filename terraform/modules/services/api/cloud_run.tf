@@ -9,7 +9,7 @@ resource "google_cloud_run_v2_service" "api_service" {
       image = var.image
 
       env {
-        name  = "GOOGLE_PROJECT_ID"
+        name  = "GOOGLE_CLOUD_PROJECT_ID"
         value = var.project
       }
       env {
