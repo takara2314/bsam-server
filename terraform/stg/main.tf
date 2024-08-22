@@ -22,13 +22,6 @@ module "auth_service" {
   image    = var.auth_service_image
 }
 
-module "firebase" {
-  source = "../modules/firebase"
-
-  project  = var.project
-  location = var.location
-}
-
 module "bigquery" {
   source = "../modules/bigquery"
 
