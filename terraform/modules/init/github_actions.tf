@@ -4,24 +4,9 @@ resource "google_service_account" "github_actions" {
   display_name = "Github Actions"
 }
 
-resource "google_project_iam_custom_role" "github_actions_custom_role" {
-  project     = var.project
-  role_id     = "githubActionsCustomRole"
-  title       = "GitHub Actions Custom Role"
-  description = "Custom role for GitHub Actions"
-  permissions = [
-    "roles/run.admin",
-    "roles/secretmanager.secretAccessor",
-    "roles/iam.serviceAccountUser",
-    "roles/resourcemanager.projectCreator",
-    "roles/firebase.admin",
-    "roles/bigquery.admin"
-  ]
-}
-
 resource "google_project_iam_member" "github_actions" {
   project = var.project
-  role    = google_project_iam_custom_role.github_actions_custom_role.name
+  role    = "roles/owner"
   member  = "serviceAccount:${google_service_account.github_actions.email}"
 }
 
