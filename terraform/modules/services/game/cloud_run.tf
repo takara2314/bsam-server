@@ -31,17 +31,13 @@ resource "google_cloud_run_v2_service" "game_service" {
       }
     }
   }
-
-  # 未認証のアクセスを許可する設定を追加
-  labels = {
-    "cloud.googleapis.com/allow-unauthenticated" = "true"
-  }
 }
 
-resource "google_cloud_run_service_iam_member" "game_service_public" {
+resource "google_cloud_run_service_iam_binding" "game_service" {
   location = google_cloud_run_v2_service.game_service.location
-  project  = google_cloud_run_v2_service.game_service.project
   service  = google_cloud_run_v2_service.game_service.name
   role     = "roles/run.invoker"
-  member   = "allUsers"
+  members = [
+    "allUsers"
+  ]
 }
