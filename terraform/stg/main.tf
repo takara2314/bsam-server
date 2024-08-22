@@ -25,7 +25,8 @@ module "auth_service" {
 module "firebase" {
   source = "../modules/firebase"
 
-  project = var.project
+  project  = var.project
+  location = var.location
 }
 
 module "bigquery" {
