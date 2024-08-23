@@ -30,6 +30,17 @@ resource "google_cloud_run_v2_service" "api_service" {
         startup_cpu_boost = true
         cpu_idle          = false
       }
+
+      startup_probe {
+        failure_threshold     = 5
+        initial_delay_seconds = 10
+        timeout_seconds       = 3
+        period_seconds        = 3
+
+        http_get {
+          path = "/healthz"
+        }
+      }
     }
   }
 }
