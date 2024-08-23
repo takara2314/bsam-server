@@ -21,19 +21,12 @@ type Hub struct {
 	ID            string
 	AssociationID string
 	Clients       map[string]*Client
-	Race          RaceInfo
 	taskManager   *taskmanager.Manager
 	clientEvent   ClientEvent
 	serverEvent   ServerEvent
 	handler       Handler
 	action        Action
 	Mu            sync.RWMutex
-}
-
-type RaceInfo struct {
-	Started    bool
-	StartedAt  time.Time
-	FinishedAt time.Time
 }
 
 func (h *Hub) LogValue() slog.Value {
@@ -65,8 +58,6 @@ func NewHub(
 		"id", id,
 		"association_id", associationID,
 	)
-
-	// TODO: 協会のレース開始状態を取得する (from firestore)
 
 	hub := &Hub{
 		ID:            id,

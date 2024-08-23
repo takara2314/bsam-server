@@ -51,12 +51,6 @@ func (r *RaceServerEvent) ManageRaceStatusTaskReceived(
 	h *racehub.Hub,
 	msg *racehub.ManageRaceStatusTaskMessage,
 ) {
-	h.Mu.Lock()
-	h.Race.Started = msg.Started
-	h.Race.StartedAt = msg.StartedAt
-	h.Race.FinishedAt = msg.FinishedAt
-	h.Mu.Unlock()
-
 	for _, c := range h.Clients {
 		if !c.Authed {
 			continue
