@@ -1,6 +1,6 @@
 resource "google_cloud_run_v2_service" "auth_service" {
   name        = "auth-service"
-  description = "B-SAM AUth Service"
+  description = "B-SAM Auth Service"
   location    = var.location
   ingress     = "INGRESS_TRAFFIC_ALL"
 
@@ -28,6 +28,18 @@ resource "google_cloud_run_v2_service" "auth_service" {
           memory = "512Mi"
         }
         startup_cpu_boost = true
+        cpu_idle          = false
+      }
+
+      startup_probe {
+        failure_threshold     = 5
+        initial_delay_seconds = 10
+        timeout_seconds       = 3
+        period_seconds        = 3
+
+        http_get {
+          path = "/healthz"
+        }
       }
     }
   }
