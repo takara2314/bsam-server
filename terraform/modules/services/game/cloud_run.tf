@@ -28,7 +28,7 @@ resource "google_cloud_run_v2_service" "game_service" {
           memory = "512Mi"
         }
         startup_cpu_boost = true
-        cpu_idle          = false
+        cpu_idle          = true
       }
 
       startup_probe {
