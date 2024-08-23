@@ -56,7 +56,7 @@ resource "google_cloud_run_service_iam_binding" "auth_service" {
 
 resource "google_cloud_run_domain_mapping" "auth_service" {
   location = google_cloud_run_v2_service.auth_service.location
-  name     = "${var.environment}-auth.${var.domain_name}"
+  name     = "${var.environment}.auth.${var.domain_name}"
 
   metadata {
     namespace = var.project
