@@ -32,3 +32,18 @@ test_e2e:
 .PHONY: test_e2e-no-cache
 test_e2e-no-cache:
 	go test -timeout 10s -count=1 -v ./e2e/...
+
+# stg環境の初期化のためのTerraformを init します
+.PHONY: tf-apply-stg-init-init
+tf-apply-stg-init-init:
+	terraform -chdir=terraform/stg/init init
+
+# stg環境の初期化のためのTerraformを plan します
+.PHONY: tf-apply-stg-init-plan
+tf-apply-stg-init-plan:
+	terraform -chdir=terraform/stg/init plan
+
+# stg環境の初期化のためのTerraformを apply します
+.PHONY: tf-apply-stg-init-apply
+tf-apply-stg-init-apply:
+	terraform -chdir=terraform/stg/init apply
