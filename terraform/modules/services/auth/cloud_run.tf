@@ -1,6 +1,6 @@
 resource "google_cloud_run_v2_service" "auth_service" {
   name        = "auth-service"
-  description = "B-SAM AUth Service"
+  description = "B-SAM Auth Service"
   location    = var.location
   ingress     = "INGRESS_TRAFFIC_ALL"
 
