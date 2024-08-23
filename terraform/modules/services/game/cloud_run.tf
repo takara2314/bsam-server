@@ -53,3 +53,11 @@ resource "google_cloud_run_service_iam_binding" "game_service" {
     "allUsers"
   ]
 }
+
+resource "google_cloud_run_domain_mapping" "game_service" {
+  location = google_cloud_run_v2_service.game_service.location
+  name     = "${var.environment}-game.${var.domain_name}"
+  spec {
+    route_name = google_cloud_run_v2_service.game_service.name
+  }
+}
