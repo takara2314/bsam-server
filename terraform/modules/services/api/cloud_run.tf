@@ -53,3 +53,11 @@ resource "google_cloud_run_service_iam_binding" "api_service" {
     "allUsers"
   ]
 }
+
+resource "google_cloud_run_domain_mapping" "api_service" {
+  location = google_cloud_run_v2_service.api_service.location
+  name     = "${var.environment}-api.${var.domain_name}"
+  spec {
+    route_name = google_cloud_run_v2_service.api_service.name
+  }
+}
