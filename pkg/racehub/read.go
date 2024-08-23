@@ -45,8 +45,10 @@ type PostGeolocationInput struct {
 }
 
 type ManageRaceStatusInput struct {
-	MessageType string `json:"type"`
-	Started     bool   `json:"started"`
+	MessageType string    `json:"type"`
+	Started     bool      `json:"started"`
+	StartedAt   time.Time `json:"started_at"`
+	FinishedAt  time.Time `json:"finished_at"`
 }
 
 type ManageNextMarkInput struct {

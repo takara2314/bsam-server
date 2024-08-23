@@ -190,7 +190,11 @@ func (r *RaceHandler) Auth(
 
 	// レースの状態を送信
 	time.Sleep(10 * time.Millisecond)
-	if err := c.WriteManageRaceStatus(c.Hub.Started); err != nil {
+	if err := c.WriteManageRaceStatus(
+		c.Hub.Race.Started,
+		c.Hub.Race.StartedAt,
+		c.Hub.Race.FinishedAt,
+	); err != nil {
 		slog.Error(
 			"failed to write manage_race_status",
 			"client", c,
@@ -267,6 +271,8 @@ func (r *RaceHandler) ManageRaceStatus(
 	if err := c.Hub.PublishManageRaceStatusTask(
 		ctx,
 		input.Started,
+		input.StartedAt,
+		input.FinishedAt,
 	); err != nil {
 		slog.Error(
 			"failed to publish task",

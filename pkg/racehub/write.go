@@ -36,6 +36,8 @@ type Action interface {
 	ManageRaceStatus(
 		c *Client,
 		started bool,
+		startedAt time.Time,
+		finishedAt time.Time,
 	) (*ManageRaceStatusOutput, error)
 
 	ManageNextMark(
@@ -73,8 +75,10 @@ type MarkGeolocationsOutputMark struct {
 }
 
 type ManageRaceStatusOutput struct {
-	MessageType string `json:"type"`
-	Started     bool   `json:"started"`
+	MessageType string    `json:"type"`
+	Started     bool      `json:"started"`
+	StartedAt   time.Time `json:"started_at"`
+	FinishedAt  time.Time `json:"finished_at"`
 }
 
 type ManageNextMarkOutput struct {
@@ -246,13 +250,13 @@ func (c *Client) WriteMarkGeolocations() error {
 	return nil
 }
 
-func (c *Client) WriteManageRaceStatus(started bool) error {
+func (c *Client) WriteManageRaceStatus(started bool, startedAt time.Time, finishedAt time.Time) error {
 	slog.Info(
 		"writing start race",
 		"client", c,
 	)
 
-	output, err := c.Hub.action.ManageRaceStatus(c, started)
+	output, err := c.Hub.action.ManageRaceStatus(c, started, startedAt, finishedAt)
 	if err != nil {
 		slog.Error(
 			"failed to create manage_race_status output",

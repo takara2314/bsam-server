@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/oklog/ulid/v2"
@@ -20,13 +21,19 @@ type Hub struct {
 	ID            string
 	AssociationID string
 	Clients       map[string]*Client
-	Started       bool
+	Race          RaceInfo
 	taskManager   *taskmanager.Manager
 	clientEvent   ClientEvent
 	serverEvent   ServerEvent
 	handler       Handler
 	action        Action
 	Mu            sync.RWMutex
+}
+
+type RaceInfo struct {
+	Started    bool
+	StartedAt  time.Time
+	FinishedAt time.Time
 }
 
 func (h *Hub) LogValue() slog.Value {
@@ -88,7 +95,9 @@ type ServerEvent interface {
 type UnimplementedServerEvent struct{}
 
 type ManageRaceStatusTaskMessage struct {
-	Started bool `json:"started"`
+	Started    bool      `json:"started"`
+	StartedAt  time.Time `json:"started_at"`
+	FinishedAt time.Time `json:"finished_at"`
 }
 
 type ManageNextMarkTaskMessage struct {
@@ -139,9 +148,11 @@ func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
 	return nil
 }
 
-func (h *Hub) PublishManageRaceStatusTask(ctx context.Context, started bool) error {
+func (h *Hub) PublishManageRaceStatusTask(ctx context.Context, started bool, startedAt time.Time, finishedAt time.Time) error {
 	payload, err := sonic.Marshal(&ManageRaceStatusTaskMessage{
-		Started: started,
+		Started:    started,
+		StartedAt:  startedAt,
+		FinishedAt: finishedAt,
 	})
 	if err != nil {
 		return err
