@@ -23,6 +23,7 @@ func NewGin() *gin.Engine {
 func RegisterRouter(router *gin.Engine) {
 	router.Use(cors.Default())
 
+	router.GET("/", handler.IndexGET)
 	router.GET("/healthz", handler.HealthzGET)
 
 	router.Use(middleware.AuthToken(common.Env.JWTSecretKey))
