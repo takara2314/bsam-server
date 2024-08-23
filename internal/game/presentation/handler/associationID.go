@@ -11,6 +11,7 @@ import (
 	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/geolocationlib"
 	"github.com/takara2314/bsam-server/pkg/racehub"
+	"github.com/takara2314/bsam-server/pkg/racelib"
 )
 
 type RaceHandler struct {
@@ -25,8 +26,9 @@ type RaceHandler struct {
 // 5. デバイスID、ロール、自分のマーク番号を登録
 // 6. デバイス情報を記録
 // 7. クライアントに認証完了メッセージを送信
-// 8. レースの状態を送信
-// 9. 選手ロールなら、マークの位置情報を送信
+// 8. レースの状態を取得
+// 9. レースの状態を送信
+// 10. 選手ロールなら、マークの位置情報を送信
 func (r *RaceHandler) Auth(
 	c *racehub.Client,
 	input *racehub.AuthInput,
@@ -188,9 +190,21 @@ func (r *RaceHandler) Auth(
 		)
 	}
 
+	// レースの状態を取得
+	// もし取得時にエラーが発生すれば (だいたいレースが存在しないエラー)、レースが始まっていないとみなす
+	race, err := racelib.FetchLatestRaceByAssociationID(ctx, common.FirestoreClient, associationID)
+	if err != nil {
+		race = &racelib.Race{
+			Started: false,
+		}
+	}
+
 	// レースの状態を送信
-	time.Sleep(10 * time.Millisecond)
-	if err := c.WriteManageRaceStatus(c.Hub.Started); err != nil {
+	if err := c.WriteManageRaceStatus(
+		race.Started,
+		race.StartedAt,
+		race.FinishedAt,
+	); err != nil {
 		slog.Error(
 			"failed to write manage_race_status",
 			"client", c,
@@ -256,17 +270,39 @@ func (r *RaceHandler) PostGeolocation(
 }
 
 // レースの状態を管理するメッセージを受信したときの処理
-// 1. 同じ協会内の全インスタンスにレースの状態を管理するタスクを送信
-// 2. タスクを受信したとき、 game/event/associationID.go で全員に向けてレース開始アクションを送信
+// 1. 開始、終了時刻をデータベースに格納
+// 2. 同じ協会内の全インスタンスにレースの状態を管理するタスクを送信
+// 3. タスクを受信したとき、 game/event/associationID.go で全員に向けてレース開始アクションを送信
 func (r *RaceHandler) ManageRaceStatus(
 	c *racehub.Client,
 	input *racehub.ManageRaceStatusInput,
 ) {
 	ctx := context.Background()
 
+	// 開始、終了時刻をデータベースに格納
+	if err := racelib.StoreRace(
+		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
+		input.Started,
+		input.StartedAt,
+		input.FinishedAt,
+	); err != nil {
+		slog.Error(
+			"failed store race",
+			"client", c,
+			"error", err,
+			"input", input,
+		)
+		return
+	}
+
+	// 同じ協会内の全インスタンスにレースの状態を管理するタスクを送信
 	if err := c.Hub.PublishManageRaceStatusTask(
 		ctx,
 		input.Started,
+		input.StartedAt,
+		input.FinishedAt,
 	); err != nil {
 		slog.Error(
 			"failed to publish task",

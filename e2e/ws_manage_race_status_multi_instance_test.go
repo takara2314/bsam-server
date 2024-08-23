@@ -221,6 +221,7 @@ func connectAndSendStartRace(
 			err = client.Send(racehub.ManageRaceStatusInput{
 				MessageType: racehub.HandlerTypeManageRaceStatus,
 				Started:     true,
+				StartedAt:   time.Now(),
 			})
 			if err != nil {
 				return fmt.Errorf("メッセージの送信に失敗しました: %v", err)

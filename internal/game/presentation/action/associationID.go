@@ -2,6 +2,7 @@ package action
 
 import (
 	"context"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/takara2314/bsam-server/internal/game/common"
@@ -61,10 +62,14 @@ func (r *RaceAction) MarkGeolocations(
 func (r *RaceAction) ManageRaceStatus(
 	c *racehub.Client,
 	started bool,
+	startedAt time.Time,
+	finishedAt time.Time,
 ) (*racehub.ManageRaceStatusOutput, error) {
 	return &racehub.ManageRaceStatusOutput{
 		MessageType: racehub.ActionTypeManageRaceStatus,
 		Started:     started,
+		StartedAt:   startedAt,
+		FinishedAt:  finishedAt,
 	}, nil
 }
 

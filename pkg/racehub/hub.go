@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/oklog/ulid/v2"
@@ -20,7 +21,6 @@ type Hub struct {
 	ID            string
 	AssociationID string
 	Clients       map[string]*Client
-	Started       bool
 	taskManager   *taskmanager.Manager
 	clientEvent   ClientEvent
 	serverEvent   ServerEvent
@@ -59,8 +59,6 @@ func NewHub(
 		"association_id", associationID,
 	)
 
-	// TODO: 協会のレース開始状態を取得する (from firestore)
-
 	hub := &Hub{
 		ID:            id,
 		AssociationID: associationID,
@@ -88,7 +86,9 @@ type ServerEvent interface {
 type UnimplementedServerEvent struct{}
 
 type ManageRaceStatusTaskMessage struct {
-	Started bool `json:"started"`
+	Started    bool      `json:"started"`
+	StartedAt  time.Time `json:"started_at"`
+	FinishedAt time.Time `json:"finished_at"`
 }
 
 type ManageNextMarkTaskMessage struct {
@@ -139,9 +139,11 @@ func (h *Hub) subscribeHandler(taskType string, payload []byte) error {
 	return nil
 }
 
-func (h *Hub) PublishManageRaceStatusTask(ctx context.Context, started bool) error {
+func (h *Hub) PublishManageRaceStatusTask(ctx context.Context, started bool, startedAt time.Time, finishedAt time.Time) error {
 	payload, err := sonic.Marshal(&ManageRaceStatusTaskMessage{
-		Started: started,
+		Started:    started,
+		StartedAt:  startedAt,
+		FinishedAt: finishedAt,
 	})
 	if err != nil {
 		return err
