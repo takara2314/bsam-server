@@ -7,11 +7,12 @@ import (
 	"github.com/samber/oops"
 )
 
-func CreateJWT(associationID string, exp time.Time, secretKey string) string {
+func CreateJWT(associationID string, associationName string, exp time.Time, secretKey string) string {
 	claims := jwt.MapClaims{
-		"association_id": associationID,
-		"iat":            time.Now().Unix(),
-		"exp":            exp.Unix(),
+		"association_id":   associationID,
+		"association_name": associationName,
+		"iat":              time.Now().Unix(),
+		"exp":              exp.Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

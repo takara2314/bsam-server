@@ -36,6 +36,7 @@ func CreateToken(associationID string) (string, error) {
 
 	return auth.CreateJWT(
 		associationID,
+		association.Name,
 		association.ExpiresAt,
 		common.Env.JWTSecretKey,
 	), nil
