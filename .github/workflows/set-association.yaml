@@ -1,0 +1,79 @@
+name: Set Association
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: デプロイ環境
+        required: true
+        type: choice
+        options:
+        - stg
+        - prd
+      id:
+        description: 協会ID
+        required: true
+        type: string
+      name:
+        description: 協会名
+        required: true
+        type: string
+      password:
+        description: パスワード
+        required: true
+        type: string
+      contractStartedAt:
+        description: 契約開始日 (YYYY-MM-DD)
+        required: true
+        type: string
+      contractType:
+        description: 契約タイプ
+        required: true
+        type: choice
+        options:
+        - 3month
+        - 1year
+        - 3year
+        - 5year
+        - free
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  WORKLOAD_IDENTITY_PROVIDER: projects/${{ secrets.STG_GOOGLE_CLOUD_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-actions-oidc/providers/github-actions-oidc-provider
+  SERVICE_ACCOUNT: github-actions@${{ secrets.STG_GOOGLE_CLOUD_PROJECT_ID }}.iam.gserviceaccount.com
+
+jobs:
+  set_association:
+    name: Set Association
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud by OpenID Connect
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+          cache: false
+
+      - name: Set Association Script
+        env:
+          PASSWORD: ${{ github.event.inputs.password }}
+        run: |
+          echo "::add-mask::$PASSWORD"
+          go run main.go \
+            -environment "${{ github.event.inputs.environment }}" \
+            -association_id "${{ github.event.inputs.id }}" \
+            -name "${{ github.event.inputs.name }}" \
+            -password "$USER_PASSWORD" \
+            -contract_started_at "${{ github.event.inputs.contractStartedAt }}" \
+            -contract_type "${{ github.event.inputs.contractType }}"
