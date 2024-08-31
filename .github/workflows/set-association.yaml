@@ -74,7 +74,7 @@ jobs:
           echo "::add-mask::${{ github.event.inputs.contractStartedAt }}"
           echo "::add-mask::${{ github.event.inputs.contractType }}"
 
-          go run main.go \
+          go run cmd/set_association/main.go \
             -environment "${{ github.event.inputs.environment }}" \
             -association_id "${{ github.event.inputs.association_id }}" \
             -name "${{ github.event.inputs.name }}" \
