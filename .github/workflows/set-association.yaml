@@ -75,7 +75,7 @@ jobs:
           echo "::add-mask::${{ github.event.inputs.contractType }}"
 
       - name: Build Go Script
-        run: go build -o task cmd/set_association/main.go
+        run: go build -o task ./cmd/set_association/
 
       - name: Run Go Script
         run: |
