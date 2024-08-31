@@ -66,23 +66,18 @@ jobs:
           cache: false
 
       - name: Set Association Script
-        env:
-          ASSOCIATION_ID: ${{ github.event.inputs.association_id }}
-          NAME: ${{ github.event.inputs.name }}
-          PASSWORD: ${{ github.event.inputs.password }}
-          CONTRACT_STARTED_AT: ${{ github.event.inputs.contractStartedAt }}
-          CONTRACT_TYPE: ${{ github.event.inputs.contractType }}
         run: |
-          echo "::add-mask::$ASSOCIATION_ID"
-          echo "::add-mask::$NAME"
-          echo "::add-mask::$PASSWORD"
-          echo "::add-mask::$CONTRACT_STARTED_AT"
-          echo "::add-mask::$CONTRACT_TYPE"
+          echo "::add-mask::${{ github.event.inputs.environment }}"
+          echo "::add-mask::${{ github.event.inputs.association_id }}"
+          echo "::add-mask::${{ github.event.inputs.name }}"
+          echo "::add-mask::${{ github.event.inputs.password }}"
+          echo "::add-mask::${{ github.event.inputs.contractStartedAt }}"
+          echo "::add-mask::${{ github.event.inputs.contractType }}"
 
-          go run main.go \
+          go run cmd/set_association/main.go \
             -environment "${{ github.event.inputs.environment }}" \
-            -association_id "$ASSOCIATION_ID" \
-            -name "$NAME" \
-            -password "$PASSWORD" \
-            -contract_started_at "$CONTRACT_STARTED_AT" \
-            -contract_type "$CONTRACT_TYPE"
+            -association_id "${{ github.event.inputs.association_id }}" \
+            -name "${{ github.event.inputs.name }}" \
+            -password "${{ github.event.inputs.password }}" \
+            -contract_started_at "${{ github.event.inputs.contractStartedAt }}" \
+            -contract_type "${{ github.event.inputs.contractType }}"
