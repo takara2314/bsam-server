@@ -10,7 +10,7 @@ on:
         options:
         - stg
         - prd
-      id:
+      association_id:
         description: 協会ID
         required: true
         type: string
@@ -67,13 +67,22 @@ jobs:
 
       - name: Set Association Script
         env:
+          ASSOCIATION_ID: ${{ github.event.inputs.association_id }}
+          NAME: ${{ github.event.inputs.name }}
           PASSWORD: ${{ github.event.inputs.password }}
+          CONTRACT_STARTED_AT: ${{ github.event.inputs.contractStartedAt }}
+          CONTRACT_TYPE: ${{ github.event.inputs.contractType }}
         run: |
+          echo "::add-mask::$ASSOCIATION_ID"
+          echo "::add-mask::$NAME"
           echo "::add-mask::$PASSWORD"
+          echo "::add-mask::$CONTRACT_STARTED_AT"
+          echo "::add-mask::$CONTRACT_TYPE"
+
           go run main.go \
             -environment "${{ github.event.inputs.environment }}" \
-            -association_id "${{ github.event.inputs.id }}" \
-            -name "${{ github.event.inputs.name }}" \
-            -password "$USER_PASSWORD" \
-            -contract_started_at "${{ github.event.inputs.contractStartedAt }}" \
-            -contract_type "${{ github.event.inputs.contractType }}"
+            -association_id "$ASSOCIATION_ID" \
+            -name "$NAME" \
+            -password "$PASSWORD" \
+            -contract_started_at "$CONTRACT_STARTED_AT" \
+            -contract_type "$CONTRACT_TYPE"
