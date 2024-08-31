@@ -65,7 +65,7 @@ jobs:
           go-version: 1.23
           cache: false
 
-      - name: Set Association Script
+      - name: Register Masks
         run: |
           echo "::add-mask::${{ github.event.inputs.environment }}"
           echo "::add-mask::${{ github.event.inputs.association_id }}"
@@ -74,7 +74,12 @@ jobs:
           echo "::add-mask::${{ github.event.inputs.contractStartedAt }}"
           echo "::add-mask::${{ github.event.inputs.contractType }}"
 
-          go run cmd/set_association/main.go \
+      - name: Build Go Script
+        run: go build -o task cmd/set_association/main.go
+
+      - name: Run Go Script
+        run: |
+          ./task \
             -environment "${{ github.event.inputs.environment }}" \
             -association_id "${{ github.event.inputs.association_id }}" \
             -name "${{ github.event.inputs.name }}" \
