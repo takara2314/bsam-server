@@ -119,6 +119,9 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 	go client.readPump()
 	go client.writePump()
 
+	// 接続結果メッセージを送信
+	client.WriteConnectResult(true, h.ID)
+
 	return client
 }
 

@@ -15,6 +15,19 @@ type RaceAction struct {
 	racehub.UnimplementedAction
 }
 
+// 接続結果メッセージを送信するときの処理
+func (r *RaceAction) ConnectResult(
+	c *racehub.Client,
+	ok bool,
+	hubID string,
+) (*racehub.ConnectResultOutput, error) {
+	return &racehub.ConnectResultOutput{
+		MessageType: racehub.ActionTypeConnectResult,
+		OK:          ok,
+		HubID:       hubID,
+	}, nil
+}
+
 // 認証結果メッセージを送信するときの処理
 func (r *RaceAction) AuthResult(
 	c *racehub.Client,

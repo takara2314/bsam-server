@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	ActionTypeConnectResult    = "connect_result"
 	ActionTypeAuthResult       = "auth_result"
 	ActionTypeMarkGeolocations = "mark_geolocations"
 	ActionTypeManageRaceStatus = "manage_race_status"
@@ -23,6 +24,12 @@ const (
 )
 
 type Action interface {
+	ConnectResult(
+		c *Client,
+		ok bool,
+		hubID string,
+	) (*ConnectResultOutput, error)
+
 	AuthResult(
 		c *Client,
 		ok bool,
@@ -47,6 +54,12 @@ type Action interface {
 }
 
 type UnimplementedAction struct{}
+
+type ConnectResultOutput struct {
+	MessageType string `json:"type"`
+	OK          bool   `json:"ok"`
+	HubID       string `json:"hub_id"`
+}
 
 type AuthResultOutput struct {
 	MessageType string `json:"type"`
@@ -200,6 +213,26 @@ func (c *Client) writeMessage(msg any, ok bool) error {
 		"payload", string(payload),
 	)
 
+	return nil
+}
+
+func (c *Client) WriteConnectResult(ok bool, hubID string) error {
+	slog.Info(
+		"writing connect_result",
+		"client", c,
+	)
+
+	output, err := c.Hub.action.ConnectResult(c, ok, hubID)
+	if err != nil {
+		slog.Error(
+			"failed to create connect_result output",
+			"client", c,
+			"error", err,
+		)
+		return err
+	}
+
+	c.SendCh <- output
 	return nil
 }
 
