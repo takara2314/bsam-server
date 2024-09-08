@@ -46,7 +46,7 @@ func FetchRaceByID(
 	client *firestore.Client,
 	id string,
 ) (*Race, error) {
-	doc, err := client.Collection("race").Doc(id).Get(ctx)
+	doc, err := client.Collection("races").Doc(id).Get(ctx)
 	if err != nil {
 		return nil, oops.
 			In("firestore.FetchRaceByID").
