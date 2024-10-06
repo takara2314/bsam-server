@@ -8,6 +8,7 @@
     "geoloclib",
     "geolocation",
     "devicelib",
-    "taskmanager"
+    "taskmanager",
+    "passedmarklib"
   ]
 }

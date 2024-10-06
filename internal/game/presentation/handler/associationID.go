@@ -10,6 +10,7 @@ import (
 	"github.com/takara2314/bsam-server/pkg/devicelib"
 	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/geolocationlib"
+	"github.com/takara2314/bsam-server/pkg/passedmarklib"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 	"github.com/takara2314/bsam-server/pkg/racelib"
 )
@@ -28,7 +29,8 @@ type RaceHandler struct {
 // 7. クライアントに認証完了メッセージを送信
 // 8. レースの状態を取得
 // 9. レースの状態を送信
-// 10. 選手ロールなら、マークの位置情報を送信
+// 10. 選手ロールなら、前の目的地マーク情報を送信
+// 11. 選手ロールなら、マークの位置情報を送信
 func (r *RaceHandler) Auth(
 	c *racehub.Client,
 	input *racehub.AuthInput,
@@ -212,9 +214,29 @@ func (r *RaceHandler) Auth(
 		)
 	}
 
-	// 選手ロールなら、マークの位置情報を送信
+	// 選手ロールなら以下の処理も行う
 	if c.Role == domain.RoleAthlete {
 		time.Sleep(10 * time.Millisecond)
+
+		// 前の目的地マーク情報があれば送信
+		if passedMark, _ := passedmarklib.FetchPassedMarkOnlyAfterThisDT(
+			ctx,
+			common.FirestoreClient,
+			associationID,
+			c.DeviceID,
+			race.StartedAt,
+		); passedMark != nil {
+			nextMarkNo := domain.CalcNextMarkNo(c.WantMarkCounts, passedMark.MarkNo)
+			if err := c.WriteManageNextMark(nextMarkNo); err != nil {
+				slog.Error(
+					"failed to write manage_next_mark",
+					"client", c,
+					"error", err,
+				)
+			}
+		}
+
+		// マークの位置情報を送信
 		if err := c.WriteMarkGeolocations(); err != nil {
 			slog.Error(
 				"failed to write mark_geolocations",
@@ -264,6 +286,37 @@ func (r *RaceHandler) PostGeolocation(
 
 	slog.Info(
 		"geolocation saved",
+		"client", c,
+		"input", input,
+	)
+}
+
+// マークを通過したときの処理
+func (r *RaceHandler) PassedMark(
+	c *racehub.Client,
+	input *racehub.PassedMarkInput,
+) {
+	ctx := context.Background()
+
+	if err := passedmarklib.StorePassedMark(
+		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
+		c.DeviceID,
+		input.PassedMarkNo,
+		input.PassedAt,
+	); err != nil {
+		slog.Error(
+			"failed to store passed_mark",
+			"client", c,
+			"error", err,
+			"input", input,
+		)
+		return
+	}
+
+	slog.Info(
+		"passed_mark saved",
 		"client", c,
 		"input", input,
 	)
