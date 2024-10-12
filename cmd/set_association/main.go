@@ -57,6 +57,7 @@ func setAssociation(
 		firestoreClient,
 		inputFlag.AssociationID,
 		inputFlag.Name,
+		"レース",
 		hashedPassword,
 		string(inputFlag.ContractType),
 		expiresAt,

@@ -1,7 +1,7 @@
 package util
 
-// StrSliceAdd adds new element if this slice does not have it.
-func StrSliceAdd(s []string, newStr string) []string {
+// AddStrToSliceIfNotExists adds new element if this slice does not have it.
+func AddStrToSliceIfNotExists(s []string, newStr string) []string {
 	for _, str := range s {
 		if str == newStr {
 			return s
@@ -11,8 +11,8 @@ func StrSliceAdd(s []string, newStr string) []string {
 	return append(s, newStr)
 }
 
-// StrSliceRemove removes new element if this slice has it.
-func StrSliceRemove(s []string, newStr string) []string {
+// RemoveStrFromSliceIfExists removes new element if this slice has it.
+func RemoveStrFromSliceIfExists(s []string, newStr string) []string {
 	no := -1
 
 	for i, str := range s {

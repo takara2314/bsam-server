@@ -18,6 +18,7 @@ var (
 		{
 			ID:             "japan",
 			Name:           "日本サンプルセーリング協会",
+			RaceName:       "日本サンプルレース",
 			HashedPassword: auth.HashPassword("nippon"),
 			ContractType:   string(domain.OneYearContract),
 			ExpiresAt:      time.Now().Add(domain.OneYearContract.Duration()),
@@ -26,6 +27,7 @@ var (
 		{
 			ID:             "america",
 			Name:           "アメリカサンプルセーリング協会",
+			RaceName:       "アメリカサンプルレース",
 			HashedPassword: auth.HashPassword("amerika"),
 			ContractType:   string(domain.ThreeYearContract),
 			ExpiresAt:      time.Now().Add(domain.ThreeYearContract.Duration()),
@@ -34,6 +36,7 @@ var (
 		{
 			ID:             "china",
 			Name:           "中国サンプルセーリング協会",
+			RaceName:       "中国サンプルレース",
 			HashedPassword: auth.HashPassword("chugoku"),
 			ContractType:   string(domain.FiveYearContract),
 			ExpiresAt:      time.Now().Add(domain.FiveYearContract.Duration()),
@@ -88,6 +91,7 @@ func insertTestAssociations(ctx context.Context, client *firestore.Client) error
 			client,
 			associations.ID,
 			associations.Name,
+			associations.RaceName,
 			associations.HashedPassword,
 			associations.ContractType,
 			associations.ExpiresAt,

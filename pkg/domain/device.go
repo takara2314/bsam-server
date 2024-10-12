@@ -66,3 +66,29 @@ func RetrieveRoleAndMarkNo(deviceID string) (string, int, bool) {
 func CreateDeviceID(role string, athleteNo int) string {
 	return role + strconv.Itoa(athleteNo)
 }
+
+func SeparateDeviceIDByRole(deviceIDs []string) ([]string, []string, []string, []string) {
+	markIDs := []string{}
+	athleteIDs := []string{}
+	managerIDs := []string{}
+	unknownIDs := []string{}
+
+	for _, deviceID := range deviceIDs {
+		role, _, ok := RetrieveRoleAndMarkNo(deviceID)
+		if !ok {
+			unknownIDs = append(unknownIDs, deviceID)
+			continue
+		}
+
+		switch role {
+		case RoleMark:
+			markIDs = append(markIDs, deviceID)
+		case RoleAthlete:
+			athleteIDs = append(athleteIDs, deviceID)
+		case RoleManager:
+			managerIDs = append(managerIDs, deviceID)
+		}
+	}
+
+	return athleteIDs, markIDs, managerIDs, unknownIDs
+}

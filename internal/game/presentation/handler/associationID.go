@@ -332,6 +332,19 @@ func (r *RaceHandler) ManageRaceStatus(
 ) {
 	ctx := context.Background()
 
+	race, err := racelib.FetchLatestRaceByAssociationID(
+		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
+	)
+	if err != nil {
+		slog.Error(
+			"failed to fetch race",
+			"client", c,
+			"error", err,
+		)
+	}
+
 	// 開始、終了時刻をデータベースに格納
 	if err := racelib.StoreRace(
 		ctx,
@@ -340,6 +353,7 @@ func (r *RaceHandler) ManageRaceStatus(
 		input.Started,
 		input.StartedAt,
 		input.FinishedAt,
+		race.DeviceIDs,
 	); err != nil {
 		slog.Error(
 			"failed store race",

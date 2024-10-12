@@ -8,6 +8,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/samber/oops"
 	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	"github.com/takara2314/bsam-server/pkg/racelib"
 )
 
 type Device struct {
@@ -27,6 +28,7 @@ func StoreDevice(
 ) error {
 	firestoreDeviceID := associationID + "_" + deviceID
 
+	// デバイスコレクションにデバイス情報を設定
 	if err := repoFirestore.SetDevice(
 		ctx,
 		firestoreClient,
@@ -44,6 +46,20 @@ func StoreDevice(
 			With("client_id", clientID).
 			With("authed_at", authedAt).
 			Wrapf(err, "failed to set device to firestore")
+	}
+
+	// レースコレクションにデバイスIDを設定
+	if err := racelib.AddDeviceIDToRace(
+		ctx,
+		firestoreClient,
+		associationID,
+		deviceID,
+	); err != nil {
+		return oops.
+			In("geolocationlib.StoreDevice").
+			With("association_id", associationID).
+			With("device_id", deviceID).
+			Wrapf(err, "failed to add device id to race")
 	}
 
 	slog.Info(
@@ -107,6 +123,19 @@ func DeleteFirestoreDeviceByDeviceID(
 			With("device_id", deviceID).
 			With("firestore_device_id", firestoreDeviceID).
 			Wrapf(err, "failed to delete device by device id")
+	}
+
+	if err := racelib.RemoveDeviceIDFromRace(
+		ctx,
+		firestoreClient,
+		associationID,
+		deviceID,
+	); err != nil {
+		return oops.
+			In("geolocationlib.DeleteFirestoreDeviceByDeviceID").
+			With("association_id", associationID).
+			With("device_id", deviceID).
+			Wrapf(err, "failed to remove device id from race")
 	}
 
 	slog.Info(
