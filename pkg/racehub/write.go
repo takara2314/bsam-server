@@ -13,6 +13,7 @@ const (
 	ActionTypeConnectResult    = "connect_result"
 	ActionTypeAuthResult       = "auth_result"
 	ActionTypeMarkGeolocations = "mark_geolocations"
+	ActionTypeParticipantsInfo = "participants_info"
 	ActionTypeManageRaceStatus = "manage_race_status"
 	ActionTypeManageNextMark   = "manage_next_mark"
 
@@ -39,6 +40,10 @@ type Action interface {
 	MarkGeolocations(
 		c *Client,
 	) (*MarkGeolocationsOutput, error)
+
+	ParticipantsInfo(
+		c *Client,
+	) (*ParticipantsInfoOutput, error)
 
 	ManageRaceStatus(
 		c *Client,
@@ -77,9 +82,26 @@ type MarkGeolocationsOutput struct {
 	Marks       []MarkGeolocationsOutputMark `json:"marks"`
 }
 
+type ParticipantsInfoOutput struct {
+	MessageType string                          `json:"type"`
+	MarkCounts  int                             `json:"mark_counts"`
+	Marks       []MarkGeolocationsOutputMark    `json:"marks"`
+	Athletes    []ParticipantsInfoOutputAthlete `json:"athletes"`
+}
+
 type MarkGeolocationsOutputMark struct {
 	MarkNo        int       `json:"mark_no"`
 	Stored        bool      `json:"stored"`
+	Latitude      float64   `json:"latitude"`
+	Longitude     float64   `json:"longitude"`
+	AccuracyMeter float64   `json:"accuracy_meter"`
+	Heading       float64   `json:"heading"`
+	RecordedAt    time.Time `json:"recorded_at"`
+}
+
+type ParticipantsInfoOutputAthlete struct {
+	DeviceID      string    `json:"device_id"`
+	NextMarkNo    int       `json:"next_mark_no"`
 	Latitude      float64   `json:"latitude"`
 	Longitude     float64   `json:"longitude"`
 	AccuracyMeter float64   `json:"accuracy_meter"`
@@ -103,10 +125,14 @@ func (c *Client) writePump() {
 	sendingMarkGeolocationsTicker := time.NewTicker(
 		sendingMarkGeolocationsTickerInterval,
 	)
+	sendingParticipantsInfoTicker := time.NewTicker(
+		sendingParticipantsInfoTickerInterval,
+	)
 	pingTicker := time.NewTicker(pingInterval)
 
 	defer func() {
 		sendingMarkGeolocationsTicker.Stop()
+		sendingParticipantsInfoTicker.Stop()
 		pingTicker.Stop()
 		c.Hub.Unregister(c)
 	}()
@@ -124,6 +150,15 @@ func (c *Client) writePump() {
 				continue
 			}
 			if err := c.WriteMarkGeolocations(); err != nil {
+				return
+			}
+
+		case <-sendingParticipantsInfoTicker.C:
+			// マネージャーロールのみ送信する
+			if c.Role != domain.RoleManager {
+				continue
+			}
+			if err := c.WriteParticipantsInfo(); err != nil {
 				return
 			}
 
@@ -273,6 +308,26 @@ func (c *Client) WriteMarkGeolocations() error {
 	if err != nil {
 		slog.Error(
 			"failed to create mark_geolocations output",
+			"client", c,
+			"error", err,
+		)
+		return err
+	}
+
+	c.SendCh <- output
+	return nil
+}
+
+func (c *Client) WriteParticipantsInfo() error {
+	slog.Info(
+		"writing participants_info",
+		"client", c,
+	)
+
+	output, err := c.Hub.action.ParticipantsInfo(c)
+	if err != nil {
+		slog.Error(
+			"failed to create participants_info output",
 			"client", c,
 			"error", err,
 		)

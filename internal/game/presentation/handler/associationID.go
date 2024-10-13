@@ -31,6 +31,7 @@ type RaceHandler struct {
 // 9. レースの状態を送信
 // 10. 選手ロールなら、前の目的地マーク情報を送信
 // 11. 選手ロールなら、マークの位置情報を送信
+// 12. マネージャーロールなら、参加者の情報を送信
 func (r *RaceHandler) Auth(
 	c *racehub.Client,
 	input *racehub.AuthInput,
@@ -240,6 +241,20 @@ func (r *RaceHandler) Auth(
 		if err := c.WriteMarkGeolocations(); err != nil {
 			slog.Error(
 				"failed to write mark_geolocations",
+				"client", c,
+				"error", err,
+			)
+		}
+	}
+
+	// マネージャーロールなら以下の処理も行う
+	if c.Role == domain.RoleManager {
+		time.Sleep(10 * time.Millisecond)
+
+		// 参加者の情報を送信
+		if err := c.WriteParticipantsInfo(); err != nil {
+			slog.Error(
+				"failed to write manage_participants_info",
 				"client", c,
 				"error", err,
 			)

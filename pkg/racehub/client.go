@@ -19,8 +19,11 @@ const (
 	// Pongが返ってこない場合は接続に問題があると判断する
 	pongTimeout = 10 * time.Second
 
-	// クライアントへのマークの位置情報送信間隔: 5秒
+	// 選手へのマークの位置情報送信間隔: 5秒
 	sendingMarkGeolocationsTickerInterval = 5 * time.Second
+
+	// マネージャーへの選手情報送信間隔: 5秒
+	sendingParticipantsInfoTickerInterval = 5 * time.Second
 
 	// サーバーからクライアントへPingを送信する間隔: 9秒
 	// タイムアウト前に必ずPingを送信する
