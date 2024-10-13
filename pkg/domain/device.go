@@ -25,6 +25,11 @@ func ValidateDeviceID(deviceID string) bool {
 		return false
 	}
 
+	// マネージャーはデバイス番号が 1 ~ 10 以外でもOK
+	if strings.HasPrefix(deviceID, RoleManager) {
+		return true
+	}
+
 	iotaInRole, ok := strconv.Atoi(util.StripAnyPrefix(deviceID, idPrefixes))
 	if ok != nil {
 		return false
