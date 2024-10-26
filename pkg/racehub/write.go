@@ -186,11 +186,11 @@ func (c *Client) writeMessage(msg any, ok bool) error {
 		return nil
 	}
 
-	slog.Info(
-		"writing message",
-		"client", c,
-		"message", msg,
-	)
+	// slog.Info(
+	// 	"writing message",
+	// 	"client", c,
+	// 	"message", msg,
+	// )
 
 	payload, err := sonic.Marshal(msg)
 	if err != nil {
@@ -242,11 +242,11 @@ func (c *Client) writeMessage(msg any, ok bool) error {
 		return err
 	}
 
-	slog.Info(
-		"sent payload",
-		"client", c,
-		"payload", string(payload),
-	)
+	// slog.Info(
+	// 	"sent payload",
+	// 	"client", c,
+	// 	"payload", string(payload),
+	// )
 
 	return nil
 }
@@ -379,10 +379,10 @@ func (c *Client) WriteManageNextMark(nextMarkNo int) error {
 }
 
 func (c *Client) writePing() error {
-	slog.Info(
-		"writing ping",
-		"client", c,
-	)
+	// slog.Info(
+	// 	"writing ping",
+	// 	"client", c,
+	// )
 
 	if err := c.Conn.SetWriteDeadline(time.Now().Add(writeTimeout)); err != nil {
 		slog.Error(

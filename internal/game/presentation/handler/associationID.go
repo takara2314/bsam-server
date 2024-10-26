@@ -267,11 +267,11 @@ func (r *RaceHandler) PostGeolocation(
 	c *racehub.Client,
 	input *racehub.PostGeolocationInput,
 ) {
-	slog.Info(
-		"received post_geolocation message",
-		"client", c,
-		"input", input,
-	)
+	// slog.Info(
+	// 	"received post_geolocation message",
+	// 	"client", c,
+	// 	"input", input,
+	// )
 
 	ctx := context.Background()
 
@@ -299,11 +299,11 @@ func (r *RaceHandler) PostGeolocation(
 		return
 	}
 
-	slog.Info(
-		"geolocation saved",
-		"client", c,
-		"input", input,
-	)
+	// slog.Info(
+	// 	"geolocation saved",
+	// 	"client", c,
+	// 	"input", input,
+	// )
 }
 
 // マークを通過したときの処理

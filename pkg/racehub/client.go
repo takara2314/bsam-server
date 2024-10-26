@@ -146,11 +146,11 @@ func (h *Hub) Unregister(c *Client) {
 func (c *Client) SetPingPongHandler() {
 	// クライアントからのPingメッセージを処理するハンドラ
 	c.Conn.SetPingHandler(func(data string) error {
-		slog.Info(
-			"WebSocket ping received from client",
-			"client", c,
-			"data", data,
-		)
+		// slog.Info(
+		// 	"WebSocket ping received from client",
+		// 	"client", c,
+		// 	"data", data,
+		// )
 
 		return c.Conn.WriteControl(
 			websocket.PongMessage,
@@ -161,11 +161,11 @@ func (c *Client) SetPingPongHandler() {
 
 	// クライアントからのPongメッセージを処理するハンドラ
 	c.Conn.SetPongHandler(func(data string) error {
-		slog.Info(
-			"WebSocket pong received from client",
-			"client", c,
-			"data", data,
-		)
+		// slog.Info(
+		// 	"WebSocket pong received from client",
+		// 	"client", c,
+		// 	"data", data,
+		// )
 
 		return c.Conn.SetReadDeadline(time.Now().Add(pongTimeout))
 	})

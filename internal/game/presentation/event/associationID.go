@@ -6,6 +6,7 @@ import (
 
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/pkg/devicelib"
+	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 )
 
@@ -69,6 +70,13 @@ func (r *RaceServerEvent) ManageNextMarkTaskReceived(
 		if c.DeviceID == msg.TargetDeviceID {
 			_ = c.WriteManageNextMark(msg.NextMarkNo)
 			return
+		}
+	}
+
+	// 全マネージャーに参加者情報を送信
+	for _, c := range h.Clients {
+		if c.Role == domain.RoleManager {
+			_ = c.WriteParticipantsInfo()
 		}
 	}
 

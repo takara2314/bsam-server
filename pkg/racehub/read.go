@@ -79,7 +79,7 @@ func (c *Client) readPump() {
 	}
 
 	for {
-		msgType, payload, err := c.Conn.ReadMessage()
+		_, payload, err := c.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(
 				err,
@@ -103,12 +103,12 @@ func (c *Client) readPump() {
 			return
 		}
 
-		slog.Info(
-			"payload received",
-			"client", c,
-			"type", msgType,
-			"payload", string(payload),
-		)
+		// slog.Info(
+		// 	"payload received",
+		// 	"client", c,
+		// 	"type", msgType,
+		// 	"payload", string(payload),
+		// )
 
 		var msg map[string]any
 		if err := sonic.Unmarshal(payload, &msg); err != nil {
@@ -120,12 +120,12 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		slog.Info(
-			"payload unmarshaled",
-			"client", c,
-			"type", msgType,
-			"payload", msg,
-		)
+		// slog.Info(
+		// 	"payload unmarshaled",
+		// 	"client", c,
+		// 	"type", msgType,
+		// 	"payload", msg,
+		// )
 
 		handlerType, ok := msg["type"].(string)
 		if !ok {
