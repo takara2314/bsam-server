@@ -10,7 +10,7 @@ import (
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/geolocationlib"
-	"github.com/takara2314/bsam-server/pkg/passedmarklib"
+	"github.com/takara2314/bsam-server/pkg/nextmarklib"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 	"github.com/takara2314/bsam-server/pkg/racelib"
 	"google.golang.org/grpc/codes"
@@ -113,8 +113,6 @@ func (r *RaceAction) ParticipantsInfo(
 			common.FirestoreClient,
 			c.Hub.AssociationID,
 			athleteID,
-			c.WantMarkCounts,
-			raceDetail.Started,
 			raceDetail.StartedAt,
 		)
 		if err != nil {
@@ -205,8 +203,6 @@ func fetchAthleteInfo(
 	firestore *firestore.Client,
 	associationID string,
 	deviceID string,
-	wantMarkCounts int,
-	raceStarted bool,
 	raceStartedAt time.Time,
 ) (racehub.ParticipantsInfoOutputAthlete, error) {
 	loc, err := geolocationlib.FetchLatestGeolocationByDeviceID(
@@ -221,62 +217,26 @@ func fetchAthleteInfo(
 			Wrapf(err, "failed to fetch latest geolocation by device id")
 	}
 
-	nextMarkNo, err := fetchAthleteNextMarkNo(
+	nextMark, err := nextmarklib.FetchNextMarkOnlyAfterThisDT(
 		ctx,
 		firestore,
 		associationID,
 		deviceID,
-		wantMarkCounts,
-		raceStarted,
 		raceStartedAt,
 	)
-	// マークをパスしていない場合は、存在していないのでエラーが返ってくる
-	// その場合は、次のマークは1にする
 	if err != nil {
-		nextMarkNo = domain.FirstMarkNo
+		return racehub.ParticipantsInfoOutputAthlete{}, oops.
+			In("action.fetchAthleteInfo").
+			Wrapf(err, "failed to fetch next mark only after this dt")
 	}
 
 	return racehub.ParticipantsInfoOutputAthlete{
 		DeviceID:      deviceID,
-		NextMarkNo:    nextMarkNo,
+		NextMarkNo:    nextMark.NextMarkNo,
 		Latitude:      loc.Latitude,
 		Longitude:     loc.Longitude,
 		AccuracyMeter: loc.AccuracyMeter,
 		Heading:       loc.Heading,
 		RecordedAt:    loc.RecordedAt,
 	}, nil
-}
-
-func fetchAthleteNextMarkNo(
-	ctx context.Context,
-	firestore *firestore.Client,
-	associationID string,
-	deviceID string,
-	wantMarkCounts int,
-	raceStarted bool,
-	raceStartedAt time.Time,
-) (int, error) {
-	// レースが始まっていないなら、次のマークは1
-	if !raceStarted {
-		return domain.FirstMarkNo, nil
-	}
-
-	passedMark, err := passedmarklib.FetchPassedMarkOnlyAfterThisDT(
-		ctx,
-		firestore,
-		associationID,
-		deviceID,
-		raceStartedAt,
-	)
-	if err != nil {
-		return 0, oops.
-			In("action.fetchAthleteNextMarkNo").
-			Wrapf(err, "failed to fetch passed mark only after this dt")
-	}
-
-	// 次のマークを計算して返す
-	return domain.CalcNextMarkNo(
-		wantMarkCounts,
-		passedMark.MarkNo,
-	), nil
 }

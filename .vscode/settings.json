@@ -9,6 +9,7 @@
     "geolocation",
     "devicelib",
     "taskmanager",
+    "nextmarklib",
     "passedmarklib"
   ]
 }

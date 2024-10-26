@@ -2,13 +2,13 @@ package passedmarklib
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/samber/oops"
-	repoFirestore "github.com/takara2314/bsam-server/pkg/infrastructure/repository/firestore"
+	"github.com/takara2314/bsam-server/pkg/domain"
+	"github.com/takara2314/bsam-server/pkg/nextmarklib"
 )
 
 type PassedMark struct {
@@ -22,15 +22,17 @@ func StorePassedMark(
 	associationID string,
 	deviceID string,
 	markNo int,
+	wantMarkCounts int,
 	passedAt time.Time,
 ) error {
-	firestoreDeviceID := associationID + "_" + deviceID
+	nextMarkNo := domain.CalcNextMarkNo(wantMarkCounts, markNo)
 
-	if err := repoFirestore.SetPassedMark(
+	if err := nextmarklib.StoreNextMark(
 		ctx,
 		firestoreClient,
-		firestoreDeviceID,
-		markNo,
+		associationID,
+		deviceID,
+		nextMarkNo,
 		passedAt,
 	); err != nil {
 		return oops.
@@ -38,8 +40,10 @@ func StorePassedMark(
 			With("association_id", associationID).
 			With("device_id", deviceID).
 			With("mark_no", markNo).
+			With("want_mark_counts", wantMarkCounts).
+			With("next_mark_no", nextMarkNo).
 			With("passed_at", passedAt).
-			Wrapf(err, "failed to set passed_mark to firestore")
+			Wrapf(err, "failed to set passed_mark as next_mark to firestore")
 	}
 
 	slog.Info(
@@ -47,42 +51,10 @@ func StorePassedMark(
 		"association_id", associationID,
 		"device_id", deviceID,
 		"mark_no", markNo,
+		"want_mark_counts", wantMarkCounts,
+		"next_mark_no", nextMarkNo,
 		"passed_at", passedAt,
 	)
 
 	return nil
-}
-
-func FetchPassedMarkOnlyAfterThisDT(
-	ctx context.Context,
-	firestoreClient *firestore.Client,
-	associationID string,
-	deviceID string,
-	dt time.Time,
-) (*PassedMark, error) {
-	firestoreDeviceID := associationID + "_" + deviceID
-
-	passedMarks, err := repoFirestore.FetchPassedMarkByID(
-		ctx,
-		firestoreClient,
-		firestoreDeviceID,
-	)
-	if err != nil {
-		return nil, oops.
-			In("passedmarklib.FetchPassedMarkOnlyThisDT").
-			With("association_id", associationID).
-			With("device_id", deviceID).
-			With("dt", dt).
-			Wrapf(err, "failed to fetch passed_mark")
-	}
-
-	// dtより前ならnilを返す
-	if passedMarks.PassedAt.Before(dt) {
-		return nil, errors.New("passed_mark is before this_dt")
-	}
-
-	return &PassedMark{
-		MarkNo:   passedMarks.MarkNo,
-		PassedAt: passedMarks.PassedAt,
-	}, nil
 }

@@ -48,7 +48,6 @@ type Client struct {
 	Role           string
 	MarkNo         int
 	WantMarkCounts int
-	NextMarkNo     int
 	Authed         bool
 }
 
@@ -83,7 +82,6 @@ func (c *Client) LogValue() slog.Value {
 		slog.String("role", c.Role),
 		slog.Int("mark_no", c.MarkNo),
 		slog.Int("want_mark_counts", c.WantMarkCounts),
-		slog.Int("next_mark_no", c.NextMarkNo),
 		slog.Bool("authed", c.Authed),
 	)
 }
@@ -105,11 +103,10 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 		SendCh:              make(chan any, maxEgressMessageBytes),
 		StoppingWritePumpCh: make(chan bool),
 
-		DeviceID:   "unknown",
-		Role:       domain.RoleUnknown,
-		MarkNo:     -1,
-		NextMarkNo: -1,
-		Authed:     false,
+		DeviceID: "unknown",
+		Role:     domain.RoleUnknown,
+		MarkNo:   -1,
+		Authed:   false,
 	}
 
 	h.Mu.Lock()
