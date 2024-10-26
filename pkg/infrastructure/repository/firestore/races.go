@@ -13,6 +13,7 @@ type Race struct {
 	Started    bool      `firestore:"started"`
 	StartedAt  time.Time `firestore:"startedAt"`
 	FinishedAt time.Time `firestore:"finishedAt"`
+	DeviceIDs  []string  `firestore:"deviceIDs"`
 	UpdatedAt  time.Time `firestore:"updatedAt"`
 }
 
@@ -23,6 +24,7 @@ func SetRace(
 	started bool,
 	startedAt time.Time,
 	finishedAt time.Time,
+	deviceIDs []string,
 	updatedAt time.Time,
 ) error {
 	_, err := client.Collection("races").Doc(id).Set(ctx, Race{
@@ -30,6 +32,7 @@ func SetRace(
 		Started:    started,
 		StartedAt:  startedAt,
 		FinishedAt: finishedAt,
+		DeviceIDs:  deviceIDs,
 		UpdatedAt:  updatedAt,
 	})
 	if err != nil {
@@ -46,7 +49,7 @@ func FetchRaceByID(
 	client *firestore.Client,
 	id string,
 ) (*Race, error) {
-	doc, err := client.Collection("race").Doc(id).Get(ctx)
+	doc, err := client.Collection("races").Doc(id).Get(ctx)
 	if err != nil {
 		return nil, oops.
 			In("firestore.FetchRaceByID").

@@ -2,7 +2,6 @@ package geolocationlib
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -67,20 +66,20 @@ func StoreGeolocation(
 			Wrapf(err, "failed to set geolocation to firestore")
 	}
 
-	slog.Info(
-		"geolocation stored",
-		"association_id", associationID,
-		"device_id", deviceID,
-		"geolocation_id", geolocationID,
-		"latitude", lat,
-		"longitude", lng,
-		"altitude_meter", altMeter,
-		"accuracy_meter", accMeter,
-		"altitude_accuracy_meter", altAccMeter,
-		"heading", heading,
-		"speed_meter_per_sec", speedMeterPerSec,
-		"recorded_at", recordedAt,
-	)
+	// slog.Info(
+	// 	"geolocation stored",
+	// 	"association_id", associationID,
+	// 	"device_id", deviceID,
+	// 	"geolocation_id", geolocationID,
+	// 	"latitude", lat,
+	// 	"longitude", lng,
+	// 	"altitude_meter", altMeter,
+	// 	"accuracy_meter", accMeter,
+	// 	"altitude_accuracy_meter", altAccMeter,
+	// 	"heading", heading,
+	// 	"speed_meter_per_sec", speedMeterPerSec,
+	// 	"recorded_at", recordedAt,
+	// )
 
 	return nil
 }

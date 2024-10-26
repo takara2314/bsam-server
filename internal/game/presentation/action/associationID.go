@@ -2,17 +2,35 @@ package action
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"cloud.google.com/go/firestore"
+	"github.com/samber/oops"
 	"github.com/takara2314/bsam-server/internal/game/common"
 	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/geolocationlib"
+	"github.com/takara2314/bsam-server/pkg/nextmarklib"
 	"github.com/takara2314/bsam-server/pkg/racehub"
+	"github.com/takara2314/bsam-server/pkg/racelib"
+	"google.golang.org/grpc/codes"
 )
 
 type RaceAction struct {
 	racehub.UnimplementedAction
+}
+
+// 接続結果メッセージを送信するときの処理
+func (r *RaceAction) ConnectResult(
+	c *racehub.Client,
+	ok bool,
+	hubID string,
+) (*racehub.ConnectResultOutput, error) {
+	return &racehub.ConnectResultOutput{
+		MessageType: racehub.ActionTypeConnectResult,
+		OK:          ok,
+		HubID:       hubID,
+	}, nil
 }
 
 // 認証結果メッセージを送信するときの処理
@@ -55,6 +73,64 @@ func (r *RaceAction) MarkGeolocations(
 		MessageType: racehub.ActionTypeMarkGeolocations,
 		MarkCounts:  c.WantMarkCounts,
 		Marks:       marks,
+	}, nil
+}
+
+// マネージャーにマークの位置情報と選手のレース情報を送信するときの処理
+func (r *RaceAction) ParticipantsInfo(
+	c *racehub.Client,
+) (*racehub.ParticipantsInfoOutput, error) {
+	ctx := context.Background()
+
+	marks := make(
+		[]racehub.MarkGeolocationsOutputMark, c.WantMarkCounts,
+	)
+	athletes := []racehub.ParticipantsInfoOutputAthlete{}
+
+	for i := range marks {
+		marks[i] = fetchMarkGeolocation(
+			ctx,
+			common.FirestoreClient,
+			c.Hub.AssociationID,
+			i+1,
+		)
+	}
+
+	raceDetail, code := racelib.FetchLatestRaceDetailByAssociationID(
+		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
+	)
+	if code != codes.OK {
+		return nil, oops.
+			In("action.ParticipantsInfo").
+			Errorf("failed to fetch latest race detail by association id")
+	}
+
+	for _, athleteID := range raceDetail.AthleteIDs {
+		athlete, err := fetchAthleteInfo(
+			ctx,
+			common.FirestoreClient,
+			c.Hub.AssociationID,
+			athleteID,
+			raceDetail.StartedAt,
+		)
+		if err != nil {
+			slog.Error(
+				"failed to fetch athlete info",
+				"error", err,
+				"athlete_id", athleteID,
+			)
+			continue
+		}
+		athletes = append(athletes, athlete)
+	}
+
+	return &racehub.ParticipantsInfoOutput{
+		MessageType: racehub.ActionTypeParticipantsInfo,
+		MarkCounts:  c.WantMarkCounts,
+		Marks:       marks,
+		Athletes:    athletes,
 	}, nil
 }
 
@@ -119,4 +195,48 @@ func fetchMarkGeolocation(
 		Heading:       loc.Heading,
 		RecordedAt:    loc.RecordedAt,
 	}
+}
+
+// 選手の情報を取得する
+func fetchAthleteInfo(
+	ctx context.Context,
+	firestore *firestore.Client,
+	associationID string,
+	deviceID string,
+	raceStartedAt time.Time,
+) (racehub.ParticipantsInfoOutputAthlete, error) {
+	loc, err := geolocationlib.FetchLatestGeolocationByDeviceID(
+		ctx,
+		firestore,
+		associationID,
+		deviceID,
+	)
+	if err != nil {
+		return racehub.ParticipantsInfoOutputAthlete{}, oops.
+			In("action.fetchAthleteInfo").
+			Wrapf(err, "failed to fetch latest geolocation by device id")
+	}
+
+	nextMark, err := nextmarklib.FetchNextMarkOnlyAfterThisDT(
+		ctx,
+		firestore,
+		associationID,
+		deviceID,
+		raceStartedAt,
+	)
+	if err != nil {
+		return racehub.ParticipantsInfoOutputAthlete{}, oops.
+			In("action.fetchAthleteInfo").
+			Wrapf(err, "failed to fetch next mark only after this dt")
+	}
+
+	return racehub.ParticipantsInfoOutputAthlete{
+		DeviceID:      deviceID,
+		NextMarkNo:    nextMark.NextMarkNo,
+		Latitude:      loc.Latitude,
+		Longitude:     loc.Longitude,
+		AccuracyMeter: loc.AccuracyMeter,
+		Heading:       loc.Heading,
+		RecordedAt:    loc.RecordedAt,
+	}, nil
 }

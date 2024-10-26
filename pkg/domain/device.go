@@ -25,6 +25,11 @@ func ValidateDeviceID(deviceID string) bool {
 		return false
 	}
 
+	// マネージャーはデバイス番号が 1 ~ 10 以外でもOK
+	if strings.HasPrefix(deviceID, RoleManager) {
+		return true
+	}
+
 	iotaInRole, ok := strconv.Atoi(util.StripAnyPrefix(deviceID, idPrefixes))
 	if ok != nil {
 		return false
@@ -63,6 +68,32 @@ func RetrieveRoleAndMarkNo(deviceID string) (string, int, bool) {
 	return "", -1, false
 }
 
-func CreateDeviceID(role string, markNo int) string {
-	return role + strconv.Itoa(markNo)
+func CreateDeviceID(role string, athleteNo int) string {
+	return role + strconv.Itoa(athleteNo)
+}
+
+func SeparateDeviceIDByRole(deviceIDs []string) ([]string, []string, []string, []string) {
+	markIDs := []string{}
+	athleteIDs := []string{}
+	managerIDs := []string{}
+	unknownIDs := []string{}
+
+	for _, deviceID := range deviceIDs {
+		role, _, ok := RetrieveRoleAndMarkNo(deviceID)
+		if !ok {
+			unknownIDs = append(unknownIDs, deviceID)
+			continue
+		}
+
+		switch role {
+		case RoleMark:
+			markIDs = append(markIDs, deviceID)
+		case RoleAthlete:
+			athleteIDs = append(athleteIDs, deviceID)
+		case RoleManager:
+			managerIDs = append(managerIDs, deviceID)
+		}
+	}
+
+	return athleteIDs, markIDs, managerIDs, unknownIDs
 }

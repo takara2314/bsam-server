@@ -13,6 +13,7 @@ type Association struct {
 	Name           string    `firestore:"name"`
 	HashedPassword string    `firestore:"hashedPassword"`
 	ContractType   string    `firestore:"contractType"`
+	RaceName       string    `firestore:"raceName"`
 	ExpiresAt      time.Time `firestore:"expiresAt"`
 	UpdatedAt      time.Time `firestore:"updatedAt"`
 }
@@ -22,6 +23,7 @@ func SetAssociation(
 	client *firestore.Client,
 	id string,
 	name string,
+	raceName string,
 	hashedPassword string,
 	contractType string,
 	expiresAt time.Time,
@@ -32,6 +34,7 @@ func SetAssociation(
 		Name:           name,
 		HashedPassword: hashedPassword,
 		ContractType:   contractType,
+		RaceName:       raceName,
 		ExpiresAt:      expiresAt,
 		UpdatedAt:      updatedAt,
 	})

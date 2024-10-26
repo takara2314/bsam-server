@@ -10,6 +10,8 @@ import (
 	"github.com/takara2314/bsam-server/pkg/devicelib"
 	"github.com/takara2314/bsam-server/pkg/domain"
 	"github.com/takara2314/bsam-server/pkg/geolocationlib"
+	"github.com/takara2314/bsam-server/pkg/nextmarklib"
+	"github.com/takara2314/bsam-server/pkg/passedmarklib"
 	"github.com/takara2314/bsam-server/pkg/racehub"
 	"github.com/takara2314/bsam-server/pkg/racelib"
 )
@@ -28,7 +30,9 @@ type RaceHandler struct {
 // 7. クライアントに認証完了メッセージを送信
 // 8. レースの状態を取得
 // 9. レースの状態を送信
-// 10. 選手ロールなら、マークの位置情報を送信
+// 10. 選手ロールなら、前の目的地マーク情報を送信
+// 11. 選手ロールなら、マークの位置情報を送信
+// 12. マネージャーロールなら、参加者の情報を送信
 func (r *RaceHandler) Auth(
 	c *racehub.Client,
 	input *racehub.AuthInput,
@@ -212,12 +216,62 @@ func (r *RaceHandler) Auth(
 		)
 	}
 
-	// 選手ロールなら、マークの位置情報を送信
+	// 選手ロールなら以下の処理も行う
 	if c.Role == domain.RoleAthlete {
 		time.Sleep(10 * time.Millisecond)
+
+		// 次の目的地マーク情報があれば送信
+		if nextMark, _ := nextmarklib.FetchNextMarkOnlyAfterThisDT(
+			ctx,
+			common.FirestoreClient,
+			associationID,
+			c.DeviceID,
+			race.StartedAt,
+		); nextMark != nil {
+			// 次の目的地マーク情報があれば送信
+			if err := c.WriteManageNextMark(nextMark.NextMarkNo); err != nil {
+				slog.Error(
+					"failed to write manage_next_mark",
+					"client", c,
+					"error", err,
+				)
+			}
+		} else {
+			// 次の目的地マーク情報を初期化
+			if err := nextmarklib.StoreNextMark(
+				ctx,
+				common.FirestoreClient,
+				associationID,
+				c.DeviceID,
+				domain.FirstMarkNo,
+				time.Now(),
+			); err != nil {
+				slog.Error(
+					"failed to store next_mark",
+					"client", c,
+					"error", err,
+				)
+			}
+		}
+
+		// マークの位置情報を送信
 		if err := c.WriteMarkGeolocations(); err != nil {
 			slog.Error(
 				"failed to write mark_geolocations",
+				"client", c,
+				"error", err,
+			)
+		}
+	}
+
+	// マネージャーロールなら以下の処理も行う
+	if c.Role == domain.RoleManager {
+		time.Sleep(10 * time.Millisecond)
+
+		// 参加者の情報を送信
+		if err := c.WriteParticipantsInfo(); err != nil {
+			slog.Error(
+				"failed to write manage_participants_info",
 				"client", c,
 				"error", err,
 			)
@@ -230,11 +284,11 @@ func (r *RaceHandler) PostGeolocation(
 	c *racehub.Client,
 	input *racehub.PostGeolocationInput,
 ) {
-	slog.Info(
-		"received post_geolocation message",
-		"client", c,
-		"input", input,
-	)
+	// slog.Info(
+	// 	"received post_geolocation message",
+	// 	"client", c,
+	// 	"input", input,
+	// )
 
 	ctx := context.Background()
 
@@ -262,8 +316,40 @@ func (r *RaceHandler) PostGeolocation(
 		return
 	}
 
+	// slog.Info(
+	// 	"geolocation saved",
+	// 	"client", c,
+	// 	"input", input,
+	// )
+}
+
+// マークを通過したときの処理
+func (r *RaceHandler) PassedMark(
+	c *racehub.Client,
+	input *racehub.PassedMarkInput,
+) {
+	ctx := context.Background()
+
+	if err := passedmarklib.StorePassedMark(
+		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
+		c.DeviceID,
+		input.PassedMarkNo,
+		c.WantMarkCounts,
+		input.PassedAt,
+	); err != nil {
+		slog.Error(
+			"failed to store passed_mark",
+			"client", c,
+			"error", err,
+			"input", input,
+		)
+		return
+	}
+
 	slog.Info(
-		"geolocation saved",
+		"passed_mark saved",
 		"client", c,
 		"input", input,
 	)
@@ -279,6 +365,19 @@ func (r *RaceHandler) ManageRaceStatus(
 ) {
 	ctx := context.Background()
 
+	race, err := racelib.FetchLatestRaceByAssociationID(
+		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
+	)
+	if err != nil {
+		slog.Error(
+			"failed to fetch race",
+			"client", c,
+			"error", err,
+		)
+	}
+
 	// 開始、終了時刻をデータベースに格納
 	if err := racelib.StoreRace(
 		ctx,
@@ -287,6 +386,7 @@ func (r *RaceHandler) ManageRaceStatus(
 		input.Started,
 		input.StartedAt,
 		input.FinishedAt,
+		race.DeviceIDs,
 	); err != nil {
 		slog.Error(
 			"failed store race",
@@ -320,8 +420,9 @@ func (r *RaceHandler) ManageRaceStatus(
 }
 
 // 次のマークを管理するメッセージを受信したときの処理
-// 1. 指定のデバイスのハブIDを取得
-// 2. 指定のデバイスに次のマークを管理するタスクを送信
+// 1. 指定したデバイスの次のマークをデータベースに格納
+// 2. 指定のデバイスのハブIDを取得
+// 3. 指定のデバイスに次のマークを管理するタスクを送信
 // 3. タスクを受信したとき、 game/event/associationID.go で指定のデバイスに向けて次のマークアクションを送信
 func (r *RaceHandler) ManageNextMark(
 	c *racehub.Client,
@@ -329,6 +430,25 @@ func (r *RaceHandler) ManageNextMark(
 ) {
 	ctx := context.Background()
 
+	// 指定したデバイスの次のマークをデータベースに格納
+	if err := nextmarklib.StoreNextMark(
+		ctx,
+		common.FirestoreClient,
+		c.Hub.AssociationID,
+		input.TargetDeviceID,
+		input.NextMarkNo,
+		time.Now(),
+	); err != nil {
+		slog.Error(
+			"failed to store next_mark",
+			"client", c,
+			"error", err,
+			"input", input,
+		)
+		return
+	}
+
+	// 指定のデバイスのハブIDを取得
 	device, err := devicelib.FetchLatestDeviceByDeviceID(
 		ctx,
 		common.FirestoreClient,
@@ -345,6 +465,7 @@ func (r *RaceHandler) ManageNextMark(
 		return
 	}
 
+	// 指定のデバイスに次のマークを管理するタスクを送信
 	if err := c.Hub.PublishManageNextMarkTask(
 		ctx,
 		device.HubID,

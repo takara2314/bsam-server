@@ -19,8 +19,11 @@ const (
 	// Pongが返ってこない場合は接続に問題があると判断する
 	pongTimeout = 10 * time.Second
 
-	// クライアントへのマークの位置情報送信間隔: 5秒
+	// 選手へのマークの位置情報送信間隔: 5秒
 	sendingMarkGeolocationsTickerInterval = 5 * time.Second
+
+	// マネージャーへの選手情報送信間隔: 5秒
+	sendingParticipantsInfoTickerInterval = 5 * time.Second
 
 	// サーバーからクライアントへPingを送信する間隔: 9秒
 	// タイムアウト前に必ずPingを送信する
@@ -45,7 +48,6 @@ type Client struct {
 	Role           string
 	MarkNo         int
 	WantMarkCounts int
-	NextMarkNo     int
 	Authed         bool
 }
 
@@ -80,7 +82,6 @@ func (c *Client) LogValue() slog.Value {
 		slog.String("role", c.Role),
 		slog.Int("mark_no", c.MarkNo),
 		slog.Int("want_mark_counts", c.WantMarkCounts),
-		slog.Int("next_mark_no", c.NextMarkNo),
 		slog.Bool("authed", c.Authed),
 	)
 }
@@ -102,11 +103,10 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 		SendCh:              make(chan any, maxEgressMessageBytes),
 		StoppingWritePumpCh: make(chan bool),
 
-		DeviceID:   "unknown",
-		Role:       domain.RoleUnknown,
-		MarkNo:     -1,
-		NextMarkNo: -1,
-		Authed:     false,
+		DeviceID: "unknown",
+		Role:     domain.RoleUnknown,
+		MarkNo:   -1,
+		Authed:   false,
 	}
 
 	h.Mu.Lock()
@@ -118,6 +118,9 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 	client.SetPingPongHandler()
 	go client.readPump()
 	go client.writePump()
+
+	// 接続結果メッセージを送信
+	client.WriteConnectResult(true, h.ID)
 
 	return client
 }
@@ -140,11 +143,11 @@ func (h *Hub) Unregister(c *Client) {
 func (c *Client) SetPingPongHandler() {
 	// クライアントからのPingメッセージを処理するハンドラ
 	c.Conn.SetPingHandler(func(data string) error {
-		slog.Info(
-			"WebSocket ping received from client",
-			"client", c,
-			"data", data,
-		)
+		// slog.Info(
+		// 	"WebSocket ping received from client",
+		// 	"client", c,
+		// 	"data", data,
+		// )
 
 		return c.Conn.WriteControl(
 			websocket.PongMessage,
@@ -155,11 +158,11 @@ func (c *Client) SetPingPongHandler() {
 
 	// クライアントからのPongメッセージを処理するハンドラ
 	c.Conn.SetPongHandler(func(data string) error {
-		slog.Info(
-			"WebSocket pong received from client",
-			"client", c,
-			"data", data,
-		)
+		// slog.Info(
+		// 	"WebSocket pong received from client",
+		// 	"client", c,
+		// 	"data", data,
+		// )
 
 		return c.Conn.SetReadDeadline(time.Now().Add(pongTimeout))
 	})

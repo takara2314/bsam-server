@@ -12,6 +12,7 @@ import (
 const (
 	HandlerTypeAuth             = "auth"
 	HandlerTypePostGeolocation  = "post_geolocation"
+	HandlerTypePassedMark       = "passed_mark"
 	HandlerTypeManageRaceStatus = "manage_race_status"
 	HandlerTypeManageNextMark   = "manage_next_mark"
 )
@@ -19,6 +20,7 @@ const (
 type Handler interface {
 	Auth(*Client, *AuthInput)
 	PostGeolocation(*Client, *PostGeolocationInput)
+	PassedMark(*Client, *PassedMarkInput)
 	ManageRaceStatus(*Client, *ManageRaceStatusInput)
 	ManageNextMark(*Client, *ManageNextMarkInput)
 }
@@ -42,6 +44,12 @@ type PostGeolocationInput struct {
 	Heading               float64   `json:"heading"`
 	SpeedMeterPerSec      float64   `json:"speed_meter_per_sec"`
 	RecordedAt            time.Time `json:"recorded_at"`
+}
+
+type PassedMarkInput struct {
+	MessageType  string    `json:"type"`
+	PassedMarkNo int       `json:"passed_mark_no"`
+	PassedAt     time.Time `json:"passed_at"`
 }
 
 type ManageRaceStatusInput struct {
@@ -71,7 +79,7 @@ func (c *Client) readPump() {
 	}
 
 	for {
-		msgType, payload, err := c.Conn.ReadMessage()
+		_, payload, err := c.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(
 				err,
@@ -95,12 +103,12 @@ func (c *Client) readPump() {
 			return
 		}
 
-		slog.Info(
-			"payload received",
-			"client", c,
-			"type", msgType,
-			"payload", string(payload),
-		)
+		// slog.Info(
+		// 	"payload received",
+		// 	"client", c,
+		// 	"type", msgType,
+		// 	"payload", string(payload),
+		// )
 
 		var msg map[string]any
 		if err := sonic.Unmarshal(payload, &msg); err != nil {
@@ -112,12 +120,12 @@ func (c *Client) readPump() {
 			continue
 		}
 
-		slog.Info(
-			"payload unmarshaled",
-			"client", c,
-			"type", msgType,
-			"payload", msg,
-		)
+		// slog.Info(
+		// 	"payload unmarshaled",
+		// 	"client", c,
+		// 	"type", msgType,
+		// 	"payload", msg,
+		// )
 
 		handlerType, ok := msg["type"].(string)
 		if !ok {
@@ -171,6 +179,18 @@ func (c *Client) routeMessage(
 			return
 		}
 		c.Hub.handler.PostGeolocation(c, &input)
+
+	case HandlerTypePassedMark:
+		var input PassedMarkInput
+		if err := sonic.Unmarshal(payload, &input); err != nil {
+			slog.Error(
+				"failed to unmarshal passed_mark input",
+				"client", c,
+				"error", err,
+			)
+			return
+		}
+		c.Hub.handler.PassedMark(c, &input)
 
 	case HandlerTypeManageRaceStatus:
 		// マネージャ以外のクライアントからは受け付けない

@@ -28,4 +28,5 @@ func RegisterRouter(router *gin.Engine) {
 
 	router.Use(middleware.AuthToken(common.Env.JWTSecretKey))
 	router.POST("/geolocation", handlerValidating.GeolocationPOST)
+	router.GET("/races/:associationID", handler.RacesAssociationIDGET)
 }
