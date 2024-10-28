@@ -2,10 +2,12 @@ package firestore
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/samber/oops"
+	"github.com/takara2314/bsam-server/pkg/auth"
 )
 
 type Association struct {
@@ -76,7 +78,7 @@ func FetchAssociationByIDAndHashedPassword(
 	ctx context.Context,
 	client *firestore.Client,
 	id string,
-	hashedPassword string,
+	password string,
 ) (*Association, error) {
 	association, err := FetchAssociationByID(ctx, client, id)
 	if err != nil {
@@ -85,10 +87,13 @@ func FetchAssociationByIDAndHashedPassword(
 			Wrapf(err, "not found this association id")
 	}
 
-	if association.HashedPassword != hashedPassword {
+	if !auth.VerifyPassword(
+		password,
+		association.HashedPassword,
+	) {
 		return nil, oops.
 			In("firestore.FetchAssociationByIDAndHashedPassword").
-			Wrapf(nil, "hashed password is not matched")
+			Wrap(errors.New("hashed password is not matched"))
 	}
 
 	return association, err
