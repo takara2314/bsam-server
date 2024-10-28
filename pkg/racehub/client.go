@@ -120,7 +120,12 @@ func (h *Hub) Register(conn *websocket.Conn) *Client {
 	go client.writePump()
 
 	// 接続結果メッセージを送信
-	client.WriteConnectResult(true, h.ID)
+	if err := client.WriteConnectResult(true, h.ID); err != nil {
+		slog.Warn(
+			"failed to send connect result message",
+			"error", err,
+		)
+	}
 
 	return client
 }
