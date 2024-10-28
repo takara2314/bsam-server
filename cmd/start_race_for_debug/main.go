@@ -24,9 +24,16 @@ func main() {
 	var password string
 
 	fmt.Print("協会IDを入力してください: ")
-	fmt.Scan(&associationID)
+	if _, err := fmt.Scan(&associationID); err != nil {
+		fmt.Println("入力エラーが発生しました:", err)
+		os.Exit(1)
+	}
+
 	fmt.Print("パスワードを入力してください: ")
-	fmt.Scan(&password)
+	if _, err := fmt.Scan(&password); err != nil {
+		fmt.Println("入力エラーが発生しました:", err)
+		os.Exit(1)
+	}
 
 	// トークンを取得
 	token, err := auth.FetchTokenFromAPI(associationID, password)
