@@ -3,19 +3,15 @@ package auth
 import (
 	"os"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func GetPayloadFromJWT(token string) (map[string]any, bool) {
 	info, err := jwt.Parse(token, func(_ *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
+	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
 
 	if info == nil || err != nil {
-		return nil, false
-	}
-
-	if !info.Valid {
 		return nil, false
 	}
 
