@@ -3,11 +3,11 @@ package v4
 import (
 	"net/http"
 
-	"bsam-server/v4/api/associations"
-	"bsam-server/v4/api/reboot"
-	"bsam-server/v4/api/status"
-	"bsam-server/v4/middleware"
-	"bsam-server/v4/ws/racing"
+	"github.com/takara2314/bsam-server/v4/api/associations"
+	"github.com/takara2314/bsam-server/v4/api/reboot"
+	"github.com/takara2314/bsam-server/v4/api/status"
+	"github.com/takara2314/bsam-server/v4/middleware"
+	"github.com/takara2314/bsam-server/v4/ws/racing"
 
 	"github.com/gin-gonic/gin"
 )

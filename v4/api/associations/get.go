@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"bsam-server/v4/models"
+	"github.com/takara2314/bsam-server/v4/models"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/maps"

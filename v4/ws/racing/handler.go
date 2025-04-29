@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"bsam-server/utils"
-	"bsam-server/v4/abort"
+	"github.com/takara2314/bsam-server/utils"
+	"github.com/takara2314/bsam-server/v4/abort"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

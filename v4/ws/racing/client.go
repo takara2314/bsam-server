@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"bsam-server/utils"
+	"github.com/takara2314/bsam-server/utils"
 
 	"github.com/gorilla/websocket"
 )

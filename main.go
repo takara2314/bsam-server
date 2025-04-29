@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	v4 "bsam-server/v4"
+	v4 "github.com/takara2314/bsam-server/v4"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

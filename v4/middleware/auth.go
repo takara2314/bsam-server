@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"bsam-server/v4/abort"
-	"bsam-server/v4/auth"
+	"github.com/takara2314/bsam-server/v4/abort"
+	"github.com/takara2314/bsam-server/v4/auth"
 
 	"github.com/gin-gonic/gin"
 )
