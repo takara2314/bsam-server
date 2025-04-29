@@ -1,56 +1,44 @@
+version: "2"
+
 run:
-  # Number of CPUs to use when running golangci-lint.
-  # Default: the number of logical CPUs in the machine
-  concurrency: 4
-  # Timeout for analysis, e.g. 30s, 5m.
-  # Default: 1m
   timeout: 5m
+  concurrency: 4
 
 linters:
-  # Enable all available linters.
-  # Default: false
-  enable-all: true
-  # Disable specific linter
-  # https://golangci-lint.run/usage/linters/#disabled-by-default
+  default: all
   disable:
-    # Deprecated
-    - maligned
-    - nosnakecase
-    - golint
-    - varcheck
-    - scopelint
-    - deadcode
-    - exhaustivestruct
-    - ifshort
-    - structcheck
-    - interfacer
-    - goimports
-    # Self-defined
     - depguard
-    - varnamelen
-    - wrapcheck
-    - nlreturn
-    - gofumpt
-    - whitespace
     - exhaustruct
     - godox
-    # Self-defined (temporarily disabled)
-    - gci
+    - nlreturn
+    - varnamelen
+    - whitespace
+    - wrapcheck
+  settings:
+    tagliatelle:
+      case:
+        rules:
+          env: upperSnake
+          json: snake
+          yaml: snake
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
 
-linters-settings:
-  tagliatelle:
-    # Check the struct tag name case.
-    case:
-      # `camel` is used for `json` and `yaml`, and `header` is used for `header` (can be overridden)
-      # Default: {}
-      rules:
-        # Any struct tag type can be used.
-        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`, `header`
-        json: snake
-        yaml: snake
-        xml: camel
-        bson: camel
-        avro: snake
-        mapstructure: kebab
-        env: upperSnake
-        envconfig: upperSnake
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
