@@ -7,7 +7,7 @@ import (
 )
 
 func GetPayloadFromJWT(token string) (map[string]any, bool) {
-	info, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
+	info, err := jwt.Parse(token, func(_ *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 

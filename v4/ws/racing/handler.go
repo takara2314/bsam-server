@@ -15,7 +15,7 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  ReadBufferByte,
 	WriteBufferSize: WriteBufferByte,
-	CheckOrigin: func(r *http.Request) bool {
+	CheckOrigin: func(_ *http.Request) bool {
 		return true
 	},
 }
@@ -76,7 +76,7 @@ func (c *Client) receiveBattery(msg *BatteryInfo) {
 	c.BatteryLevel = msg.Level
 }
 
-//nolint:gomnd
+//nolint:mnd
 func (c *Client) calcCompassDeg() float64 {
 	if c.NextMarkNo == 0 || c.Location.Acc == 0.0 {
 		return 0.0

@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//nolint:gomnd
+//nolint:mnd
 const (
 	AutoRoomingInterval = 30 * time.Second
 	ReadBufferByte      = 2048

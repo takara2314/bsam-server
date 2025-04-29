@@ -1,4 +1,4 @@
-//nolint:gomnd,gosmopolitan
+//nolint:mnd,gosmopolitan
 package associations
 
 import (
@@ -7,8 +7,10 @@ import (
 
 	"github.com/takara2314/bsam-server/v4/models"
 
+	"maps"
+	"slices"
+
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/maps"
 )
 
 //nolint:gochecknoglobals
@@ -46,7 +48,7 @@ func GETAll(c *gin.Context) {
 	assocs := getAssociations()
 
 	res := models.AssociationsGETAllRes{
-		Assocs: maps.Values(assocs),
+		Assocs: slices.AppendSeq(make([]models.Association, 0, len(assocs)), maps.Values(assocs)),
 	}
 
 	c.JSON(http.StatusOK, res)

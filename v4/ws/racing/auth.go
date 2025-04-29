@@ -6,7 +6,7 @@ import (
 	"github.com/takara2314/bsam-server/utils"
 	"github.com/takara2314/bsam-server/v4/auth"
 
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 // auth authorizes the client.

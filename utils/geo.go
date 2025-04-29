@@ -1,4 +1,4 @@
-//nolint:gomnd
+//nolint:mnd
 package utils
 
 import "math"
@@ -8,6 +8,8 @@ const (
 )
 
 // CalcDistanceAtoBEarth calculates [A] to [B] distance in the Earth.
+//
+//nolint:mnd
 func CalcDistanceAtoBEarth(latA float64, lngA float64, latB float64, lngB float64) float64 {
 	dLat := DegToRad(latB - latA)
 	dLng := DegToRad(lngB - lngA)

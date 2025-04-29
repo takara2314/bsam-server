@@ -36,7 +36,7 @@ func CreateStrSliceEqualStrSlice(a []string, b []string) (string, error) {
 		return "", ErrNotSameLengthSlice
 	}
 
-	for i := 0; i < aLength; i++ {
+	for i := range aLength {
 		str += a[i] + " = " + b[i]
 		if aLength-1 != i {
 			str += ", "

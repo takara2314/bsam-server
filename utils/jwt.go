@@ -10,7 +10,7 @@ import (
 var ErrInvalidJWT = errors.New("invalid jwt")
 
 func GetUserIDFromJWT(t string) (string, error) {
-	token, err := jwt.Parse(t, func(token *jwt.Token) (any, error) {
+	token, err := jwt.Parse(t, func(_ *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
