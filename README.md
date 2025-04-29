@@ -3,7 +3,7 @@
     <img src="./resources/logo.svg" width="128" height="128" alt="logo" />
 </a>
 
-# Blind Sailing Assist Mie Server - 視覚障がい者帆走支援アプリのサーバー
+# B-SAM Server - 視覚障がい者セーリング支援アプリ サーバー
 
 ![Language: Go](https://img.shields.io/badge/Language-Go-00add8?style=for-the-badge&logo=go)
 ![Package: Gorilla WebSocket](https://img.shields.io/badge/Package-Gorilla%20WebSocket-a1a1a1?style=for-the-badge)
@@ -12,23 +12,37 @@
 
 </div>
 
-視覚障がいをお持ちの方がセーリング（ヨット競技）を行うのを支援するスマートフォンアプリのサーバーです。マークのスマートフォンから位置情報を受信し、競技者スマートフォンに常時レース情報送信します。
+視覚障がいのある方が、セーリング（ヨット競技）をより安全かつ楽しく行えるようにサポートするシステム「B-SAM（Blind Sailing Assist Mie）」のサーバーです。
+
+コース上に設置されたブイに搭載されたスマートフォンから、そのブイの位置情報をリアルタイムで取得します。そして、この位置情報を競技者のスマートフォンに送り続け、常に最新のレース状況を把握できるようにします。これにより、視覚情報に頼ることなく、競技者はレースに集中することができます。
 
 ## 関連リポジトリ
-
 [選手用アプリ（メイン）](https://github.com/takara2314/bsam)
 
 [本部用アプリ](https://github.com/takara2314/bsam-admin)
 
 [レースモニター（外部公開用）](https://github.com/takara2314/bsam-web)
 
-## ライセンス
+## 前提
+- Go 1.24.2
+- Docker
 
-[GPL-3.0](./LICENSE)
+## ライセンス
+このプロジェクトは [GPL-3.0](./LICENSE) ライセンスの下で公開しています。
+
+### 自由な利用と配布
+ソフトウェアを自由に使用、修正、配布する権利が保証されています。
+### ソースコードの公開
+配布時にはソースコードを提供するか、入手方法を明示する必要があります。
+### 派生作品の継承
+派生作品も同じGPLv3ライセンスで公開しなければなりません（コピーレフト）。
+### 特許権の取り扱い
+ソフトウェアに含まれる特許の無償利用を認め、貢献者がユーザーに対して特許訴訟を起こすことを禁止しています。
+### 商用利用
+営利目的での使用や販売が可能ですが、ソースコードの公開や、派生物へのGPLv3適用などの条件を守る必要があります。
 
 ## 開発者
-
-[Takara Hamaguchi](https://github.com/takara2314)
+[濱口 宝 (Takara Hamaguchi)](https://github.com/takara2314)
 
 <div align="center">
 <small>
