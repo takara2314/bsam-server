@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	v4 "github.com/takara2314/bsam-server/v4"
+	server "github.com/takara2314/bsam-server/v4"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ func main() {
 	router := gin.Default()
 
 	// CORS settings
-	if os.Getenv("GIN_MODE") == "release" {
+	if os.Getenv("GIN_MODE") == gin.ReleaseMode {
 		corsConfig := cors.DefaultConfig()
 		corsConfig.AllowOrigins = []string{
 			os.Getenv("RACE_MONITOR_SITE_URL"),
@@ -25,7 +25,7 @@ func main() {
 		router.Use(cors.Default())
 	}
 
-	v4.Register(router)
+	server.Register(router)
 
 	log.Printf("Server is running on port %s\n", os.Getenv("PORT"))
 
