@@ -1,15 +1,3 @@
 {
-  "cSpell.words": [
-    "bsam",
-    "racelib",
-    "racehub",
-    "raceclient",
-    "geolocationlib",
-    "geoloclib",
-    "geolocation",
-    "devicelib",
-    "taskmanager",
-    "nextmarklib",
-    "passedmarklib"
-  ]
+    "files.eol": "\n"
 }
