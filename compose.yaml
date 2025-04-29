@@ -1,108 +1,14 @@
 services:
-  api:
+  server-v4:
     build:
       context: .
-      dockerfile: ./cmd/api/Dockerfile
+      dockerfile: ./cmd/server-v4/Dockerfile
       target: development
     ports:
       - 8080:8080
     volumes:
       - ./:/app
+    env_file:
+      - ./cmd/server-v4/.env
     environment:
       ENVIRONMENT: development
-      FIRESTORE_EMULATOR_HOST: firebase:8000
-    depends_on:
-      firebase:
-        condition: service_healthy
-      insert_test_data:
-        condition: service_completed_successfully
-
-  game:
-    build:
-      context: .
-      dockerfile: ./cmd/game/Dockerfile
-      target: development
-    ports:
-      - 8081:8080
-    volumes:
-      - ./:/app
-    environment:
-      ENVIRONMENT: development
-      FIRESTORE_EMULATOR_HOST: firebase:8000
-    depends_on:
-      firebase:
-        condition: service_healthy
-      insert_test_data:
-        condition: service_completed_successfully
-
-  game_sub:
-    build:
-      context: .
-      dockerfile: ./cmd/game_sub/Dockerfile
-      target: development
-    ports:
-      - 8181:8080
-    volumes:
-      - ./:/app
-    environment:
-      ENVIRONMENT: development
-      FIRESTORE_EMULATOR_HOST: firebase:8000
-    depends_on:
-      firebase:
-        condition: service_healthy
-      insert_test_data:
-        condition: service_completed_successfully
-
-  auth:
-    build:
-      context: .
-      dockerfile: ./cmd/auth/Dockerfile
-      target: development
-    ports:
-      - 8082:8080
-    volumes:
-      - ./:/app
-    environment:
-      ENVIRONMENT: development
-      FIRESTORE_EMULATOR_HOST: firebase:8000
-    depends_on:
-      firebase:
-        condition: service_healthy
-      insert_test_data:
-        condition: service_completed_successfully
-
-  firebase:
-    build:
-      context: .
-      dockerfile: ./cmd/firebase/Dockerfile
-    ports:
-      - 4000:4000
-      - 8000:8000
-    volumes:
-      - ./cmd/firebase/.firebaserc:/firebase/.firebaserc
-      - ./cmd/firebase/firebase.json:/firebase/firebase.json
-    healthcheck:
-      test: curl http://0.0.0.0:8000 > /dev/null 2>&1
-      interval: 10s
-      retries: 5
-      start_period: 20s
-      timeout: 5s
-
-  lint:
-    tty: true
-    build:
-      context: .
-      dockerfile: ./cmd/lint/Dockerfile
-    volumes:
-      - ./:/app
-
-  insert_test_data:
-    build:
-      context: .
-      dockerfile: ./cmd/insert_test_data/Dockerfile
-    environment:
-      ENVIRONMENT: development
-      FIRESTORE_EMULATOR_HOST: firebase:8000
-    depends_on:
-      firebase:
-        condition: service_healthy
