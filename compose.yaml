@@ -8,7 +8,6 @@ services:
       - 8080:8080
     volumes:
       - ./:/app
-      - ./cmd/server-v4/bsam-app-d23e7e5025e7.json:/app/bsam-app-d23e7e5025e7.json
     env_file:
       - ./cmd/server-v4/.env
     environment:
