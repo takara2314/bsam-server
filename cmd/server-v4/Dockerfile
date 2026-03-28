@@ -1,5 +1,5 @@
 # Building image
-FROM golang:1.24.2-alpine AS builder
+FROM golang:1.26.0-alpine AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN go build -o main -ldflags="-s -w" -trimpath ./cmd/server-v4/
 
 
 # Local development image
-FROM golang:1.24.2-alpine AS development
+FROM golang:1.26.0-alpine AS development
 
 WORKDIR /app
 
