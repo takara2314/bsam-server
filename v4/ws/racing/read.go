@@ -40,7 +40,7 @@ type DebugInfo struct {
 
 // TODO: 関数を細かく分ける
 //
-//nolint:funlen,gocognit,cyclop
+//nolint:funlen,cyclop
 func (c *Client) readPump() {
 	c.Conn.SetReadLimit(MaxMessageByte)
 
@@ -68,7 +68,9 @@ func (c *Client) readPump() {
 		}
 
 		var msg map[string]any
-		if err := json.Unmarshal(msgRaw, &msg); err != nil {
+
+		err = json.Unmarshal(msgRaw, &msg)
+		if err != nil {
 			log.Println(err)
 			continue
 		}
@@ -87,92 +89,118 @@ func (c *Client) readPump() {
 		// Call handler by message type
 		switch msgType {
 		case "auth":
-			var msg AuthInfo
-
-			err := json.Unmarshal(msgRaw, &msg)
-			if err != nil {
-				log.Printf("Error <%s>: %s\n", c.UserID, err)
-				continue
-			}
-
-			c.auth(&msg)
+			c.handleAuthMessage(msgRaw)
 
 		case "position":
-			var msg Position
-
-			err := json.Unmarshal(msgRaw, &msg)
-			if err != nil {
-				log.Printf("Error <%s>: %s\n", c.UserID, err)
-				continue
-			}
-
-			c.receivePos(&msg)
+			c.handlePositionMessage(msgRaw)
 
 		case "location":
-			var msg Location
-
-			err := json.Unmarshal(msgRaw, &msg)
-			if err != nil {
-				log.Printf("Error <%s>: %s\n", c.UserID, err)
-				continue
-			}
-
-			c.receiveLoc(&msg)
+			c.handleLocationMessage(msgRaw)
 
 		case "passed":
-			var msg PassedInfo
-
-			err := json.Unmarshal(msgRaw, &msg)
-			if err != nil {
-				log.Printf("Error <%s>: %s\n", c.UserID, err)
-				continue
-			}
-
-			c.handlerPassed(&msg)
+			c.handlePassedMessage(msgRaw)
 
 		case "start":
-			var msg StartInfo
-
-			err := json.Unmarshal(msgRaw, &msg)
-			if err != nil {
-				log.Printf("Error <%s>: %s\n", c.UserID, err)
-				continue
-			}
-
-			c.Hub.startRace(msg.IsStarted)
+			c.handleStartMessage(msgRaw)
 
 		case "set_next_mark_no":
-			var msg SetMarkNoInfo
-
-			err := json.Unmarshal(msgRaw, &msg)
-			if err != nil {
-				log.Printf("Error <%s>: %s\n", c.UserID, err)
-				continue
-			}
-
-			c.Hub.setNextMarkNoForce(&msg)
+			c.handleSetNextMarkNoMessage(msgRaw)
 
 		case "battery":
-			var msg BatteryInfo
-
-			err := json.Unmarshal(msgRaw, &msg)
-			if err != nil {
-				log.Printf("Error <%s>: %s\n", c.UserID, err)
-				continue
-			}
-
-			c.receiveBattery(&msg)
+			c.handleBatteryMessage(msgRaw)
 
 		case "debug":
-			var msg DebugInfo
-
-			err := json.Unmarshal(msgRaw, &msg)
-			if err != nil {
-				log.Printf("Error <%s>: %s\n", c.UserID, err)
-				continue
-			}
-
-			log.Printf("Debug <%s>: %s\n", c.UserID, msg.Message)
+			c.handleDebugMessage(msgRaw)
 		}
 	}
+}
+
+func (c *Client) handleAuthMessage(msgRaw []byte) {
+	var msg AuthInfo
+
+	if !c.decodeMessage(msgRaw, &msg) {
+		return
+	}
+
+	c.auth(&msg)
+}
+
+func (c *Client) handlePositionMessage(msgRaw []byte) {
+	var msg Position
+
+	if !c.decodeMessage(msgRaw, &msg) {
+		return
+	}
+
+	c.receivePos(&msg)
+}
+
+func (c *Client) handleLocationMessage(msgRaw []byte) {
+	var msg Location
+
+	if !c.decodeMessage(msgRaw, &msg) {
+		return
+	}
+
+	c.receiveLoc(&msg)
+}
+
+func (c *Client) handlePassedMessage(msgRaw []byte) {
+	var msg PassedInfo
+
+	if !c.decodeMessage(msgRaw, &msg) {
+		return
+	}
+
+	c.handlerPassed(&msg)
+}
+
+func (c *Client) handleStartMessage(msgRaw []byte) {
+	var msg StartInfo
+
+	if !c.decodeMessage(msgRaw, &msg) {
+		return
+	}
+
+	c.Hub.startRace(msg.IsStarted)
+}
+
+func (c *Client) handleSetNextMarkNoMessage(msgRaw []byte) {
+	var msg SetMarkNoInfo
+
+	if !c.decodeMessage(msgRaw, &msg) {
+		return
+	}
+
+	c.Hub.setNextMarkNoForce(&msg)
+}
+
+func (c *Client) handleBatteryMessage(msgRaw []byte) {
+	var msg BatteryInfo
+
+	if !c.decodeMessage(msgRaw, &msg) {
+		return
+	}
+
+	c.receiveBattery(&msg)
+}
+
+func (c *Client) handleDebugMessage(msgRaw []byte) {
+	var msg DebugInfo
+
+	if !c.decodeMessage(msgRaw, &msg) {
+		return
+	}
+
+	log.Printf("Debug <%s>: %s\n", c.UserID, msg.Message)
+}
+
+func (c *Client) decodeMessage(msgRaw []byte, target any) bool {
+	err := json.Unmarshal(msgRaw, target)
+	if err != nil {
+		log.Printf("Error <%s>: %s\n", c.UserID, err)
+		return false
+	}
+
+	return true
 }

@@ -2,6 +2,7 @@ package racing
 
 import (
 	"context"
+	"errors"
 	"os"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 
 const (
 	gcpProjectID = "bsam-app"
+	// #nosec G101 -- This is a local fallback path for development only.
+	localCredentialPath = "./bsam-app-d23e7e5025e7.json"
 )
 
 type BigQueryLogger struct {
@@ -33,27 +36,36 @@ type LocationLogsDAO struct {
 func NewBigQueryLogger() *BigQueryLogger {
 	ctx := context.Background()
 
-	var client *bigquery.Client
-
-	if _, err := os.Stat("./bsam-app-d23e7e5025e7.json"); !os.IsNotExist(err) {
-		// 認証ファイルがあるときは認証ファイルを使用 (GCP環境ではないとき)
-		auth := option.WithCredentialsFile("./bsam-app-d23e7e5025e7.json")
-		client, err = bigquery.NewClient(ctx, gcpProjectID, auth)
-
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		client, err = bigquery.NewClient(ctx, gcpProjectID)
-
-		if err != nil {
-			panic(err)
-		}
+	client, err := newBigQueryClient(ctx)
+	if err != nil {
+		panic(err)
 	}
 
 	return &BigQueryLogger{
 		Client: client,
 	}
+}
+
+func newBigQueryClient(ctx context.Context) (*bigquery.Client, error) {
+	credentialPath := localCredentialPath
+	if envCredentialPath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); envCredentialPath != "" {
+		credentialPath = envCredentialPath
+	}
+
+	// #nosec G703 -- Credential files are intentionally sourced from ADC env or the local dev fallback.
+	_, err := os.Stat(credentialPath)
+	if err == nil {
+		// 認証ファイルがあるときは認証ファイルを使用 (GCP環境ではないとき)
+		auth := option.WithAuthCredentialsFile(option.ServiceAccount, credentialPath)
+
+		return bigquery.NewClient(ctx, gcpProjectID, auth)
+	}
+
+	if !errors.Is(err, os.ErrNotExist) {
+		return nil, err
+	}
+
+	return bigquery.NewClient(ctx, gcpProjectID)
 }
 
 func (l *BigQueryLogger) logLocation(c *Client) error {
@@ -82,7 +94,9 @@ func (l *BigQueryLogger) logLocation(c *Client) error {
 	}
 
 	inserter := tableRef.Inserter()
-	if err := inserter.Put(context.Background(), data); err != nil {
+
+	err := inserter.Put(context.Background(), data)
+	if err != nil {
 		return err
 	}
 

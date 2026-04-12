@@ -48,9 +48,10 @@ func Handler(c *gin.Context) {
 // receivePos receives the position from the client.
 func (c *Client) receivePos(msg *Position) {
 	c.Location = Location{
-		Lat: msg.Lat,
-		Lng: msg.Lng,
-		Acc: msg.Acc,
+		Lat:            msg.Lat,
+		Lng:            msg.Lng,
+		Acc:            msg.Acc,
+		PositionSource: msg.PositionSource,
 	}
 	//nolint:errcheck
 	go c.Hub.Logger.logLocation(c)

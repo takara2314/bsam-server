@@ -11,35 +11,38 @@ import (
 
 //nolint:mnd
 const (
-	AutoRoomingInterval = 30 * time.Second
-	ReadBufferByte      = 2048
-	WriteBufferByte     = 2048
-	WriteWait           = 10 * time.Second
-	PongWait            = 10 * time.Second
-	PingPeriod          = (PongWait * 9) / 10
-	MarkNum             = 3
-	MarkPosPeriod       = 5 * time.Second
-	NearSailPeriod      = 3 * time.Second
-	LivePeriod          = 1 * time.Second
-	MaxMessageByte      = 1024
-	NearRangeMeter      = 5.0
-	ClientIDLength      = 8
-	GuestUserIDLength   = 8
-	AthleteRoleID       = 0
-	MarkRoleID          = 1
-	ManagerRoleID       = 2
-	GuestRoleID         = 3
-	UnknownRoleID       = -1
-	AthleteRole         = "athlete"
-	MarkRole            = "mark"
-	ManagerRole         = "manager"
-	GuestRole           = "guest"
+	AutoRoomingInterval  = 30 * time.Second
+	ReadBufferByte       = 2048
+	WriteBufferByte      = 2048
+	WriteWait            = 10 * time.Second
+	PongWait             = 10 * time.Second
+	PingPeriod           = (PongWait * 9) / 10
+	MarkNum              = 3
+	MarkPosPeriod        = 5 * time.Second
+	NearSailPeriod       = 3 * time.Second
+	LivePeriod           = 1 * time.Second
+	MaxMessageByte       = 1024
+	NearRangeMeter       = 5.0
+	ClientIDLength       = 8
+	GuestUserIDLength    = 8
+	AthleteRoleID        = 0
+	MarkRoleID           = 1
+	ManagerRoleID        = 2
+	GuestRoleID          = 3
+	UnknownRoleID        = -1
+	AthleteRole          = "athlete"
+	MarkRole             = "mark"
+	ManagerRole          = "manager"
+	GuestRole            = "guest"
+	PositionSourceGPS    = "gps"
+	PositionSourceManual = "manual"
 )
 
 var ErrClosedChannel = errors.New("closed channel")
 
 type Client struct {
 	ID           string
+	ConnectedAt  time.Time
 	Hub          *Hub
 	Conn         *websocket.Conn
 	UserID       string
@@ -54,17 +57,19 @@ type Client struct {
 }
 
 type Position struct {
-	Lat float64 `json:"latitude"`
-	Lng float64 `json:"longitude"`
-	Acc float64 `json:"accuracy"`
+	Lat            float64 `json:"latitude"`
+	Lng            float64 `json:"longitude"`
+	Acc            float64 `json:"accuracy"`
+	PositionSource string  `json:"position_source,omitempty"`
 }
 
 type Location struct {
-	Lat           float64 `json:"latitude"`
-	Lng           float64 `json:"longitude"`
-	Acc           float64 `json:"accuracy"`
-	Heading       float64 `json:"heading"`
-	HeadingFixing float64 `json:"heading_fixing"`
+	Lat            float64 `json:"latitude"`
+	Lng            float64 `json:"longitude"`
+	Acc            float64 `json:"accuracy"`
+	Heading        float64 `json:"heading"`
+	HeadingFixing  float64 `json:"heading_fixing"`
+	PositionSource string  `json:"-"`
 }
 
 type Athlete struct {
@@ -86,6 +91,7 @@ type Mark struct {
 func NewClient(assocID string, conn *websocket.Conn) *Client {
 	return &Client{
 		ID:           utils.RandString(ClientIDLength),
+		ConnectedAt:  time.Now(),
 		Hub:          rooms[assocID],
 		Conn:         conn,
 		UserID:       "",
@@ -97,6 +103,18 @@ func NewClient(assocID string, conn *websocket.Conn) *Client {
 		BatteryLevel: -1,
 		Send:         make(chan []byte),
 	}
+}
+
+func isNewerClient(candidate *Client, current *Client) bool {
+	if current == nil {
+		return true
+	}
+
+	if candidate.ConnectedAt.Equal(current.ConnectedAt) {
+		return candidate.ID > current.ID
+	}
+
+	return candidate.ConnectedAt.After(current.ConnectedAt)
 }
 
 // getNearSail returns the sail that is near to the client.
