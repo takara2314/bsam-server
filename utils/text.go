@@ -1,6 +1,7 @@
 package utils
 
 import "errors"
+import "strings"
 
 var ErrNotSameLengthSlice = errors.New("slice a's length and slice b's length are not the same")
 
@@ -8,18 +9,7 @@ var ErrNotSameLengthSlice = errors.New("slice a's length and slice b's length ar
 //
 //	{"a", "b", "c"} -> "a, b, c"
 func StringSliceToString(s []string) string {
-	str := ""
-	sLength := len(s)
-
-	for i, item := range s {
-		str += item
-
-		if sLength-1 != i {
-			str += ", "
-		}
-	}
-
-	return str
+	return strings.Join(s, ", ")
 }
 
 // CreateStrSliceEqualStrSlice creates the string written A element equal B element.
@@ -28,7 +18,6 @@ func StringSliceToString(s []string) string {
 //	b = {"d", "e", "f"}
 //	-> "a = d, b = e, c = f"
 func CreateStrSliceEqualStrSlice(a []string, b []string) (string, error) {
-	str := ""
 	aLength := len(a)
 	bLength := len(b)
 
@@ -36,12 +25,10 @@ func CreateStrSliceEqualStrSlice(a []string, b []string) (string, error) {
 		return "", ErrNotSameLengthSlice
 	}
 
+	pairs := make([]string, 0, aLength)
 	for i := range aLength {
-		str += a[i] + " = " + b[i]
-		if aLength-1 != i {
-			str += ", "
-		}
+		pairs = append(pairs, a[i]+" = "+b[i])
 	}
 
-	return str, nil
+	return strings.Join(pairs, ", "), nil
 }

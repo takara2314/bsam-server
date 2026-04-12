@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	server "github.com/takara2314/bsam-server/v4"
 
@@ -27,9 +29,14 @@ func main() {
 
 	server.Register(router)
 
-	log.Printf("Server is running on port %s\n", os.Getenv("PORT"))
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		panic(err)
+	}
 
-	err := router.Run(":" + os.Getenv("PORT"))
+	log.Printf("Server is running on port %d", port)
+
+	err = router.Run(fmt.Sprintf(":%d", port))
 	if err != nil {
 		panic(err)
 	}

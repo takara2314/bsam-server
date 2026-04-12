@@ -42,7 +42,7 @@ var (
 
 func main() {
 	ctx := context.Background()
-	auth := option.WithCredentialsFile("./bsam-app-d23e7e5025e7.json")
+	auth := option.WithAuthCredentialsFile(option.ServiceAccount, "./bsam-app-d23e7e5025e7.json")
 
 	client, err := bigquery.NewClient(ctx, projectID, auth)
 	if err != nil {

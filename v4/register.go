@@ -47,6 +47,7 @@ func Register(e *gin.Engine) *gin.RouterGroup {
 
 	// Racing Socket
 	router.GET("/racing/:id", racing.Handler)
+
 	go racing.AutoRooming()
 
 	return router
