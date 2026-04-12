@@ -26,6 +26,7 @@ func (c *Client) auth(msg *AuthInfo) {
 	if ok := auth.VerifyJWT(msg.Token); !ok {
 		log.Println("Unauthorized:", c.ID)
 		c.sendFailedAuthMsg()
+
 		c.Hub.Unregister <- c
 
 		return
@@ -34,6 +35,7 @@ func (c *Client) auth(msg *AuthInfo) {
 	if !isValidRole(msg.Role) {
 		log.Println("Invalid role:", c.ID)
 		c.sendFailedAuthMsg()
+
 		c.Hub.Unregister <- c
 
 		return
@@ -41,6 +43,7 @@ func (c *Client) auth(msg *AuthInfo) {
 
 	if msg.Role == MarkRole && msg.MarkNo == 0 {
 		log.Println("Not selecting mark no:", c.ID)
+
 		c.Hub.Unregister <- c
 
 		return
@@ -48,7 +51,11 @@ func (c *Client) auth(msg *AuthInfo) {
 
 	// If the client has not linked yet, link it.
 	if oldID := c.Hub.findDisconnectedID(msg.UserID); oldID == "" {
-		c.link(msg.UserID, msg.Role, msg.MarkNo)
+		if activeID := c.Hub.findActiveID(msg.UserID, msg.Role, msg.MarkNo); activeID == "" {
+			c.link(msg.UserID, msg.Role, msg.MarkNo)
+		} else {
+			c.replaceActive(activeID, msg.UserID, msg.Role, msg.MarkNo)
+		}
 	} else {
 		c.restore(oldID, msg.MarkNo)
 	}
@@ -78,17 +85,7 @@ func (c *Client) link(userID string, role string, markNo int) {
 func (c *Client) restore(oldID string, markNo int) {
 	oldClient := c.Hub.Disconnectors[oldID]
 
-	// Switch data from old to new
-	c.UserID = oldClient.UserID
-	c.Role = oldClient.Role
-	c.NextMarkNo = oldClient.NextMarkNo
-	c.CourseLimit = oldClient.CourseLimit
-	c.Location = oldClient.Location
-	c.BatteryLevel = oldClient.BatteryLevel
-
-	if c.Role == MarkRole {
-		c.MarkNo = markNo
-	}
+	c.adoptState(oldClient, oldClient.UserID, oldClient.Role, markNo)
 
 	// Delete the old client instance
 	c.Hub.Unregister <- oldClient
@@ -100,6 +97,48 @@ func (c *Client) restore(oldID string, markNo int) {
 
 	// Send the authorize result message
 	c.sendRestoreAuthMsg()
+}
+
+func (c *Client) replaceActive(
+	oldID string,
+	userID string,
+	role string,
+	markNo int,
+) {
+	oldClient := c.Hub.Clients[oldID]
+	if oldClient == nil {
+		c.link(userID, role, markNo)
+		return
+	}
+
+	c.adoptState(oldClient, userID, role, markNo)
+
+	// Explicitly close and remove the duplicated active session.
+	c.Hub.Unregister <- oldClient
+
+	c.registerRoleGroup()
+
+	log.Printf("Replaced Active Session: %s <=> %s (%s)\n", c.ID, c.UserID, c.Role)
+
+	c.sendRestoreAuthMsg()
+}
+
+func (c *Client) adoptState(
+	oldClient *Client,
+	userID string,
+	role string,
+	markNo int,
+) {
+	c.UserID = userID
+	c.Role = role
+	c.NextMarkNo = oldClient.NextMarkNo
+	c.CourseLimit = oldClient.CourseLimit
+	c.Location = oldClient.Location
+	c.BatteryLevel = oldClient.BatteryLevel
+
+	if c.Role == MarkRole {
+		c.MarkNo = markNo
+	}
 }
 
 // registerRoleGroup registers the client to the role group.

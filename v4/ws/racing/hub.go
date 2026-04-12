@@ -66,7 +66,10 @@ func (h *Hub) registerEvent(c *Client) {
 // disconnectEvent disconnects the client.
 func (h *Hub) disconnectEvent(c *Client) {
 	log.Println("Disconnected:", c.ID)
-	c.Conn.Close()
+
+	if c.Conn != nil {
+		c.Conn.Close()
+	}
 
 	// Register the client to the disconnector group
 	h.Disconnectors[c.ID] = c
@@ -81,7 +84,10 @@ func (h *Hub) disconnectEvent(c *Client) {
 // unregisterEvent unregisters the client.
 func (h *Hub) unregisterEvent(c *Client) {
 	log.Println("Unregistered:", c.ID)
-	c.Conn.Close()
+
+	if c.Conn != nil {
+		c.Conn.Close()
+	}
 
 	delete(c.Hub.Clients, c.ID)
 	delete(c.Hub.Athletes, c.ID)
@@ -107,22 +113,24 @@ func metamorphoseMarks(marks map[string]*Client, idDeleted string) {
 
 // getAthleteInfos returns the athlete infos.
 func (h *Hub) getAthleteInfos() []Athlete {
-	athletes := []Athlete{}
-	existingUserIDs := map[string]bool{}
+	latestByUserID := map[string]*Client{}
 
 	for _, c := range h.Athletes {
-		// まだそのUserIDが挿入されていない場合のみ挿入
-		if !existingUserIDs[c.UserID] {
-			athletes = append(athletes, Athlete{
-				UserID:       c.UserID,
-				NextMarkNo:   c.NextMarkNo,
-				CourseLimit:  c.CourseLimit,
-				BatteryLevel: c.BatteryLevel,
-				CompassDeg:   c.CompassDeg,
-				Location:     c.Location,
-			})
-			existingUserIDs[c.UserID] = true
+		if isNewerClient(c, latestByUserID[c.UserID]) {
+			latestByUserID[c.UserID] = c
 		}
+	}
+
+	athletes := make([]Athlete, 0, len(latestByUserID))
+	for _, c := range latestByUserID {
+		athletes = append(athletes, Athlete{
+			UserID:       c.UserID,
+			NextMarkNo:   c.NextMarkNo,
+			CourseLimit:  c.CourseLimit,
+			BatteryLevel: c.BatteryLevel,
+			CompassDeg:   c.CompassDeg,
+			Location:     c.Location,
+		})
 	}
 
 	// Sort by user id asc
@@ -147,22 +155,32 @@ func getAthleteNo(userID string) int {
 // getMarkInfos returns the mark infos.
 func (h *Hub) getMarkInfos() []Mark {
 	marks := make([]Mark, h.MarkNum)
+	latestByMarkNo := make(map[int]*Client, h.MarkNum)
 
 	for _, c := range h.Marks {
 		if c.MarkNo > h.MarkNum {
 			panic("invalid mark no")
 		}
 
+		if isNewerClient(c, latestByMarkNo[c.MarkNo]) {
+			latestByMarkNo[c.MarkNo] = c
+		}
+	}
+
+	for markNo, c := range latestByMarkNo {
 		marks[c.MarkNo-1] = Mark{
 			UserID:       c.UserID,
 			MarkNo:       c.MarkNo,
 			BatteryLevel: c.BatteryLevel,
 			Position: Position{
-				Lat: c.Location.Lat,
-				Lng: c.Location.Lng,
-				Acc: c.Location.Acc,
+				Lat:            c.Location.Lat,
+				Lng:            c.Location.Lng,
+				Acc:            c.Location.Acc,
+				PositionSource: c.Location.PositionSource,
 			},
 		}
+
+		marks[markNo-1].MarkNo = markNo
 	}
 
 	for i := range marks {
@@ -217,11 +235,52 @@ func (h *Hub) findClientID(userID string) string {
 
 // findDisconnectedID returns the disconnected client id by user id.
 func (h *Hub) findDisconnectedID(userID string) string {
+	var latest *Client
+
 	for _, c := range h.Disconnectors {
-		if c.UserID == userID {
-			return c.ID
+		if c.UserID == userID && isNewerClient(c, latest) {
+			latest = c
 		}
 	}
 
-	return ""
+	if latest == nil {
+		return ""
+	}
+
+	return latest.ID
+}
+
+func (h *Hub) findActiveID(userID string, role string, markNo int) string {
+	var latest *Client
+
+	for _, c := range h.Clients {
+		if !matchesActiveIdentity(c, userID, role, markNo) {
+			continue
+		}
+
+		if isNewerClient(c, latest) {
+			latest = c
+		}
+	}
+
+	if latest == nil {
+		return ""
+	}
+
+	return latest.ID
+}
+
+func matchesActiveIdentity(c *Client, userID string, role string, markNo int) bool {
+	if c.Role != role {
+		return false
+	}
+
+	switch role {
+	case AthleteRole, ManagerRole:
+		return c.UserID == userID
+	case MarkRole:
+		return c.MarkNo == markNo || c.UserID == userID
+	default:
+		return false
+	}
 }
