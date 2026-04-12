@@ -15,7 +15,8 @@ func createTable(ctx context.Context, client *bigquery.Client, datasetID string,
 
 	tableRef := client.Dataset(datasetID).Table(table.ID)
 
-	if err := tableRef.Create(ctx, metaData); err != nil {
+	err := tableRef.Create(ctx, metaData)
+	if err != nil {
 		return err
 	}
 

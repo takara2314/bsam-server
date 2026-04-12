@@ -24,7 +24,7 @@ func CalcDistanceAtoBEarth(latA float64, lngA float64, latB float64, lngB float6
 	return EarthRadiusKm * c * 1000
 }
 
-// CalcBearingBetween calculates bearing between [A] and [B] in the Earth.
+// CalcBearingBetweenEarth calculates bearing between [A] and [B] in the Earth.
 func CalcBearingBetweenEarth(latA float64, lngA float64, latB float64, lngB float64) float64 {
 	dLng := DegToRad(lngB - lngA)
 

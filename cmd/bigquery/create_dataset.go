@@ -13,7 +13,8 @@ func createDataset(ctx context.Context, client *bigquery.Client, datasetID strin
 		Location: region,
 	}
 
-	if err := client.Dataset(datasetID).Create(ctx, meta); err != nil {
+	err := client.Dataset(datasetID).Create(ctx, meta)
+	if err != nil {
 		return err
 	}
 

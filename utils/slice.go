@@ -1,11 +1,11 @@
 package utils
 
+import "slices"
+
 // StrSliceAdd adds new element if this slice does not have it.
 func StrSliceAdd(s []string, newStr string) []string {
-	for _, str := range s {
-		if str == newStr {
-			return s
-		}
+	if slices.Contains(s, newStr) {
+		return s
 	}
 
 	return append(s, newStr)
